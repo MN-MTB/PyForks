@@ -5,7 +5,7 @@ import urllib.parse
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 from concurrent.futures import as_completed, ThreadPoolExecutor
-from src.trailforks import Trailforks
+from src.PyForks.trailforks import Trailforks
 import re
 
 class TrailforksUser(Trailforks):

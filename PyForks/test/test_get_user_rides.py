@@ -1,5 +1,4 @@
-from src.trailforks_user import TrailforksUser
-
+from src.PyForks.trailforks_user import TrailforksUser
 
 def test_get_data():
     tf_user = TrailforksUser(username="mnmtb")
