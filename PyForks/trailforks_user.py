@@ -5,7 +5,7 @@ import urllib.parse
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 from concurrent.futures import as_completed, ThreadPoolExecutor
-from PyForks.trailforks import Trailforks
+from PyForks.trailforks import Trailforks, authentication
 import re
 
 
@@ -178,6 +178,7 @@ class TrailforksUser(Trailforks):
 
         return recent_ride_locations
 
+    @authentication
     def get_user_gear(self) -> list:
         """
         Get the users bike/gear they're using

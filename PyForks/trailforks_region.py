@@ -3,7 +3,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from concurrent.futures import as_completed, ThreadPoolExecutor
-from PyForks.trailforks import Trailforks
+from PyForks.trailforks import Trailforks, authentication
 
 class TrailforksRegion(Trailforks):
 
@@ -15,9 +15,9 @@ class TrailforksRegion(Trailforks):
             return False
         return True
 
+    @authentication
     def download_all_region_rides(self, region_id: str, output_path=".") -> bool:
         self.check_region()
-        self.check_cookie()
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
         r = requests.get(uri, cookies=self.cookie, allow_redirects=True)
         raw_csv_data = r.text
