@@ -7,7 +7,7 @@
 # PyForks
 
 [![PyForks Tests](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml/badge.svg)](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml)
-[![GitHub](https://img.shields.io/github/license/pepperize/cdk-ses-smtp-credentials?style=flat-square)](https://github.com/cribdragg3r/PyForks/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/license/cribdragg3r/PyForks?style=flat-square)](https://github.com/cribdragg3r/PyForks/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/PyForks?style=flat-square)](https://pypi.org/project/PyForks/)
 
 
