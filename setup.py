@@ -2,15 +2,16 @@ from setuptools import setup
 
 setup(
     name='PyForks',
-    version='0.0.2',
+    version='0.0.3',
     author='Trailforks Python Library',
     author_email='MinnMTB@gmail.com',
-    packages=['PyForks', 'PyForks.test'],
+    packages=['PyForks', 'PyForks._test'],
     #scripts=['bin/script1','bin/script2'],
      project_urls={  # Optional
         "Bug Reports": "https://github.com/cribdragg3r/PyForks/issues",
         "Funding": "https://donate.pypi.org",
         "Source": "https://github.com/cribdragg3r/PyForks",
+        "Documentation": "https://pyforks.mn-mtb.com"
     },
     url='http://pypi.python.org/pypi/PyForks/',
     license='LICENSE.txt',
