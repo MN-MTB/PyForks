@@ -37,6 +37,15 @@ class TrailforksRegion(Trailforks):
         return True
 
     @authentication
+    def download_region_ridecounts(self, region: str, output_path=".") -> None:
+        self.check_region(region)
+        uri = f"https://www.trailforks.com/region/{region}/ridelogcountscsv/"
+        r = self.trailforks_session.get(uri, allow_redirects=True)
+        raw_csv_data = r.text
+        
+        open(f"{output_path}/{region}_ridelogcounts.csv", "w").write(raw_csv_data)
+
+    @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> bool:
         """
         Each region has a CSV export capability to export all trails within the region.

@@ -65,6 +65,15 @@ class TrailforksRegion(Trailforks):
         return True
 
     @authentication
+    def download_region_ridecounts(self, region: str, output_path=&#34;.&#34;) -&gt; None:
+        self.check_region(region)
+        uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
+        r = self.trailforks_session.get(uri, allow_redirects=True)
+        raw_csv_data = r.text
+        
+        open(f&#34;{output_path}/{region}_ridelogcounts.csv&#34;, &#34;w&#34;).write(raw_csv_data)
+
+    @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
         &#34;&#34;&#34;
         Each region has a CSV export capability to export all trails within the region.
@@ -212,6 +221,15 @@ class TrailforksRegion(Trailforks):
             print(f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
             exit(1)
         return True
+
+    @authentication
+    def download_region_ridecounts(self, region: str, output_path=&#34;.&#34;) -&gt; None:
+        self.check_region(region)
+        uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
+        r = self.trailforks_session.get(uri, allow_redirects=True)
+        raw_csv_data = r.text
+        
+        open(f&#34;{output_path}/{region}_ridelogcounts.csv&#34;, &#34;w&#34;).write(raw_csv_data)
 
     @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
@@ -464,6 +482,25 @@ def download_all_region_trails(self, region: str, region_id: str, output_path=&#
     open(f&#34;{output_path}/{region}_trail_listing.csv&#34;, &#34;w&#34;).write(clean_data)</code></pre>
 </details>
 </dd>
+<dt id="PyForks.trailforks_region.TrailforksRegion.download_region_ridecounts"><code class="name flex">
+<span>def <span class="ident">download_region_ridecounts</span></span>(<span>self, region: str, output_path='.') ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@authentication
+def download_region_ridecounts(self, region: str, output_path=&#34;.&#34;) -&gt; None:
+    self.check_region(region)
+    uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
+    r = self.trailforks_session.get(uri, allow_redirects=True)
+    raw_csv_data = r.text
+    
+    open(f&#34;{output_path}/{region}_ridelogcounts.csv&#34;, &#34;w&#34;).write(raw_csv_data)</code></pre>
+</details>
+</dd>
 <dt id="PyForks.trailforks_region.TrailforksRegion.is_valid_region"><code class="name flex">
 <span>def <span class="ident">is_valid_region</span></span>(<span>self, region: str) ‑> bool</span>
 </code></dt>
@@ -530,6 +567,7 @@ making sure the page title is not Error</p>
 <li><code><a title="PyForks.trailforks_region.TrailforksRegion.check_region" href="#PyForks.trailforks_region.TrailforksRegion.check_region">check_region</a></code></li>
 <li><code><a title="PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs" href="#PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs">download_all_region_ridelogs</a></code></li>
 <li><code><a title="PyForks.trailforks_region.TrailforksRegion.download_all_region_trails" href="#PyForks.trailforks_region.TrailforksRegion.download_all_region_trails">download_all_region_trails</a></code></li>
+<li><code><a title="PyForks.trailforks_region.TrailforksRegion.download_region_ridecounts" href="#PyForks.trailforks_region.TrailforksRegion.download_region_ridecounts">download_region_ridecounts</a></code></li>
 <li><code><a title="PyForks.trailforks_region.TrailforksRegion.is_valid_region" href="#PyForks.trailforks_region.TrailforksRegion.is_valid_region">is_valid_region</a></code></li>
 </ul>
 </li>
