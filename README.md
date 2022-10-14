@@ -5,6 +5,9 @@
 
 
 # PyForks
+
+[![PyForks Tests](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml/badge.svg)](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml)
+
 Python Trailforks Library for interacting with Trailforks.com
 
 ## About
