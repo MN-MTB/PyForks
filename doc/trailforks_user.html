@@ -38,28 +38,32 @@ import re
 
 
 class TrailforksUser(Trailforks):
-    def get_user_info(self) -&gt; dict:
+
+    def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
         and recent ridelogs
 
+        Args:
+            user (str): A Trailforks username
+
         Returns:
             dict: {username, profile, &lt;location...&gt;, recent rides}
         &#34;&#34;&#34;
-        user = self.username.split(&#34; &#34;)[0]
+        user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
             &#34;profile_link&#34;: f&#34;https://www.trailforks.com/profile/{user}&#34;,
             &#34;city&#34;: None,
             &#34;state&#34;: None,
             &#34;country&#34;: None,
-            &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(),
+            &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(user),
         }
         (
             user_data[&#34;city&#34;],
             user_data[&#34;state&#34;],
             user_data[&#34;country&#34;],
-        ) = self.__get_user_city_state_country()
+        ) = self.__get_user_city_state_country(user)
         return user_data
 
     def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
@@ -88,15 +92,18 @@ class TrailforksUser(Trailforks):
             print(e)
             return False
 
-    def get_user_all_ridelogs(self) -&gt; pd.DataFrame:
+    def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Scrape all of the users ridelogs and throw that into a pandas
         dataframe.
 
+        Args:
+            user (str): A Trailforks username
+
         Returns:
             pd.DataFrame: Pandas dataframe of all rides ever subject to the user
         &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
         r = requests.get(uri)
         df = pd.read_html(r.text)[0]
         with open(&#34;data.html&#34;, &#34;w&#34;) as f:
@@ -150,17 +157,20 @@ class TrailforksUser(Trailforks):
                 pass
         return ids
 
-    def __get_user_city_state_country(self) -&gt; tuple:
+    def __get_user_city_state_country(self, user: str) -&gt; tuple:
         &#34;&#34;&#34;
         From HTML Source of the users profile page, parse out the
         city, state, and country attributes.
+
+        Args:
+            user (str): A Trailforks Username
 
         Returns:
             tuple: (city, state, country)
         &#34;&#34;&#34;
 
         user_uri = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}&#34;
+            f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
         )
         page = requests.get(user_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
@@ -188,16 +198,19 @@ class TrailforksUser(Trailforks):
 
         return (city, state, country)
 
-    def __get_user_recent_rides(self) -&gt; list:
+    def __get_user_recent_rides(self, user: str) -&gt; list:
         &#34;&#34;&#34;
         Obtain a list of the most recent rides by region
+
+        Args:
+            user (str): A Trailforks Username
 
         Returns:
             list: List of unique regions
         &#34;&#34;&#34;
         # get the users most recent (current year) riding locations
         try:
-            activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
+            activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
             activity_df = pd.read_html(activity_uri)[0]
             activity_df = activity_df.fillna(&#39;&#39;)
             recent_ride_locations = activity_df.location.unique().tolist()
@@ -207,18 +220,18 @@ class TrailforksUser(Trailforks):
         return recent_ride_locations
 
     @authentication
-    def get_user_gear(self) -&gt; list:
+    def get_user_gear(self, user: str) -&gt; list:
         &#34;&#34;&#34;
         Get the users bike/gear they&#39;re using
 
-        Requires Authorization:
-            True
+        Args:
+            user (str): A Trailforks User
 
         Returns:
             list: a list of tuples [(brand, model), (brand, model)]
         &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/profile/{self.username}/bikes/&#34;
-        r = requests.get(uri, cookies=self.cookie)
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/bikes/&#34;
+        r = self.trailforks_session.get(uri)
         try:
             df = pd.read_html(r.text)[0]
             df = df[df[&#34;model&#34;].notna()]
@@ -249,28 +262,32 @@ class TrailforksUser(Trailforks):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TrailforksUser(Trailforks):
-    def get_user_info(self) -&gt; dict:
+
+    def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
         and recent ridelogs
 
+        Args:
+            user (str): A Trailforks username
+
         Returns:
             dict: {username, profile, &lt;location...&gt;, recent rides}
         &#34;&#34;&#34;
-        user = self.username.split(&#34; &#34;)[0]
+        user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
             &#34;profile_link&#34;: f&#34;https://www.trailforks.com/profile/{user}&#34;,
             &#34;city&#34;: None,
             &#34;state&#34;: None,
             &#34;country&#34;: None,
-            &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(),
+            &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(user),
         }
         (
             user_data[&#34;city&#34;],
             user_data[&#34;state&#34;],
             user_data[&#34;country&#34;],
-        ) = self.__get_user_city_state_country()
+        ) = self.__get_user_city_state_country(user)
         return user_data
 
     def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
@@ -299,15 +316,18 @@ class TrailforksUser(Trailforks):
             print(e)
             return False
 
-    def get_user_all_ridelogs(self) -&gt; pd.DataFrame:
+    def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Scrape all of the users ridelogs and throw that into a pandas
         dataframe.
 
+        Args:
+            user (str): A Trailforks username
+
         Returns:
             pd.DataFrame: Pandas dataframe of all rides ever subject to the user
         &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
         r = requests.get(uri)
         df = pd.read_html(r.text)[0]
         with open(&#34;data.html&#34;, &#34;w&#34;) as f:
@@ -361,17 +381,20 @@ class TrailforksUser(Trailforks):
                 pass
         return ids
 
-    def __get_user_city_state_country(self) -&gt; tuple:
+    def __get_user_city_state_country(self, user: str) -&gt; tuple:
         &#34;&#34;&#34;
         From HTML Source of the users profile page, parse out the
         city, state, and country attributes.
+
+        Args:
+            user (str): A Trailforks Username
 
         Returns:
             tuple: (city, state, country)
         &#34;&#34;&#34;
 
         user_uri = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}&#34;
+            f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
         )
         page = requests.get(user_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
@@ -399,16 +422,19 @@ class TrailforksUser(Trailforks):
 
         return (city, state, country)
 
-    def __get_user_recent_rides(self) -&gt; list:
+    def __get_user_recent_rides(self, user: str) -&gt; list:
         &#34;&#34;&#34;
         Obtain a list of the most recent rides by region
+
+        Args:
+            user (str): A Trailforks Username
 
         Returns:
             list: List of unique regions
         &#34;&#34;&#34;
         # get the users most recent (current year) riding locations
         try:
-            activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
+            activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
             activity_df = pd.read_html(activity_uri)[0]
             activity_df = activity_df.fillna(&#39;&#39;)
             recent_ride_locations = activity_df.location.unique().tolist()
@@ -418,18 +444,18 @@ class TrailforksUser(Trailforks):
         return recent_ride_locations
 
     @authentication
-    def get_user_gear(self) -&gt; list:
+    def get_user_gear(self, user: str) -&gt; list:
         &#34;&#34;&#34;
         Get the users bike/gear they&#39;re using
 
-        Requires Authorization:
-            True
+        Args:
+            user (str): A Trailforks User
 
         Returns:
             list: a list of tuples [(brand, model), (brand, model)]
         &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/profile/{self.username}/bikes/&#34;
-        r = requests.get(uri, cookies=self.cookie)
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/bikes/&#34;
+        r = self.trailforks_session.get(uri)
         try:
             df = pd.read_html(r.text)[0]
             df = df[df[&#34;model&#34;].notna()]
@@ -445,11 +471,16 @@ class TrailforksUser(Trailforks):
 <h3>Methods</h3>
 <dl>
 <dt id="PyForks.trailforks_user.TrailforksUser.get_user_all_ridelogs"><code class="name flex">
-<span>def <span class="ident">get_user_all_ridelogs</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">get_user_all_ridelogs</span></span>(<span>self, user: str) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Scrape all of the users ridelogs and throw that into a pandas
 dataframe.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>A Trailforks username</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>pd.DataFrame</code></dt>
@@ -459,15 +490,18 @@ dataframe.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_user_all_ridelogs(self) -&gt; pd.DataFrame:
+<pre><code class="python">def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
     Scrape all of the users ridelogs and throw that into a pandas
     dataframe.
 
+    Args:
+        user (str): A Trailforks username
+
     Returns:
         pd.DataFrame: Pandas dataframe of all rides ever subject to the user
     &#34;&#34;&#34;
-    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
+    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
     r = requests.get(uri)
     df = pd.read_html(r.text)[0]
     with open(&#34;data.html&#34;, &#34;w&#34;) as f:
@@ -478,12 +512,15 @@ dataframe.</p>
 </details>
 </dd>
 <dt id="PyForks.trailforks_user.TrailforksUser.get_user_gear"><code class="name flex">
-<span>def <span class="ident">get_user_gear</span></span>(<span>self) ‑> list</span>
+<span>def <span class="ident">get_user_gear</span></span>(<span>self, user: str) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the users bike/gear they're using</p>
-<p>Requires Authorization:
-True</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>A Trailforks User</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>list</code></dt>
@@ -494,18 +531,18 @@ True</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@authentication
-def get_user_gear(self) -&gt; list:
+def get_user_gear(self, user: str) -&gt; list:
     &#34;&#34;&#34;
     Get the users bike/gear they&#39;re using
 
-    Requires Authorization:
-        True
+    Args:
+        user (str): A Trailforks User
 
     Returns:
         list: a list of tuples [(brand, model), (brand, model)]
     &#34;&#34;&#34;
-    uri = f&#34;https://www.trailforks.com/profile/{self.username}/bikes/&#34;
-    r = requests.get(uri, cookies=self.cookie)
+    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/bikes/&#34;
+    r = self.trailforks_session.get(uri)
     try:
         df = pd.read_html(r.text)[0]
         df = df[df[&#34;model&#34;].notna()]
@@ -516,11 +553,16 @@ def get_user_gear(self) -&gt; list:
 </details>
 </dd>
 <dt id="PyForks.trailforks_user.TrailforksUser.get_user_info"><code class="name flex">
-<span>def <span class="ident">get_user_info</span></span>(<span>self) ‑> dict</span>
+<span>def <span class="ident">get_user_info</span></span>(<span>self, user: str) ‑> dict</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Obtains user information via the user profile page
 and recent ridelogs</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>A Trailforks username</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>dict</code></dt>
@@ -530,28 +572,31 @@ and recent ridelogs</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_user_info(self) -&gt; dict:
+<pre><code class="python">def get_user_info(self, user: str) -&gt; dict:
     &#34;&#34;&#34;
     Obtains user information via the user profile page
     and recent ridelogs
 
+    Args:
+        user (str): A Trailforks username
+
     Returns:
         dict: {username, profile, &lt;location...&gt;, recent rides}
     &#34;&#34;&#34;
-    user = self.username.split(&#34; &#34;)[0]
+    user = user.split(&#34; &#34;)[0]
     user_data = {
         &#34;username&#34;: user,
         &#34;profile_link&#34;: f&#34;https://www.trailforks.com/profile/{user}&#34;,
         &#34;city&#34;: None,
         &#34;state&#34;: None,
         &#34;country&#34;: None,
-        &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(),
+        &#34;recent_ride_locations&#34;: self.__get_user_recent_rides(user),
     }
     (
         user_data[&#34;city&#34;],
         user_data[&#34;state&#34;],
         user_data[&#34;country&#34;],
-    ) = self.__get_user_city_state_country()
+    ) = self.__get_user_city_state_country(user)
     return user_data</code></pre>
 </details>
 </dd>

@@ -10,6 +10,29 @@ PyForks has been designed to help me automate much of the manual data aggregatio
 - Install: `pip install pyforks`
 - Documentation: [PyForks.mn-mtb.com](https://PyForks.mn-mtb.com)
 
+### Quick Start
+Currently, PyForks can interact with Users and Regions to obtain data that either requires Authentication or No Authentication. Functions that require Auth contain tha `@authorization` decorator which, can be seen in the Documentation.
+
+**Get Information on a User**
+
+```python
+from PyForks.trailforks_user import TrailforksUser
+from pprint import pprint
+
+# Get Basic information about a user
+tf = TrailforksUser()
+user_info = tf.get_user_info("mnmtb")
+pprint(user_info)
+
+# Get the User's Gear
+tf.username = "<your_username>"
+tf.password = "<your_password>"
+tf.login()
+user_gear = tf.get_user_gear("mnmtb")
+pprint(user_gear)
+```
+  
+
 ## Contribute
 
 Send all the pull requests you want!
