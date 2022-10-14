@@ -56,9 +56,8 @@ def authentication(func):
         
 
 class Trailforks:
-    def __init__(self, region=None, username=None, password=None):
+    def __init__(self, username=None, password=None):
         self.name = &#34;trailforks&#34;
-        self.region = region
         self.username = username
         self.password = password
         self.trailforks_session = None
@@ -255,7 +254,7 @@ user session to complete a task such as downloading CSV reports</p>
 <dl>
 <dt id="PyForks.trailforks.Trailforks"><code class="flex name class">
 <span>class <span class="ident">Trailforks</span></span>
-<span>(</span><span>region=None, username=None, password=None)</span>
+<span>(</span><span>username=None, password=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -264,9 +263,8 @@ user session to complete a task such as downloading CSV reports</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Trailforks:
-    def __init__(self, region=None, username=None, password=None):
+    def __init__(self, username=None, password=None):
         self.name = &#34;trailforks&#34;
-        self.region = region
         self.username = username
         self.password = password
         self.trailforks_session = None

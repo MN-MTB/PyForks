@@ -66,6 +66,7 @@ class TrailforksUser(Trailforks):
         ) = self.__get_user_city_state_country(user)
         return user_data
 
+    @authentication
     def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
         &#34;&#34;&#34;
         If you add a new badge or new badges have been added that your
@@ -84,9 +85,7 @@ class TrailforksUser(Trailforks):
                 headers = {
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
-                r = requests.get(
-                    uri, allow_redirects=True, cookies=self.cookie, headers=headers
-                )
+                r = self.trailforks_session.get(uri)
             return True
         except Exception as e:
             print(e)
@@ -253,7 +252,7 @@ class TrailforksUser(Trailforks):
 <dl>
 <dt id="PyForks.trailforks_user.TrailforksUser"><code class="flex name class">
 <span>class <span class="ident">TrailforksUser</span></span>
-<span>(</span><span>region=None, username=None, password=None)</span>
+<span>(</span><span>username=None, password=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -290,6 +289,7 @@ class TrailforksUser(Trailforks):
         ) = self.__get_user_city_state_country(user)
         return user_data
 
+    @authentication
     def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
         &#34;&#34;&#34;
         If you add a new badge or new badges have been added that your
@@ -308,9 +308,7 @@ class TrailforksUser(Trailforks):
                 headers = {
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
-                r = requests.get(
-                    uri, allow_redirects=True, cookies=self.cookie, headers=headers
-                )
+                r = self.trailforks_session.get(uri)
             return True
         except Exception as e:
             print(e)
@@ -621,7 +619,8 @@ and receive the credit deserved.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
+<pre><code class="python">@authentication
+def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
     &#34;&#34;&#34;
     If you add a new badge or new badges have been added that your
     old rides are currently not counting for, you can rescan them to
@@ -639,9 +638,7 @@ and receive the credit deserved.</p>
             headers = {
                 &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
             }
-            r = requests.get(
-                uri, allow_redirects=True, cookies=self.cookie, headers=headers
-            )
+            r = self.trailforks_session.get(uri)
         return True
     except Exception as e:
         print(e)
