@@ -51,14 +51,18 @@ class TrailforksRegion(Trailforks):
             return False
         return True
 
-    def check_region(self, region: str) -&gt; None:
+    def check_region(self, region: str) -&gt; bool:
         &#34;&#34;&#34;
         A wrapper function for is_valid_region() that conducts an
         exit if the region is non-existant.
+
+        Returns:
+            bool: True: Region is valid
         &#34;&#34;&#34;
-        if not self.is_valid_region():
+        if not self.is_valid_region(region):
             print(f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
             exit(1)
+        return True
 
     @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
@@ -75,7 +79,7 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:export successful;False:export failed.
         &#34;&#34;&#34;
-        self.check_region()
+        self.check_region(region)
         uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
@@ -97,8 +101,8 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:successfully saved data;False:failed
         &#34;&#34;&#34;
-        self.check_region()
-        region_info = self.__get_region_info()
+        self.check_region(region)
+        region_info = self._get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
         dataframes_list = []
 
@@ -128,7 +132,7 @@ class TrailforksRegion(Trailforks):
         df.to_csv(f&#34;{output_path}/{region}_scraped_riders.csv&#34;)
         
 
-    def __get_region_info(self, region: str) -&gt; dict:
+    def _get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
         Pulls region specific metrics from the region page
 
@@ -196,14 +200,18 @@ class TrailforksRegion(Trailforks):
             return False
         return True
 
-    def check_region(self, region: str) -&gt; None:
+    def check_region(self, region: str) -&gt; bool:
         &#34;&#34;&#34;
         A wrapper function for is_valid_region() that conducts an
         exit if the region is non-existant.
+
+        Returns:
+            bool: True: Region is valid
         &#34;&#34;&#34;
-        if not self.is_valid_region():
+        if not self.is_valid_region(region):
             print(f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
             exit(1)
+        return True
 
     @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
@@ -220,7 +228,7 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:export successful;False:export failed.
         &#34;&#34;&#34;
-        self.check_region()
+        self.check_region(region)
         uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
@@ -242,8 +250,8 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:successfully saved data;False:failed
         &#34;&#34;&#34;
-        self.check_region()
-        region_info = self.__get_region_info()
+        self.check_region(region)
+        region_info = self._get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
         dataframes_list = []
 
@@ -273,7 +281,7 @@ class TrailforksRegion(Trailforks):
         df.to_csv(f&#34;{output_path}/{region}_scraped_riders.csv&#34;)
         
 
-    def __get_region_info(self, region: str) -&gt; dict:
+    def _get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
         Pulls region specific metrics from the region page
 
@@ -311,23 +319,32 @@ class TrailforksRegion(Trailforks):
 <h3>Methods</h3>
 <dl>
 <dt id="PyForks.trailforks_region.TrailforksRegion.check_region"><code class="name flex">
-<span>def <span class="ident">check_region</span></span>(<span>self, region: str) ‑> None</span>
+<span>def <span class="ident">check_region</span></span>(<span>self, region: str) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A wrapper function for is_valid_region() that conducts an
-exit if the region is non-existant.</p></div>
+exit if the region is non-existant.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True: Region is valid</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def check_region(self, region: str) -&gt; None:
+<pre><code class="python">def check_region(self, region: str) -&gt; bool:
     &#34;&#34;&#34;
     A wrapper function for is_valid_region() that conducts an
     exit if the region is non-existant.
+
+    Returns:
+        bool: True: Region is valid
     &#34;&#34;&#34;
-    if not self.is_valid_region():
+    if not self.is_valid_region(region):
         print(f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
-        exit(1)</code></pre>
+        exit(1)
+    return True</code></pre>
 </details>
 </dd>
 <dt id="PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs"><code class="name flex">
@@ -367,8 +384,8 @@ def download_all_region_ridelogs(self, region: str, output_path=&#34;.&#34;) -&g
     Returns:
         bool: True:successfully saved data;False:failed
     &#34;&#34;&#34;
-    self.check_region()
-    region_info = self.__get_region_info()
+    self.check_region(region)
+    region_info = self._get_region_info(region)
     total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
     dataframes_list = []
 
@@ -438,7 +455,7 @@ def download_all_region_trails(self, region: str, region_id: str, output_path=&#
     Returns:
         bool: True:export successful;False:export failed.
     &#34;&#34;&#34;
-    self.check_region()
+    self.check_region(region)
     uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
     r = self.trailforks_session.get(uri, allow_redirects=True)
     raw_csv_data = r.text

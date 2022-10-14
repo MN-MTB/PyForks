@@ -23,14 +23,18 @@ class TrailforksRegion(Trailforks):
             return False
         return True
 
-    def check_region(self, region: str) -> None:
+    def check_region(self, region: str) -> bool:
         """
         A wrapper function for is_valid_region() that conducts an
         exit if the region is non-existant.
+
+        Returns:
+            bool: True: Region is valid
         """
-        if not self.is_valid_region():
+        if not self.is_valid_region(region):
             print(f"[!] {region} is not a valid Trailforks Region.")
             exit(1)
+        return True
 
     @authentication
     def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> bool:
@@ -47,7 +51,7 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:export successful;False:export failed.
         """
-        self.check_region()
+        self.check_region(region)
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
@@ -69,8 +73,8 @@ class TrailforksRegion(Trailforks):
         Returns:
             bool: True:successfully saved data;False:failed
         """
-        self.check_region()
-        region_info = self.__get_region_info()
+        self.check_region(region)
+        region_info = self._get_region_info(region)
         total_pages = round(region_info["total_ridelogs"]/30)
         dataframes_list = []
 
@@ -100,7 +104,7 @@ class TrailforksRegion(Trailforks):
         df.to_csv(f"{output_path}/{region}_scraped_riders.csv")
         
 
-    def __get_region_info(self, region: str) -> dict:
+    def _get_region_info(self, region: str) -> dict:
         """
         Pulls region specific metrics from the region page
 
