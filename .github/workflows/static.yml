@@ -36,6 +36,6 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: './doc'
-      - name: Deploy to GitHub Pages
+      - name: Updated Docs
         id: deployment
         uses: actions/deploy-pages@v1
