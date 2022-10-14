@@ -189,7 +189,6 @@ class TrailforksUser(Trailforks):
         Returns:
             list: a list of tuples [(brand, model), (brand, model)]
         """
-        self.check_cookie()
         uri = f"https://www.trailforks.com/profile/{self.username}/bikes/"
         r = requests.get(uri, cookies=self.cookie)
         try:
