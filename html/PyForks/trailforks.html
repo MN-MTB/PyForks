@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>PyForks.trailforks API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>
+:root {
+--highlight-color: #202;
+}
+html {
+scrollbar-face-color: #646464;
+scrollbar-base-color: #646464;
+scrollbar-3dlight-color: #646464;
+scrollbar-highlight-color: #646464;
+scrollbar-track-color: #000;
+scrollbar-arrow-color: #000;
+scrollbar-shadow-color: #646464;
+scrollbar-dark-shadow-color: #646464;
+}
+::-webkit-scrollbar { width: 14px; height: 3px;}
+::-webkit-scrollbar-button {
+background-color: #000;
+height: 3px;}
+::-webkit-scrollbar-track {
+background-color: #646464;}
+::-webkit-scrollbar-track-piece { background-color: #000;}
+::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 7px;}
+::-webkit-scrollbar-corner { background-color: #646464;}
+::-webkit-resizer { background-color: #666;}
+.flex {
+display: flex !important;
+}
+body {
+line-height: 1.5em;
+color: #fff;
+background-color: #0f0f0f;
+}
+#content {
+padding: 20px;
+}
+#sidebar {
+padding: 30px;
+overflow: hidden;
+}
+#sidebar>*:last-child {
+margin-bottom: 2cm;
+}
+.http-server-breadcrumbs {
+font-size: 130%;
+margin: 0 0 15px 0;
+}
+#footer {
+font-size: .75em;
+padding: 5px 30px;
+border-top: 1px solid #fff;
+text-align: right;
+}
+#footer p {
+margin: 0 0 0 1em;
+display: inline-block;
+}
+#footer p:last-child {
+margin-right: 30px;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+font-weight: 300;
+color: #fff;
+}
+h1 {
+font-size: 2.5em;
+line-height: 1.1em;
+}
+h2 {
+font-size: 1.75em;
+margin: 1em 0 .50em 0;
+}
+h3 {
+font-size: 1.4em;
+margin: 25px 0 10px 0;
+}
+h4 {
+margin: 0;
+font-size: 105%;
+}
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+background: #000;
+padding: 0.2em 0;
+}
+a {
+color: #0a0;
+text-decoration: none;
+transition: color .3s ease-in-out;
+}
+a:hover {
+color: #0c0;
+}
+.title code {
+font-weight: bold;
+}
+h2[id^="header-"] {
+margin-top: 2em;
+}
+.ident {
+color: #ff00ca;
+}
+pre code {
+background: transparent;
+font-size: .8em;
+line-height: 1.4em;
+}
+code {
+background: rgba(255, 255, 255, 0.1);
+padding: 1px 4px;
+overflow-wrap: break-word;
+}
+h1 code {
+background: transparent
+}
+pre {
+background: transparent;
+border: 0;
+border-top: 1px solid #ccc;
+border-bottom: 1px solid #ccc;
+margin: 1em 0;
+padding: 1ex;
+}
+#http-server-module-list {
+display: flex;
+flex-flow: column;
+}
+#http-server-module-list div {
+display: flex;
+}
+#http-server-module-list dt {
+min-width: 10%;
+}
+#http-server-module-list p {
+margin-top: 0;
+}
+.toc ul,
+#index {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+#index code {
+background: transparent;
+}
+#index h3 {
+border-bottom: 1px solid #ddd;
+}
+#index ul {
+padding: 0;
+}
+#index h4 {
+margin-top: .6em;
+font-weight: bold;
+}
+/* Make TOC lists have 2+ columns when viewport is wide enough.
+Assuming ~20-character identifiers and ~30% wide sidebar. */
+@media (min-width: 200ex) {
+#index .two-column {
+column-count: 2
+}
+}
+@media (min-width: 300ex) {
+#index .two-column {
+column-count: 3
+}
+}
+dl {
+margin-bottom: 2em;
+}
+dl dl:last-child {
+margin-bottom: 4em;
+}
+dd {
+margin: 0 0 1em 3em;
+}
+#header-classes+dl>dd {
+margin-bottom: 3em;
+}
+dd dd {
+margin-left: 2em;
+}
+dd p {
+margin: 10px 0;
+}
+.name {
+background: #000;
+font-weight: bold;
+font-size: .85em;
+padding: 5px 10px;
+display: inline-block;
+min-width: 40%;
+}
+.name:hover {
+background: #0b0b0b;
+}
+dt:target .name {
+background: var(--highlight-color);
+}
+.name>span:first-child {
+white-space: nowrap;
+}
+.name.class>span:nth-child(2) {
+margin-left: .4em;
+}
+.inherited {
+color: #999;
+border-left: 5px solid #eee;
+padding-left: 1em;
+}
+.inheritance em {
+font-style: normal;
+font-weight: bold;
+}
+.pydefname {
+color: #f90;
+}
+/* Docstrings titles, e.g. in numpydoc format */
+.desc h2 {
+font-weight: 400;
+font-size: 1.25em;
+}
+.desc h3 {
+font-size: 1em;
+}
+.desc dt code {
+background: inherit;
+/* Don't grey-back parameters */
+}
+.source summary,
+.git-link-div {
+color: #666;
+text-align: right;
+font-weight: 400;
+font-size: .8em;
+text-transform: uppercase;
+}
+.source summary>* {
+white-space: nowrap;
+cursor: pointer;
+}
+.git-link {
+color: inherit;
+margin-left: 1em;
+}
+.source pre {
+max-height: 500px;
+overflow: auto;
+margin: 0;
+}
+.source pre code {
+font-size: 12px;
+overflow: visible;
+}
+.hlist {
+list-style: none;
+}
+.hlist li {
+display: inline;
+}
+.hlist li:after {
+content: ',\2002';
+}
+.hlist li:last-child:after {
+content: none;
+}
+.hlist .hlist {
+display: inline;
+padding-left: 1em;
+}
+img {
+max-width: 100%;
+}
+td {
+padding: 0 .5em;
+}
+.admonition {
+padding: .1em .5em;
+margin-bottom: 1em;
+}
+.admonition-title {
+font-weight: bold;
+}
+.admonition.note,
+.admonition.info,
+.admonition.important {
+background: #00a;
+}
+.admonition.todo,
+.admonition.versionadded,
+.admonition.tip,
+.admonition.hint {
+background: #050;
+}
+.admonition.warning,
+.admonition.versionchanged,
+.admonition.deprecated {
+background: #ec0;
+}
+.admonition.error,
+.admonition.danger,
+.admonition.caution {
+background: #c20010;
+}
+p {
+color: #fff;
+}
+</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>PyForks.trailforks</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+import os
+import requests
+import urllib.parse
+from tqdm import tqdm
+from bs4 import BeautifulSoup
+from functools import wraps
+from concurrent.futures import as_completed, ThreadPoolExecutor
+
+def authentication(func):
+    &#34;&#34;&#34;
+    Authentication Decorator for functions that need a valid Trailforks
+    user session to complete a task such as downloading CSV reports
+
+    Args:
+        func (_type_): callable function
+
+    Returns:
+        _type_: original function
+    &#34;&#34;&#34;
+    @wraps(func)
+    def run_checks(self, *args, **kwargs):
+        if not self.authenticated:
+            print(&#34;[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=&lt;cookie&gt;)&#34;)
+            exit(1)
+        return func(self, *args, **kwargs) 
+    return run_checks
+        
+
+class Trailforks:
+    def __init__(self, region=None, username=None, password=None):
+        self.name = &#34;trailforks&#34;
+        self.region = region
+        self.username = username
+        self.password = password
+        self.trailforks_session = None
+        self.authenticated = False
+
+    def login(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Login to Trailforks with a username and password in order to conduct
+        privileged (user based) operations such as downloading content or 
+        viewing non-public information.
+
+        Returns:
+            bool: True:successful login;False:failed to login
+        &#34;&#34;&#34;
+        trailforks_session = requests.Session()
+        headers = {&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;}
+        t = trailforks_session.get(&#34;https://www.trailforks.com/login/#loginform&#34;, headers=headers, allow_redirects=True)
+        form_hash = self.__get_trailforks_formhash(t.text)
+
+        payload = {
+            &#34;ripformname&#34;: &#34;loginform&#34;,
+            &#34;formpage&#34;: &#34;/login/#loginform&#34;,
+            &#34;fieldstack[0]&#34;: &#34;source&#34;,
+            &#34;source-alpha&#34;: &#34;trailforks&#34;,
+            &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
+            &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+            &#34;fieldstack[2]&#34;: &#34;username&#34;,
+            &#34;username-login-loginlen&#34;: self.username,
+            &#34;fieldstack[3]&#34;: &#34;password&#34;,
+            &#34;password-password-lt200&#34;: self.password,
+            &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
+            &#34;rememberme&#34;: &#34;&#34;,
+            &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
+            &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
+            &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
+            &#34;iebug&#34;: &#34;1&#34;,
+            &#34;formhash&#34;: form_hash
+        }
+
+        headers_login = {
+            &#34;Host&#34;: &#34;www.trailforks.com&#34;,
+            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
+            &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
+            &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
+            &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
+            &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
+            &#34;Content-Length&#34;: &#34;773&#34;,
+            &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
+            &#34;DNT&#34;: &#34;1&#34;,
+            &#34;Connection&#34;: &#34;keep-alive&#34;,
+            &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
+            &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
+            &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
+            &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
+            &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
+            &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
+            &#34;Sec-GPC&#34;: &#34;1&#34;
+        }
+
+        t = trailforks_session.post(&#34;https://www.trailforks.com/wosFormCheck.php&#34;, data=payload, headers=headers_login, allow_redirects=True)
+        if self.username in self.__get_trailforks_page_title(t.text):
+            self.trailforks_session = trailforks_session
+            self.authenticated = True
+            return True
+        return False
+
+    def __get_trailforks_formhash(self, html: str) -&gt; str:
+        &#34;&#34;&#34;
+        Trailforms uses a login form hash value that dictates if a login
+        action is valid as it&#39;s tied to either a previous login and/or a
+        datetime object that serves as the expiration date. However, anytime
+        a user vists the login page, a new formhash is generated and exists
+        within the HTML. This function parses that hash out in order to
+        successfully login to Trailforks without using Selenium
+
+        Args:
+            html (str): Raw HTML of the get request to the login page
+
+        Returns:
+            str: the formhash string
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html, &#34;html.parser&#34;)
+        form_hash = soup.find(&#39;input&#39;, {&#39;name&#39;: &#39;formhash&#39;}).get(&#39;value&#39;)
+        return form_hash
+
+    def __get_trailforks_page_title(self, html: str) -&gt; str:
+        &#34;&#34;&#34;
+        Obtain the title of any page given its HTML content
+
+        Args:
+            html (str): Raw HTML
+
+        Returns:
+            str: Title string
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html, &#34;html.parser&#34;)
+        title_tag = soup.find(&#39;title&#39;)
+        return title_tag.string
+
+    def check_region(self) -&gt; None:
+        &#34;&#34;&#34;
+        Some requests require authentication (login) and you need to present a valid
+        cookie to trailforks before you can do anything.
+        &#34;&#34;&#34;
+        if self.region == None:
+            print(&#34;[!] Need Region:\nYou must provide a valid Region (region=&lt;region_name&gt;)&#34;)
+            exit(1)  
+
+    def uri_encode(self, string: str) -&gt; str:
+        &#34;&#34;&#34;
+        URIEncode things that need encoding
+
+        Args:
+            string (str): string to encode
+
+        Returns:
+            str: encoded string
+        &#34;&#34;&#34;
+        return urllib.parse.quote(string)
+
+    def distance_string_to_miles_float(self, distance: str) -&gt; float:
+        &#34;&#34;&#34;
+        Trailforks report data has mixed distance values, this
+        function attempts to normalize them into miles (int)
+
+        Args:
+            distance (str): string of distance, 1456 ft
+
+        Returns:
+            float: number of miles
+        &#34;&#34;&#34;
+        try:
+            if &#34;ft&#34; in distance:
+                feet_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;,&#34;&#34;))
+                mi = 0.000189394
+                return feet_int * mi
+            else:
+                return float(distance.split(&#34; &#34;)[0])
+        except Exception as e:
+            return 0</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="PyForks.trailforks.authentication"><code class="name flex">
+<span>def <span class="ident">authentication</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Authentication Decorator for functions that need a valid Trailforks
+user session to complete a task such as downloading CSV reports</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>_type_</code></dt>
+<dd>callable function</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>_type_</code></dt>
+<dd>original function</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def authentication(func):
+    &#34;&#34;&#34;
+    Authentication Decorator for functions that need a valid Trailforks
+    user session to complete a task such as downloading CSV reports
+
+    Args:
+        func (_type_): callable function
+
+    Returns:
+        _type_: original function
+    &#34;&#34;&#34;
+    @wraps(func)
+    def run_checks(self, *args, **kwargs):
+        if not self.authenticated:
+            print(&#34;[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=&lt;cookie&gt;)&#34;)
+            exit(1)
+        return func(self, *args, **kwargs) 
+    return run_checks</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="PyForks.trailforks.Trailforks"><code class="flex name class">
+<span>class <span class="ident">Trailforks</span></span>
+<span>(</span><span>region=None, username=None, password=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Trailforks:
+    def __init__(self, region=None, username=None, password=None):
+        self.name = &#34;trailforks&#34;
+        self.region = region
+        self.username = username
+        self.password = password
+        self.trailforks_session = None
+        self.authenticated = False
+
+    def login(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Login to Trailforks with a username and password in order to conduct
+        privileged (user based) operations such as downloading content or 
+        viewing non-public information.
+
+        Returns:
+            bool: True:successful login;False:failed to login
+        &#34;&#34;&#34;
+        trailforks_session = requests.Session()
+        headers = {&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;}
+        t = trailforks_session.get(&#34;https://www.trailforks.com/login/#loginform&#34;, headers=headers, allow_redirects=True)
+        form_hash = self.__get_trailforks_formhash(t.text)
+
+        payload = {
+            &#34;ripformname&#34;: &#34;loginform&#34;,
+            &#34;formpage&#34;: &#34;/login/#loginform&#34;,
+            &#34;fieldstack[0]&#34;: &#34;source&#34;,
+            &#34;source-alpha&#34;: &#34;trailforks&#34;,
+            &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
+            &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+            &#34;fieldstack[2]&#34;: &#34;username&#34;,
+            &#34;username-login-loginlen&#34;: self.username,
+            &#34;fieldstack[3]&#34;: &#34;password&#34;,
+            &#34;password-password-lt200&#34;: self.password,
+            &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
+            &#34;rememberme&#34;: &#34;&#34;,
+            &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
+            &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
+            &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
+            &#34;iebug&#34;: &#34;1&#34;,
+            &#34;formhash&#34;: form_hash
+        }
+
+        headers_login = {
+            &#34;Host&#34;: &#34;www.trailforks.com&#34;,
+            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
+            &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
+            &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
+            &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
+            &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
+            &#34;Content-Length&#34;: &#34;773&#34;,
+            &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
+            &#34;DNT&#34;: &#34;1&#34;,
+            &#34;Connection&#34;: &#34;keep-alive&#34;,
+            &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
+            &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
+            &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
+            &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
+            &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
+            &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
+            &#34;Sec-GPC&#34;: &#34;1&#34;
+        }
+
+        t = trailforks_session.post(&#34;https://www.trailforks.com/wosFormCheck.php&#34;, data=payload, headers=headers_login, allow_redirects=True)
+        if self.username in self.__get_trailforks_page_title(t.text):
+            self.trailforks_session = trailforks_session
+            self.authenticated = True
+            return True
+        return False
+
+    def __get_trailforks_formhash(self, html: str) -&gt; str:
+        &#34;&#34;&#34;
+        Trailforms uses a login form hash value that dictates if a login
+        action is valid as it&#39;s tied to either a previous login and/or a
+        datetime object that serves as the expiration date. However, anytime
+        a user vists the login page, a new formhash is generated and exists
+        within the HTML. This function parses that hash out in order to
+        successfully login to Trailforks without using Selenium
+
+        Args:
+            html (str): Raw HTML of the get request to the login page
+
+        Returns:
+            str: the formhash string
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html, &#34;html.parser&#34;)
+        form_hash = soup.find(&#39;input&#39;, {&#39;name&#39;: &#39;formhash&#39;}).get(&#39;value&#39;)
+        return form_hash
+
+    def __get_trailforks_page_title(self, html: str) -&gt; str:
+        &#34;&#34;&#34;
+        Obtain the title of any page given its HTML content
+
+        Args:
+            html (str): Raw HTML
+
+        Returns:
+            str: Title string
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html, &#34;html.parser&#34;)
+        title_tag = soup.find(&#39;title&#39;)
+        return title_tag.string
+
+    def check_region(self) -&gt; None:
+        &#34;&#34;&#34;
+        Some requests require authentication (login) and you need to present a valid
+        cookie to trailforks before you can do anything.
+        &#34;&#34;&#34;
+        if self.region == None:
+            print(&#34;[!] Need Region:\nYou must provide a valid Region (region=&lt;region_name&gt;)&#34;)
+            exit(1)  
+
+    def uri_encode(self, string: str) -&gt; str:
+        &#34;&#34;&#34;
+        URIEncode things that need encoding
+
+        Args:
+            string (str): string to encode
+
+        Returns:
+            str: encoded string
+        &#34;&#34;&#34;
+        return urllib.parse.quote(string)
+
+    def distance_string_to_miles_float(self, distance: str) -&gt; float:
+        &#34;&#34;&#34;
+        Trailforks report data has mixed distance values, this
+        function attempts to normalize them into miles (int)
+
+        Args:
+            distance (str): string of distance, 1456 ft
+
+        Returns:
+            float: number of miles
+        &#34;&#34;&#34;
+        try:
+            if &#34;ft&#34; in distance:
+                feet_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;,&#34;&#34;))
+                mi = 0.000189394
+                return feet_int * mi
+            else:
+                return float(distance.split(&#34; &#34;)[0])
+        except Exception as e:
+            return 0</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="PyForks.trailforks_region.TrailforksRegion" href="trailforks_region.html#PyForks.trailforks_region.TrailforksRegion">TrailforksRegion</a></li>
+<li><a title="PyForks.trailforks_user.TrailforksUser" href="trailforks_user.html#PyForks.trailforks_user.TrailforksUser">TrailforksUser</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="PyForks.trailforks.Trailforks.check_region"><code class="name flex">
+<span>def <span class="ident">check_region</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Some requests require authentication (login) and you need to present a valid
+cookie to trailforks before you can do anything.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_region(self) -&gt; None:
+    &#34;&#34;&#34;
+    Some requests require authentication (login) and you need to present a valid
+    cookie to trailforks before you can do anything.
+    &#34;&#34;&#34;
+    if self.region == None:
+        print(&#34;[!] Need Region:\nYou must provide a valid Region (region=&lt;region_name&gt;)&#34;)
+        exit(1)  </code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks.Trailforks.distance_string_to_miles_float"><code class="name flex">
+<span>def <span class="ident">distance_string_to_miles_float</span></span>(<span>self, distance: str) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trailforks report data has mixed distance values, this
+function attempts to normalize them into miles (int)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>distance</code></strong> :&ensp;<code>str</code></dt>
+<dd>string of distance, 1456 ft</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>number of miles</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def distance_string_to_miles_float(self, distance: str) -&gt; float:
+    &#34;&#34;&#34;
+    Trailforks report data has mixed distance values, this
+    function attempts to normalize them into miles (int)
+
+    Args:
+        distance (str): string of distance, 1456 ft
+
+    Returns:
+        float: number of miles
+    &#34;&#34;&#34;
+    try:
+        if &#34;ft&#34; in distance:
+            feet_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;,&#34;&#34;))
+            mi = 0.000189394
+            return feet_int * mi
+        else:
+            return float(distance.split(&#34; &#34;)[0])
+    except Exception as e:
+        return 0</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks.Trailforks.login"><code class="name flex">
+<span>def <span class="ident">login</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Login to Trailforks with a username and password in order to conduct
+privileged (user based) operations such as downloading content or
+viewing non-public information.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True:successful login;False:failed to login</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def login(self) -&gt; bool:
+    &#34;&#34;&#34;
+    Login to Trailforks with a username and password in order to conduct
+    privileged (user based) operations such as downloading content or 
+    viewing non-public information.
+
+    Returns:
+        bool: True:successful login;False:failed to login
+    &#34;&#34;&#34;
+    trailforks_session = requests.Session()
+    headers = {&#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;}
+    t = trailforks_session.get(&#34;https://www.trailforks.com/login/#loginform&#34;, headers=headers, allow_redirects=True)
+    form_hash = self.__get_trailforks_formhash(t.text)
+
+    payload = {
+        &#34;ripformname&#34;: &#34;loginform&#34;,
+        &#34;formpage&#34;: &#34;/login/#loginform&#34;,
+        &#34;fieldstack[0]&#34;: &#34;source&#34;,
+        &#34;source-alpha&#34;: &#34;trailforks&#34;,
+        &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
+        &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+        &#34;fieldstack[2]&#34;: &#34;username&#34;,
+        &#34;username-login-loginlen&#34;: self.username,
+        &#34;fieldstack[3]&#34;: &#34;password&#34;,
+        &#34;password-password-lt200&#34;: self.password,
+        &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
+        &#34;rememberme&#34;: &#34;&#34;,
+        &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
+        &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
+        &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
+        &#34;iebug&#34;: &#34;1&#34;,
+        &#34;formhash&#34;: form_hash
+    }
+
+    headers_login = {
+        &#34;Host&#34;: &#34;www.trailforks.com&#34;,
+        &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
+        &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
+        &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
+        &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
+        &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
+        &#34;Content-Length&#34;: &#34;773&#34;,
+        &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
+        &#34;DNT&#34;: &#34;1&#34;,
+        &#34;Connection&#34;: &#34;keep-alive&#34;,
+        &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
+        &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
+        &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
+        &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
+        &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
+        &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
+        &#34;Sec-GPC&#34;: &#34;1&#34;
+    }
+
+    t = trailforks_session.post(&#34;https://www.trailforks.com/wosFormCheck.php&#34;, data=payload, headers=headers_login, allow_redirects=True)
+    if self.username in self.__get_trailforks_page_title(t.text):
+        self.trailforks_session = trailforks_session
+        self.authenticated = True
+        return True
+    return False</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks.Trailforks.uri_encode"><code class="name flex">
+<span>def <span class="ident">uri_encode</span></span>(<span>self, string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>URIEncode things that need encoding</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
+<dd>string to encode</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>encoded string</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uri_encode(self, string: str) -&gt; str:
+    &#34;&#34;&#34;
+    URIEncode things that need encoding
+
+    Args:
+        string (str): string to encode
+
+    Returns:
+        str: encoded string
+    &#34;&#34;&#34;
+    return urllib.parse.quote(string)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<center><img src="PyForks.png" width="60%"/></center>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="PyForks" href="index.html">PyForks</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="PyForks.trailforks.authentication" href="#PyForks.trailforks.authentication">authentication</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="PyForks.trailforks.Trailforks" href="#PyForks.trailforks.Trailforks">Trailforks</a></code></h4>
+<ul class="">
+<li><code><a title="PyForks.trailforks.Trailforks.check_region" href="#PyForks.trailforks.Trailforks.check_region">check_region</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.login" href="#PyForks.trailforks.Trailforks.login">login</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

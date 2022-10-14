@@ -8,6 +8,16 @@ from functools import wraps
 from concurrent.futures import as_completed, ThreadPoolExecutor
 
 def authentication(func):
+    """
+    Authentication Decorator for functions that need a valid Trailforks
+    user session to complete a task such as downloading CSV reports
+
+    Args:
+        func (_type_): callable function
+
+    Returns:
+        _type_: original function
+    """
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:

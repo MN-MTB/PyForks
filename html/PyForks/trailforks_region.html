@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>PyForks.trailforks_region API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>
+:root {
+--highlight-color: #202;
+}
+html {
+scrollbar-face-color: #646464;
+scrollbar-base-color: #646464;
+scrollbar-3dlight-color: #646464;
+scrollbar-highlight-color: #646464;
+scrollbar-track-color: #000;
+scrollbar-arrow-color: #000;
+scrollbar-shadow-color: #646464;
+scrollbar-dark-shadow-color: #646464;
+}
+::-webkit-scrollbar { width: 14px; height: 3px;}
+::-webkit-scrollbar-button {
+background-color: #000;
+height: 3px;}
+::-webkit-scrollbar-track {
+background-color: #646464;}
+::-webkit-scrollbar-track-piece { background-color: #000;}
+::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 7px;}
+::-webkit-scrollbar-corner { background-color: #646464;}
+::-webkit-resizer { background-color: #666;}
+.flex {
+display: flex !important;
+}
+body {
+line-height: 1.5em;
+color: #fff;
+background-color: #0f0f0f;
+}
+#content {
+padding: 20px;
+}
+#sidebar {
+padding: 30px;
+overflow: hidden;
+}
+#sidebar>*:last-child {
+margin-bottom: 2cm;
+}
+.http-server-breadcrumbs {
+font-size: 130%;
+margin: 0 0 15px 0;
+}
+#footer {
+font-size: .75em;
+padding: 5px 30px;
+border-top: 1px solid #fff;
+text-align: right;
+}
+#footer p {
+margin: 0 0 0 1em;
+display: inline-block;
+}
+#footer p:last-child {
+margin-right: 30px;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+font-weight: 300;
+color: #fff;
+}
+h1 {
+font-size: 2.5em;
+line-height: 1.1em;
+}
+h2 {
+font-size: 1.75em;
+margin: 1em 0 .50em 0;
+}
+h3 {
+font-size: 1.4em;
+margin: 25px 0 10px 0;
+}
+h4 {
+margin: 0;
+font-size: 105%;
+}
+h1:target,
+h2:target,
+h3:target,
+h4:target,
+h5:target,
+h6:target {
+background: #000;
+padding: 0.2em 0;
+}
+a {
+color: #0a0;
+text-decoration: none;
+transition: color .3s ease-in-out;
+}
+a:hover {
+color: #0c0;
+}
+.title code {
+font-weight: bold;
+}
+h2[id^="header-"] {
+margin-top: 2em;
+}
+.ident {
+color: #ff00ca;
+}
+pre code {
+background: transparent;
+font-size: .8em;
+line-height: 1.4em;
+}
+code {
+background: rgba(255, 255, 255, 0.1);
+padding: 1px 4px;
+overflow-wrap: break-word;
+}
+h1 code {
+background: transparent
+}
+pre {
+background: transparent;
+border: 0;
+border-top: 1px solid #ccc;
+border-bottom: 1px solid #ccc;
+margin: 1em 0;
+padding: 1ex;
+}
+#http-server-module-list {
+display: flex;
+flex-flow: column;
+}
+#http-server-module-list div {
+display: flex;
+}
+#http-server-module-list dt {
+min-width: 10%;
+}
+#http-server-module-list p {
+margin-top: 0;
+}
+.toc ul,
+#index {
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+#index code {
+background: transparent;
+}
+#index h3 {
+border-bottom: 1px solid #ddd;
+}
+#index ul {
+padding: 0;
+}
+#index h4 {
+margin-top: .6em;
+font-weight: bold;
+}
+/* Make TOC lists have 2+ columns when viewport is wide enough.
+Assuming ~20-character identifiers and ~30% wide sidebar. */
+@media (min-width: 200ex) {
+#index .two-column {
+column-count: 2
+}
+}
+@media (min-width: 300ex) {
+#index .two-column {
+column-count: 3
+}
+}
+dl {
+margin-bottom: 2em;
+}
+dl dl:last-child {
+margin-bottom: 4em;
+}
+dd {
+margin: 0 0 1em 3em;
+}
+#header-classes+dl>dd {
+margin-bottom: 3em;
+}
+dd dd {
+margin-left: 2em;
+}
+dd p {
+margin: 10px 0;
+}
+.name {
+background: #000;
+font-weight: bold;
+font-size: .85em;
+padding: 5px 10px;
+display: inline-block;
+min-width: 40%;
+}
+.name:hover {
+background: #0b0b0b;
+}
+dt:target .name {
+background: var(--highlight-color);
+}
+.name>span:first-child {
+white-space: nowrap;
+}
+.name.class>span:nth-child(2) {
+margin-left: .4em;
+}
+.inherited {
+color: #999;
+border-left: 5px solid #eee;
+padding-left: 1em;
+}
+.inheritance em {
+font-style: normal;
+font-weight: bold;
+}
+.pydefname {
+color: #f90;
+}
+/* Docstrings titles, e.g. in numpydoc format */
+.desc h2 {
+font-weight: 400;
+font-size: 1.25em;
+}
+.desc h3 {
+font-size: 1em;
+}
+.desc dt code {
+background: inherit;
+/* Don't grey-back parameters */
+}
+.source summary,
+.git-link-div {
+color: #666;
+text-align: right;
+font-weight: 400;
+font-size: .8em;
+text-transform: uppercase;
+}
+.source summary>* {
+white-space: nowrap;
+cursor: pointer;
+}
+.git-link {
+color: inherit;
+margin-left: 1em;
+}
+.source pre {
+max-height: 500px;
+overflow: auto;
+margin: 0;
+}
+.source pre code {
+font-size: 12px;
+overflow: visible;
+}
+.hlist {
+list-style: none;
+}
+.hlist li {
+display: inline;
+}
+.hlist li:after {
+content: ',\2002';
+}
+.hlist li:last-child:after {
+content: none;
+}
+.hlist .hlist {
+display: inline;
+padding-left: 1em;
+}
+img {
+max-width: 100%;
+}
+td {
+padding: 0 .5em;
+}
+.admonition {
+padding: .1em .5em;
+margin-bottom: 1em;
+}
+.admonition-title {
+font-weight: bold;
+}
+.admonition.note,
+.admonition.info,
+.admonition.important {
+background: #00a;
+}
+.admonition.todo,
+.admonition.versionadded,
+.admonition.tip,
+.admonition.hint {
+background: #050;
+}
+.admonition.warning,
+.admonition.versionchanged,
+.admonition.deprecated {
+background: #ec0;
+}
+.admonition.error,
+.admonition.danger,
+.admonition.caution {
+background: #c20010;
+}
+p {
+color: #fff;
+}
+</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>PyForks.trailforks_region</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+import requests
+import re
+from bs4 import BeautifulSoup
+from tqdm import tqdm
+from concurrent.futures import as_completed, ThreadPoolExecutor
+from PyForks.trailforks import Trailforks, authentication
+
+class TrailforksRegion(Trailforks):
+
+    def is_valid_region(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Check to make sure a region name is a real region by
+        making sure the page title is not Error
+
+        Returns:
+            bool: True:is an existing region;False:region does not exist.
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/region/{self.region}&#34;
+        r = requests.get(uri)
+        non_existant = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
+        if non_existant in r.text:
+            return False
+        return True
+
+    def check_region(self) -&gt; None:
+        &#34;&#34;&#34;
+        A wrapper function for is_valid_region() that conducts an
+        exit if the region is non-existant.
+        &#34;&#34;&#34;
+        if not self.is_valid_region():
+            print(f&#34;[!] {self.region} is not a valid Trailforks Region.&#34;)
+            exit(1)
+
+    @authentication
+    def download_all_region_trails(self, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
+        &#34;&#34;&#34;
+        Each region has a CSV export capability to export all trails within the region.
+        This function automates that export for the end user and saves a csv to local
+        disk.
+
+        Args:
+            region_id (str): this is the integer (string representation) of the region
+            output_path (str, optional): output directory for the CSV. Defaults to &#34;.&#34;.
+
+        Returns:
+            bool: True:export successful;False:export failed.
+        &#34;&#34;&#34;
+        self.check_region()
+        uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
+        r = self.trailforks_session.get(uri, allow_redirects=True)
+        raw_csv_data = r.text
+        clean_data = re.sub(r&#39;[aA-zZ]\n&#39;, &#34;\&#34;,&#34;, raw_csv_data)
+
+        open(f&#34;{output_path}/{self.region}_trail_listing.csv&#34;, &#34;w&#34;).write(clean_data)
+
+    @authentication
+    def download_all_region_ridelogs(self, output_path=&#34;.&#34;) -&gt; bool:
+        &#34;&#34;&#34;
+        Downloads all of the trail ridelogs since the begining of the 
+        trails existance and stores the results in CSV format on the 
+        local disk
+
+        Args:
+            output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+
+        Returns:
+            bool: True:successfully saved data;False:failed
+        &#34;&#34;&#34;
+        self.check_region()
+        region_info = self.__get_region_info()
+        total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
+        dataframes_list = []
+
+        pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {self.region} Rider Pages&#34;)
+        for i in range(1, total_pages + 1):
+            try:
+                domain = f&#34;https://www.trailforks.com/region/{self.region}/ridelogs/?viewMode=table&amp;page={i}&#34;
+                tmp_df = pd.read_html(domain, index_col=None, header=0)
+
+                # Sometimes we have more than 1 table on the page.
+                if len(tmp_df) &gt;= 2:
+                    for potential_df in tmp_df:
+                        if &#34;city&#34; not in potential_df.columns:
+                            good_df = potential_df
+                            dataframes_list.append(good_df)
+                else:
+                    good_df = tmp_df[0]
+                    dataframes_list.append(good_df)
+
+                pbar.update(1)
+            except Exception as e:
+                pbar.update(1)
+                break
+        pbar.close()
+
+        df = pd.concat(dataframes_list, axis=0, ignore_index=True)
+        df.to_csv(f&#34;{output_path}/{self.region}_scraped_riders.csv&#34;)
+        
+
+    def __get_region_info(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Pulls region specific metrics from the region page
+
+        Returns:
+            dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
+        &#34;&#34;&#34;
+        region_uri = f&#39;https://www.trailforks.com/region/{self.region}/ridelogstats/&#39;
+        page = requests.get(region_uri)
+        soup = BeautifulSoup(page.text, &#39;html.parser&#39;)
+        data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
+        data = str(data[0])
+        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+        list_items = soup_1.find_all(&#34;li&#34;)
+
+        region_info = {
+            &#34;total_ridelogs&#34;: None,
+            &#34;unique_riders&#34;: None,
+            &#34;trails_ridden&#34;: None,
+            &#34;average_trails_per_ride&#34;: None
+        }
+        region_vars = [&#34;total_ridelogs&#34;, &#34;unique_riders&#34;, &#34;trails_ridden&#34;, &#34;average_trails_per_ride&#34;]
+
+        for i, item in enumerate(list_items):
+            region_info[region_vars[i]] = int(re.search(r&#39;&gt;([0-9].*)&lt;&#39;, str(item)).groups()[0].replace(&#34;,&#34;,&#34;&#34;))
+        
+        return region_info</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="PyForks.trailforks_region.TrailforksRegion"><code class="flex name class">
+<span>class <span class="ident">TrailforksRegion</span></span>
+<span>(</span><span>region=None, username=None, password=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TrailforksRegion(Trailforks):
+
+    def is_valid_region(self) -&gt; bool:
+        &#34;&#34;&#34;
+        Check to make sure a region name is a real region by
+        making sure the page title is not Error
+
+        Returns:
+            bool: True:is an existing region;False:region does not exist.
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/region/{self.region}&#34;
+        r = requests.get(uri)
+        non_existant = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
+        if non_existant in r.text:
+            return False
+        return True
+
+    def check_region(self) -&gt; None:
+        &#34;&#34;&#34;
+        A wrapper function for is_valid_region() that conducts an
+        exit if the region is non-existant.
+        &#34;&#34;&#34;
+        if not self.is_valid_region():
+            print(f&#34;[!] {self.region} is not a valid Trailforks Region.&#34;)
+            exit(1)
+
+    @authentication
+    def download_all_region_trails(self, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
+        &#34;&#34;&#34;
+        Each region has a CSV export capability to export all trails within the region.
+        This function automates that export for the end user and saves a csv to local
+        disk.
+
+        Args:
+            region_id (str): this is the integer (string representation) of the region
+            output_path (str, optional): output directory for the CSV. Defaults to &#34;.&#34;.
+
+        Returns:
+            bool: True:export successful;False:export failed.
+        &#34;&#34;&#34;
+        self.check_region()
+        uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
+        r = self.trailforks_session.get(uri, allow_redirects=True)
+        raw_csv_data = r.text
+        clean_data = re.sub(r&#39;[aA-zZ]\n&#39;, &#34;\&#34;,&#34;, raw_csv_data)
+
+        open(f&#34;{output_path}/{self.region}_trail_listing.csv&#34;, &#34;w&#34;).write(clean_data)
+
+    @authentication
+    def download_all_region_ridelogs(self, output_path=&#34;.&#34;) -&gt; bool:
+        &#34;&#34;&#34;
+        Downloads all of the trail ridelogs since the begining of the 
+        trails existance and stores the results in CSV format on the 
+        local disk
+
+        Args:
+            output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+
+        Returns:
+            bool: True:successfully saved data;False:failed
+        &#34;&#34;&#34;
+        self.check_region()
+        region_info = self.__get_region_info()
+        total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
+        dataframes_list = []
+
+        pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {self.region} Rider Pages&#34;)
+        for i in range(1, total_pages + 1):
+            try:
+                domain = f&#34;https://www.trailforks.com/region/{self.region}/ridelogs/?viewMode=table&amp;page={i}&#34;
+                tmp_df = pd.read_html(domain, index_col=None, header=0)
+
+                # Sometimes we have more than 1 table on the page.
+                if len(tmp_df) &gt;= 2:
+                    for potential_df in tmp_df:
+                        if &#34;city&#34; not in potential_df.columns:
+                            good_df = potential_df
+                            dataframes_list.append(good_df)
+                else:
+                    good_df = tmp_df[0]
+                    dataframes_list.append(good_df)
+
+                pbar.update(1)
+            except Exception as e:
+                pbar.update(1)
+                break
+        pbar.close()
+
+        df = pd.concat(dataframes_list, axis=0, ignore_index=True)
+        df.to_csv(f&#34;{output_path}/{self.region}_scraped_riders.csv&#34;)
+        
+
+    def __get_region_info(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Pulls region specific metrics from the region page
+
+        Returns:
+            dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
+        &#34;&#34;&#34;
+        region_uri = f&#39;https://www.trailforks.com/region/{self.region}/ridelogstats/&#39;
+        page = requests.get(region_uri)
+        soup = BeautifulSoup(page.text, &#39;html.parser&#39;)
+        data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
+        data = str(data[0])
+        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+        list_items = soup_1.find_all(&#34;li&#34;)
+
+        region_info = {
+            &#34;total_ridelogs&#34;: None,
+            &#34;unique_riders&#34;: None,
+            &#34;trails_ridden&#34;: None,
+            &#34;average_trails_per_ride&#34;: None
+        }
+        region_vars = [&#34;total_ridelogs&#34;, &#34;unique_riders&#34;, &#34;trails_ridden&#34;, &#34;average_trails_per_ride&#34;]
+
+        for i, item in enumerate(list_items):
+            region_info[region_vars[i]] = int(re.search(r&#39;&gt;([0-9].*)&lt;&#39;, str(item)).groups()[0].replace(&#34;,&#34;,&#34;&#34;))
+        
+        return region_info</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="PyForks.trailforks.Trailforks" href="trailforks.html#PyForks.trailforks.Trailforks">Trailforks</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="PyForks.trailforks_region.TrailforksRegion.check_region"><code class="name flex">
+<span>def <span class="ident">check_region</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A wrapper function for is_valid_region() that conducts an
+exit if the region is non-existant.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_region(self) -&gt; None:
+    &#34;&#34;&#34;
+    A wrapper function for is_valid_region() that conducts an
+    exit if the region is non-existant.
+    &#34;&#34;&#34;
+    if not self.is_valid_region():
+        print(f&#34;[!] {self.region} is not a valid Trailforks Region.&#34;)
+        exit(1)</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs"><code class="name flex">
+<span>def <span class="ident">download_all_region_ridelogs</span></span>(<span>self, output_path='.') ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Downloads all of the trail ridelogs since the begining of the
+trails existance and stores the results in CSV format on the
+local disk</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>output_path</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Path to store csv. Defaults to ".".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True:successfully saved data;False:failed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@authentication
+def download_all_region_ridelogs(self, output_path=&#34;.&#34;) -&gt; bool:
+    &#34;&#34;&#34;
+    Downloads all of the trail ridelogs since the begining of the 
+    trails existance and stores the results in CSV format on the 
+    local disk
+
+    Args:
+        output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+
+    Returns:
+        bool: True:successfully saved data;False:failed
+    &#34;&#34;&#34;
+    self.check_region()
+    region_info = self.__get_region_info()
+    total_pages = round(region_info[&#34;total_ridelogs&#34;]/30)
+    dataframes_list = []
+
+    pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {self.region} Rider Pages&#34;)
+    for i in range(1, total_pages + 1):
+        try:
+            domain = f&#34;https://www.trailforks.com/region/{self.region}/ridelogs/?viewMode=table&amp;page={i}&#34;
+            tmp_df = pd.read_html(domain, index_col=None, header=0)
+
+            # Sometimes we have more than 1 table on the page.
+            if len(tmp_df) &gt;= 2:
+                for potential_df in tmp_df:
+                    if &#34;city&#34; not in potential_df.columns:
+                        good_df = potential_df
+                        dataframes_list.append(good_df)
+            else:
+                good_df = tmp_df[0]
+                dataframes_list.append(good_df)
+
+            pbar.update(1)
+        except Exception as e:
+            pbar.update(1)
+            break
+    pbar.close()
+
+    df = pd.concat(dataframes_list, axis=0, ignore_index=True)
+    df.to_csv(f&#34;{output_path}/{self.region}_scraped_riders.csv&#34;)</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks_region.TrailforksRegion.download_all_region_trails"><code class="name flex">
+<span>def <span class="ident">download_all_region_trails</span></span>(<span>self, region_id: str, output_path='.') ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Each region has a CSV export capability to export all trails within the region.
+This function automates that export for the end user and saves a csv to local
+disk.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>region_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>this is the integer (string representation) of the region</dd>
+<dt><strong><code>output_path</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>output directory for the CSV. Defaults to ".".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True:export successful;False:export failed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@authentication
+def download_all_region_trails(self, region_id: str, output_path=&#34;.&#34;) -&gt; bool:
+    &#34;&#34;&#34;
+    Each region has a CSV export capability to export all trails within the region.
+    This function automates that export for the end user and saves a csv to local
+    disk.
+
+    Args:
+        region_id (str): this is the integer (string representation) of the region
+        output_path (str, optional): output directory for the CSV. Defaults to &#34;.&#34;.
+
+    Returns:
+        bool: True:export successful;False:export failed.
+    &#34;&#34;&#34;
+    self.check_region()
+    uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&amp;rid={region_id}&#34;
+    r = self.trailforks_session.get(uri, allow_redirects=True)
+    raw_csv_data = r.text
+    clean_data = re.sub(r&#39;[aA-zZ]\n&#39;, &#34;\&#34;,&#34;, raw_csv_data)
+
+    open(f&#34;{output_path}/{self.region}_trail_listing.csv&#34;, &#34;w&#34;).write(clean_data)</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks_region.TrailforksRegion.is_valid_region"><code class="name flex">
+<span>def <span class="ident">is_valid_region</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check to make sure a region name is a real region by
+making sure the page title is not Error</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True:is an existing region;False:region does not exist.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_valid_region(self) -&gt; bool:
+    &#34;&#34;&#34;
+    Check to make sure a region name is a real region by
+    making sure the page title is not Error
+
+    Returns:
+        bool: True:is an existing region;False:region does not exist.
+    &#34;&#34;&#34;
+    uri = f&#34;https://www.trailforks.com/region/{self.region}&#34;
+    r = requests.get(uri)
+    non_existant = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
+    if non_existant in r.text:
+        return False
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="PyForks.trailforks.Trailforks" href="trailforks.html#PyForks.trailforks.Trailforks">Trailforks</a></b></code>:
+<ul class="hlist">
+<li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.login" href="trailforks.html#PyForks.trailforks.Trailforks.login">login</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="trailforks.html#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<center><img src="PyForks.png" width="60%"/></center>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="PyForks" href="index.html">PyForks</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="PyForks.trailforks_region.TrailforksRegion" href="#PyForks.trailforks_region.TrailforksRegion">TrailforksRegion</a></code></h4>
+<ul class="">
+<li><code><a title="PyForks.trailforks_region.TrailforksRegion.check_region" href="#PyForks.trailforks_region.TrailforksRegion.check_region">check_region</a></code></li>
+<li><code><a title="PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs" href="#PyForks.trailforks_region.TrailforksRegion.download_all_region_ridelogs">download_all_region_ridelogs</a></code></li>
+<li><code><a title="PyForks.trailforks_region.TrailforksRegion.download_all_region_trails" href="#PyForks.trailforks_region.TrailforksRegion.download_all_region_trails">download_all_region_trails</a></code></li>
+<li><code><a title="PyForks.trailforks_region.TrailforksRegion.is_valid_region" href="#PyForks.trailforks_region.TrailforksRegion.is_valid_region">is_valid_region</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
