@@ -38,6 +38,13 @@ class TrailforksRegion(Trailforks):
 
     @authentication
     def download_region_ridecounts(self, region: str, output_path=".") -> None:
+        """
+        Downloads a regions total ridecounts is CSV format
+
+        Args:
+            region (str): Trailforks region name per URI
+            output_path (str, optional): Where to store CSV Defaults to ".".
+        """
         self.check_region(region)
         uri = f"https://www.trailforks.com/region/{region}/ridelogcountscsv/"
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -46,7 +53,7 @@ class TrailforksRegion(Trailforks):
         open(f"{output_path}/{region}_ridelogcounts.csv", "w").write(raw_csv_data)
 
     @authentication
-    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> bool:
+    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> None:
         """
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -57,8 +64,6 @@ class TrailforksRegion(Trailforks):
             region_id (str): this is the integer (string representation) of the region
             output_path (str, optional): output directory for the CSV. Defaults to ".".
 
-        Returns:
-            bool: True:export successful;False:export failed.
         """
         self.check_region(region)
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
@@ -69,7 +74,7 @@ class TrailforksRegion(Trailforks):
         open(f"{output_path}/{region}_trail_listing.csv", "w").write(clean_data)
 
     @authentication
-    def download_all_region_ridelogs(self, region: str, output_path=".") -> bool:
+    def download_all_region_ridelogs(self, region: str, output_path=".") -> None:
         """
         Downloads all of the trail ridelogs since the begining of the 
         trails existance and stores the results in CSV format on the 
@@ -79,8 +84,6 @@ class TrailforksRegion(Trailforks):
             region (str): region name as is shows on a URI
             output_path (str, optional): Path to store csv. Defaults to ".".
 
-        Returns:
-            bool: True:successfully saved data;False:failed
         """
         self.check_region(region)
         region_info = self._get_region_info(region)
