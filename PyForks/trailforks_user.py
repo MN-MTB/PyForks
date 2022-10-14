@@ -38,6 +38,7 @@ class TrailforksUser(Trailforks):
         ) = self.__get_user_city_state_country(user)
         return user_data
 
+    @authentication
     def rescan_ridelogs_for_badges(self, ride_ids: list) -> bool:
         """
         If you add a new badge or new badges have been added that your
@@ -56,9 +57,7 @@ class TrailforksUser(Trailforks):
                 headers = {
                     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
                 }
-                r = requests.get(
-                    uri, allow_redirects=True, cookies=self.cookie, headers=headers
-                )
+                r = self.trailforks_session.get(uri)
             return True
         except Exception as e:
             print(e)

@@ -2,8 +2,8 @@ from PyForks.trailforks_user import TrailforksUser
 
 
 def test_bad_username():
-    tf_user = TrailforksUser(username="09846759345fdsadfa")
-    user_data = tf_user.get_user_info()
+    tf_user = TrailforksUser()
+    user_data = tf_user.get_user_info("09846759345fdsadfa")
     expected = {
         'username': '09846759345fdsadfa', 
         'profile_link': 'https://www.trailforks.com/profile/09846759345fdsadfa', 
@@ -16,8 +16,8 @@ def test_bad_username():
 
 
 def test_good_username():
-    tf_user = TrailforksUser(username="mnmtb")
-    user_data = tf_user.get_user_info()
+    tf_user = TrailforksUser()
+    user_data = tf_user.get_user_info("mnmtb")
     expected = {
         'username': 'mnmtb', 
         'profile_link': 'https://www.trailforks.com/profile/mnmtb', 
@@ -36,7 +36,7 @@ def test_bad_ride_links():
         "https://www.trailforks.com/ridelog/view/4191ffffffffff0/",
         "https://www.trailforks.com/ri---d"
     ]
-    tf_user = TrailforksUser(username="mnmtb")
+    tf_user = TrailforksUser()
     ride_ids = tf_user._parse_ride_ids(ride_links)
     assert ride_ids == ['41911060']
 

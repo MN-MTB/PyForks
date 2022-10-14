@@ -28,9 +28,8 @@ def authentication(func):
         
 
 class Trailforks:
-    def __init__(self, region=None, username=None, password=None):
+    def __init__(self, username=None, password=None):
         self.name = "trailforks"
-        self.region = region
         self.username = username
         self.password = password
         self.trailforks_session = None
