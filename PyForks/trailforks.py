@@ -10,7 +10,7 @@ from concurrent.futures import as_completed, ThreadPoolExecutor
 def authentication(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
-        if self.cookie == None:
+        if not self.authenticated:
             print("[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=<cookie>)")
             exit(1)
         return func(self, *args, **kwargs) 
@@ -18,13 +18,27 @@ def authentication(func):
         
 
 class Trailforks:
-    def __init__(self, region=None, username=None, trailforks_cookie=None):
+    def __init__(self, region=None, username=None, password=None):
         self.name = "trailforks"
         self.region = region
         self.username = username
-        self.cookie = trailforks_cookie
+        self.password = password
+        self.trailforks_session = None
+        self.authenticated = False
 
-    def login(self) -> dict:
+    def login(self) -> bool:
+        """
+        Login to Trailforks with a username and password in order to conduct
+        privileged (user based) operations such as downloading content or 
+        viewing non-public information.
+
+        Returns:
+            bool: True:successful login;False:failed to login
+        """
+        trailforks_session = requests.Session()
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"}
+        t = trailforks_session.get("https://www.trailforks.com/login/#loginform", headers=headers, allow_redirects=True)
+        form_hash = self.__get_trailforks_formhash(t.text)
 
         payload = {
             "ripformname": "loginform",
@@ -34,20 +48,77 @@ class Trailforks:
             "fieldstack[1]": "redirect",
             "redirect-textbasic": "https://www.trailforks.com/profile/mnmtb/",
             "fieldstack[2]": "username",
-            "username-login-loginlen": "faust.joshua@gmail.com",
+            "username-login-loginlen": self.username,
             "fieldstack[3]": "password",
-            "password-password-lt200": "REDACTED--",
+            "password-password-lt200": self.password,
             "fieldstack[4]": "rememberme",
             "rememberme": "",
             "fieldstack[5]": "logoutother",
             "submitbutton['Login']": "Login",
             "buttondest['Login']": "https://www.trailforks.com/x_login_form/",
             "iebug": "1",
-            "formhash": "+t9UzozSkiKVu3yg/RbklLzMiIMMM5ZugdjIAErjjuyePSeHzcyU1tI+5FY6qwp4bMrODuKcbiFezpOKI1CHfk23otrHiAsNEexbV1FxEKHi+4KJFkqzQeIMYFkLyHdDpx+cm+5biT8RmOPLk9XFjGfLhBwzICeq8h/88ppUDmvt5swhphHaOJI="
+            "formhash": form_hash
         }
 
-        r = requests.post("https://trailforks.com/wosFormCheck.php", data=payload)
-        return r.text
+        headers_login = {
+            "Host": "www.trailforks.com",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": "773",
+            "Origin": "https://www.trailforks.com",
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Referer": "https://www.trailforks.com/login/",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-User": "?1",
+            "Sec-GPC": "1"
+        }
+
+        t = trailforks_session.post("https://www.trailforks.com/wosFormCheck.php", data=payload, headers=headers_login, allow_redirects=True)
+        if self.username in self.__get_trailforks_page_title(t.text):
+            self.trailforks_session = trailforks_session
+            self.authenticated = True
+            return True
+        return False
+
+    def __get_trailforks_formhash(self, html: str) -> str:
+        """
+        Trailforms uses a login form hash value that dictates if a login
+        action is valid as it's tied to either a previous login and/or a
+        datetime object that serves as the expiration date. However, anytime
+        a user vists the login page, a new formhash is generated and exists
+        within the HTML. This function parses that hash out in order to
+        successfully login to Trailforks without using Selenium
+
+        Args:
+            html (str): Raw HTML of the get request to the login page
+
+        Returns:
+            str: the formhash string
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        form_hash = soup.find('input', {'name': 'formhash'}).get('value')
+        return form_hash
+
+    def __get_trailforks_page_title(self, html: str) -> str:
+        """
+        Obtain the title of any page given its HTML content
+
+        Args:
+            html (str): Raw HTML
+
+        Returns:
+            str: Title string
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        title_tag = soup.find('title')
+        return title_tag.string
 
     def check_region(self) -> None:
         """

@@ -19,7 +19,7 @@ class TrailforksRegion(Trailforks):
     def download_all_region_rides(self, region_id: str, output_path=".") -> bool:
         self.check_region()
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
-        r = requests.get(uri, cookies=self.cookie, allow_redirects=True)
+        r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
         clean_data = re.sub(r'[aA-zZ]\n', "\",", raw_csv_data)
 
