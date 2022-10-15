@@ -63,7 +63,7 @@ class TrailforksUser(Trailforks):
             print(e)
             return False
 
-    def get_user_all_ridelogs(self, user: str) -> pd.DataFrame:
+    def get_user_ridelogs_all(self, user: str) -> pd.DataFrame:
         """
         Scrape all of the users ridelogs and throw that into a pandas
         dataframe.
@@ -210,4 +210,19 @@ class TrailforksUser(Trailforks):
         except ValueError as e:
             user_gear = []
         return user_gear
+
+"""
+    def is_regional_admin(self, user: str) -> tuple:
+        uri = f"https://www.trailforks.com/profile/{self.uri_encode(user)}/"
+        r = requests.get(uri)
+        try:
+            region_link, region_name = re.search(
+                r'Admin</h4>.*<a href="(https.*)">([aA0-zZ9]+)</a>', 
+                r.text, 
+                re.DOTALL|re.MULTILINE
+                ).groups()
+            return ({"region_link": region_link, "region_name": region_name}, True)
+        except AttributeError:
+            return ({}, False)
+"""
         

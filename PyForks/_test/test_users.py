@@ -40,3 +40,9 @@ def test_bad_ride_links():
     ride_ids = tf_user._parse_ride_ids(ride_links)
     assert ride_ids == ['41911060']
 
+"""
+def test_is_admin():
+    tf_user = TrailforksUser()
+    region, is_admin = tf_user.is_regional_admin("mnmtb")
+    print(region, is_admin)
+"""

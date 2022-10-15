@@ -30,4 +30,23 @@ def test_get_region_info():
     region = TrailforksRegion()
     check = region._get_region_info("lebanon-hills")
     assert isinstance(check, dict)
-    
+
+"""
+def test_ridelogcount_download_lowpriv_user():
+    region = TrailforksRegion(username="", password="")
+    region.login()
+    download_result = region.download_region_ridecounts("west-lake-marion-park")
+    assert download_result == True
+
+def test_trails_download_lowpriv_user():
+    region = TrailforksRegion(username="", password="")
+    region.login()
+    download_result = region.download_all_region_trails("west-lake-marion-park", "20367")
+    assert download_result == False
+
+def test_ridelogs_download_lowpriv_user():
+    region = TrailforksRegion(username="", password="")
+    region.login()
+    download_result = region.download_all_region_ridelogs("west-lake-marion-park")
+    assert download_result == True
+"""

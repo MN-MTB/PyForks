@@ -37,23 +37,34 @@ class TrailforksRegion(Trailforks):
         return True
 
     @authentication
-    def download_region_ridecounts(self, region: str, output_path=".") -> None:
+    def download_region_ridecounts(self, region: str, output_path=".") -> bool:
         """
         Downloads a regions total ridecounts is CSV format
 
         Args:
             region (str): Trailforks region name per URI
             output_path (str, optional): Where to store CSV Defaults to ".".
+
+        Returns:
+            bool: true:CSV written to disk;False:failed to write CSV
         """
+        success = False
         self.check_region(region)
         uri = f"https://www.trailforks.com/region/{region}/ridelogcountscsv/"
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
         
-        open(f"{output_path}/{region}_ridelogcounts.csv", "w").write(raw_csv_data)
+        if "date,rides" in raw_csv_data:
+            open(f"{output_path}/{region}_ridelogcounts.csv", "w").write(raw_csv_data)
+            success = True
+        else:
+            if self._check_requires_region_admin(r.text):
+                print(f"[!] Error: You need to be an Admin for {region} to download Trail Ridecounts")
+
+        return success
 
     @authentication
-    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> None:
+    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> bool:
         """
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -64,17 +75,27 @@ class TrailforksRegion(Trailforks):
             region_id (str): this is the integer (string representation) of the region
             output_path (str, optional): output directory for the CSV. Defaults to ".".
 
+        Returns:
+            bool: true:CSV written to disk;False:failed to write CSV
         """
+        success = False
         self.check_region(region)
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
         clean_data = re.sub(r'[aA-zZ]\n', "\",", raw_csv_data)
 
-        open(f"{output_path}/{region}_trail_listing.csv", "w").write(clean_data)
+        if "trailid,title" in clean_data:
+            success = True
+            open(f"{output_path}/{region}_trail_listing.csv", "w").write(clean_data)
+        else:
+            if self._check_requires_region_admin(r.text):
+                print(f"[!] Error: You need to be an Admin for {region} to download Trail Data")
+
+        return success
 
     @authentication
-    def download_all_region_ridelogs(self, region: str, output_path=".") -> None:
+    def download_all_region_ridelogs(self, region: str, output_path=".") -> bool:
         """
         Downloads all of the trail ridelogs since the begining of the 
         trails existance and stores the results in CSV format on the 
@@ -83,11 +104,13 @@ class TrailforksRegion(Trailforks):
         Args:
             region (str): region name as is shows on a URI
             output_path (str, optional): Path to store csv. Defaults to ".".
-
+            
+        Returns:
+            bool: true:CSV written to disk;False:failed to write CSV
         """
         self.check_region(region)
         region_info = self._get_region_info(region)
-        total_pages = round(region_info["total_ridelogs"]/30)
+        total_pages = round(region_info["total_ridelogs"]/90)
         dataframes_list = []
 
         pbar = tqdm(total=total_pages, desc=f"Enumerating {region} Rider Pages")
@@ -112,9 +135,13 @@ class TrailforksRegion(Trailforks):
                 break
         pbar.close()
 
-        df = pd.concat(dataframes_list, axis=0, ignore_index=True)
-        df.to_csv(f"{output_path}/{region}_scraped_riders.csv")
-        
+        try:
+            df = pd.concat(dataframes_list, axis=0, ignore_index=True)
+            df.to_csv(f"{output_path}/{region}_scraped_riders.csv")
+            return True
+        except:
+            return False
+
 
     def _get_region_info(self, region: str) -> dict:
         """
@@ -146,3 +173,20 @@ class TrailforksRegion(Trailforks):
             region_info[region_vars[i]] = int(re.search(r'>([0-9].*)<', str(item)).groups()[0].replace(",",""))
         
         return region_info
+
+
+    def _check_requires_region_admin(self, error_message: str) -> bool:
+        """
+        If we get an error on an authenticated function, it might be because
+        the user in question is not a admin for the local trail/region and
+        are just a standard user. This function determines this by looking at
+        known error codes.
+
+        Args:
+            error_message (str): RAW Html error page 
+
+        Returns:
+            bool: True:action requires admin;False:action doesn't need admin
+        """
+        error_messages = ["Only trusted users can export"]
+        return any([x in error_message for x in error_messages])

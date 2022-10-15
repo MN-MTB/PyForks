@@ -32,18 +32,25 @@ from PyForks.trailforks_user import TrailforksUser
 from pprint import pprint
 
 # Get Basic information about a user
-tf = TrailforksUser()
-user_info = tf.get_user_info("mnmtb")
+tf_u = TrailforksUser()
+user_info = tf_u.get_user_info("mnmtb")
 pprint(user_info)
 
 # Get the User's Gear
-tf.username = "<your_username>"
-tf.password = "<your_password>"
-tf.login()
-user_gear = tf.get_user_gear("mnmtb")
+tf_u.username = "<your_username>"
+tf_u.password = "<your_password>"
+tf_u.login()
+user_gear = tf_u.get_user_gear("mnmtb")
 pprint(user_gear)
 ```
-  
+
+**Get Information on a region**
+```python
+from PyForks.trailforks_region import TrailforksRegion
+tf_r = TrailforksRegion(username=<username>, password=<password>)
+tf_r.login()
+
+```
 
 ## Contribute
 

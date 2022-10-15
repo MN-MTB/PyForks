@@ -21,7 +21,7 @@ def authentication(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:
-            print("[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=<cookie>)")
+            print("[!] Need Authentication:\nYou must provide username= and password=")
             exit(1)
         return func(self, *args, **kwargs) 
     return run_checks
@@ -55,7 +55,7 @@ class Trailforks:
             "fieldstack[0]": "source",
             "source-alpha": "trailforks",
             "fieldstack[1]": "redirect",
-            "redirect-textbasic": "https://www.trailforks.com/profile/mnmtb/",
+            "redirect-textbasic": f"https://www.trailforks.com/profile/{self.uri_encode(self.username)}/",
             "fieldstack[2]": "username",
             "username-login-loginlen": self.username,
             "fieldstack[3]": "password",
