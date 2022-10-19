@@ -14,7 +14,7 @@ def test_bad_username():
         }
     assert user_data == expected
 
-
+""" this is too dynamic to be a reliable test
 def test_good_username():
     tf_user = TrailforksUser()
     user_data = tf_user.get_user_info("mnmtb")
@@ -27,7 +27,7 @@ def test_good_username():
         'recent_ride_locations': ['Murphy-Hanrehan Park', 'Lebanon Hills', 'West Lake Marion Park', 'Spirit Mountain Bike Park', '', 'Battle Creek', 'Cottage Grove Bike Park', 'Lakeville']
         }
     assert user_data == expected
-
+"""
 
 def test_bad_ride_links():
     ride_links = [
