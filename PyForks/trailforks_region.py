@@ -39,7 +39,9 @@ class TrailforksRegion(Trailforks):
     @authentication
     def download_region_ridecounts(self, region: str, output_path=".") -> bool:
         """
-        Downloads a regions total ridecounts is CSV format
+        Downloads a regions total ridecounts is CSV format. Ideally, this should 
+        be handled by the Trailforks API but, they've not provisioning access 
+        at this point (https://www.trailforks.com/about/api/)
 
         Args:
             region (str): Trailforks region name per URI
@@ -68,7 +70,8 @@ class TrailforksRegion(Trailforks):
         """
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
-        disk.
+        disk. Ideally, this should be handled by the Trailforks API but,
+        they've not provisioning access at this point (https://www.trailforks.com/about/api/)
 
         Args:
             region (str): region name as is shows on a URI
@@ -99,7 +102,8 @@ class TrailforksRegion(Trailforks):
         """
         Downloads all of the trail ridelogs since the begining of the 
         trails existance and stores the results in CSV format on the 
-        local disk
+        local disk. Ideally, this should be handled by the Trailforks API but,
+        they've not provisioning access at this point (https://www.trailforks.com/about/api)
 
         Args:
             region (str): region name as is shows on a URI

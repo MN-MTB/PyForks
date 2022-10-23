@@ -36,6 +36,11 @@ class TrailforksUser(Trailforks):
             user_data["state"],
             user_data["country"],
         ) = self.__get_user_city_state_country(user)
+
+        (
+            user_data["admin_region"],
+            user_data["is_regional_admin"]
+        ) = self.is_regional_admin(user)
         return user_data
 
     @authentication
@@ -185,6 +190,7 @@ class TrailforksUser(Trailforks):
             activity_df = pd.read_html(activity_uri)[0]
             activity_df = activity_df.fillna('')
             recent_ride_locations = activity_df.location.unique().tolist()
+            recent_ride_locations.remove('')
         except ValueError as e:
             recent_ride_locations = []
 
@@ -211,18 +217,30 @@ class TrailforksUser(Trailforks):
             user_gear = []
         return user_gear
 
-"""
+
     def is_regional_admin(self, user: str) -> tuple:
+        """
+        Determines if a user is a regional admin and returns
+        the region they're an admin of (link and name)
+
+        Args:
+            user (str): Trailforks username
+
+        Returns:
+            tuple: ({region_link, region_name}, is_admin bool)
+        """
         uri = f"https://www.trailforks.com/profile/{self.uri_encode(user)}/"
         r = requests.get(uri)
         try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            col_5 = soup.find('div', {'class', 'col-5'})
             region_link, region_name = re.search(
                 r'Admin</h4>.*<a href="(https.*)">([aA0-zZ9]+)</a>', 
-                r.text, 
+                str(col_5), 
                 re.DOTALL|re.MULTILINE
                 ).groups()
             return ({"region_link": region_link, "region_name": region_name}, True)
         except AttributeError:
-            return ({}, False)
-"""
+            return ({"region_link": "", "region_name": ""}, False)
+
         

@@ -5,29 +5,18 @@ def test_bad_username():
     tf_user = TrailforksUser()
     user_data = tf_user.get_user_info("09846759345fdsadfa")
     expected = {
-        'username': '09846759345fdsadfa', 
-        'profile_link': 'https://www.trailforks.com/profile/09846759345fdsadfa', 
-        'city': 'unknown', 
-        'state': 'unknown', 
-        'country': 'unknown', 
-        'recent_ride_locations': []
+        'admin_region': {'region_link': '', 'region_name': ''},
+        'city': 'unknown',
+        'country': 'unknown',
+        'is_regional_admin': False,
+        'profile_link': 'https://www.trailforks.com/profile/09846759345fdsadfa',
+        'recent_ride_locations': [],
+        'state': 'unknown',
+        'username': '09846759345fdsadfa'
         }
+
     assert user_data == expected
 
-""" this is too dynamic to be a reliable test
-def test_good_username():
-    tf_user = TrailforksUser()
-    user_data = tf_user.get_user_info("mnmtb")
-    expected = {
-        'username': 'mnmtb', 
-        'profile_link': 'https://www.trailforks.com/profile/mnmtb', 
-        'city': 'Lakeville', 
-        'state': 'Minnesota', 
-        'country': 'USA', 
-        'recent_ride_locations': ['Murphy-Hanrehan Park', 'Lebanon Hills', 'West Lake Marion Park', 'Spirit Mountain Bike Park', '', 'Battle Creek', 'Cottage Grove Bike Park', 'Lakeville']
-        }
-    assert user_data == expected
-"""
 
 def test_bad_ride_links():
     ride_links = [
@@ -40,9 +29,9 @@ def test_bad_ride_links():
     ride_ids = tf_user._parse_ride_ids(ride_links)
     assert ride_ids == ['41911060']
 
-"""
+
 def test_is_admin():
     tf_user = TrailforksUser()
     region, is_admin = tf_user.is_regional_admin("mnmtb")
-    print(region, is_admin)
-"""
+    assert is_admin == True
+

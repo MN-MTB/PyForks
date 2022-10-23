@@ -64,6 +64,11 @@ class TrailforksUser(Trailforks):
             user_data[&#34;state&#34;],
             user_data[&#34;country&#34;],
         ) = self.__get_user_city_state_country(user)
+
+        (
+            user_data[&#34;admin_region&#34;],
+            user_data[&#34;is_regional_admin&#34;]
+        ) = self.is_regional_admin(user)
         return user_data
 
     @authentication
@@ -91,7 +96,7 @@ class TrailforksUser(Trailforks):
             print(e)
             return False
 
-    def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
+    def get_user_ridelogs_all(self, user: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Scrape all of the users ridelogs and throw that into a pandas
         dataframe.
@@ -213,6 +218,7 @@ class TrailforksUser(Trailforks):
             activity_df = pd.read_html(activity_uri)[0]
             activity_df = activity_df.fillna(&#39;&#39;)
             recent_ride_locations = activity_df.location.unique().tolist()
+            recent_ride_locations.remove(&#39;&#39;)
         except ValueError as e:
             recent_ride_locations = []
 
@@ -238,6 +244,33 @@ class TrailforksUser(Trailforks):
         except ValueError as e:
             user_gear = []
         return user_gear
+
+
+    def is_regional_admin(self, user: str) -&gt; tuple:
+        &#34;&#34;&#34;
+        Determines if a user is a regional admin and returns
+        the region they&#39;re an admin of (link and name)
+
+        Args:
+            user (str): Trailforks username
+
+        Returns:
+            tuple: ({region_link, region_name}, is_admin bool)
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/&#34;
+        r = requests.get(uri)
+        try:
+            soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
+            col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+            region_link, region_name = re.search(
+                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
+                str(col_5), 
+                re.DOTALL|re.MULTILINE
+                ).groups()
+            return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
+        except AttributeError:
+            return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)
+
         </code></pre>
 </details>
 </section>
@@ -287,6 +320,11 @@ class TrailforksUser(Trailforks):
             user_data[&#34;state&#34;],
             user_data[&#34;country&#34;],
         ) = self.__get_user_city_state_country(user)
+
+        (
+            user_data[&#34;admin_region&#34;],
+            user_data[&#34;is_regional_admin&#34;]
+        ) = self.is_regional_admin(user)
         return user_data
 
     @authentication
@@ -314,7 +352,7 @@ class TrailforksUser(Trailforks):
             print(e)
             return False
 
-    def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
+    def get_user_ridelogs_all(self, user: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Scrape all of the users ridelogs and throw that into a pandas
         dataframe.
@@ -436,6 +474,7 @@ class TrailforksUser(Trailforks):
             activity_df = pd.read_html(activity_uri)[0]
             activity_df = activity_df.fillna(&#39;&#39;)
             recent_ride_locations = activity_df.location.unique().tolist()
+            recent_ride_locations.remove(&#39;&#39;)
         except ValueError as e:
             recent_ride_locations = []
 
@@ -460,7 +499,33 @@ class TrailforksUser(Trailforks):
             user_gear = list(zip(df.brand, df.model))
         except ValueError as e:
             user_gear = []
-        return user_gear</code></pre>
+        return user_gear
+
+
+    def is_regional_admin(self, user: str) -&gt; tuple:
+        &#34;&#34;&#34;
+        Determines if a user is a regional admin and returns
+        the region they&#39;re an admin of (link and name)
+
+        Args:
+            user (str): Trailforks username
+
+        Returns:
+            tuple: ({region_link, region_name}, is_admin bool)
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/&#34;
+        r = requests.get(uri)
+        try:
+            soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
+            col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+            region_link, region_name = re.search(
+                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
+                str(col_5), 
+                re.DOTALL|re.MULTILINE
+                ).groups()
+            return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
+        except AttributeError:
+            return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -468,47 +533,6 @@ class TrailforksUser(Trailforks):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="PyForks.trailforks_user.TrailforksUser.get_user_all_ridelogs"><code class="name flex">
-<span>def <span class="ident">get_user_all_ridelogs</span></span>(<span>self, user: str) ‑> pandas.core.frame.DataFrame</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Scrape all of the users ridelogs and throw that into a pandas
-dataframe.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
-<dd>A Trailforks username</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>pd.DataFrame</code></dt>
-<dd>Pandas dataframe of all rides ever subject to the user</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_user_all_ridelogs(self, user: str) -&gt; pd.DataFrame:
-    &#34;&#34;&#34;
-    Scrape all of the users ridelogs and throw that into a pandas
-    dataframe.
-
-    Args:
-        user (str): A Trailforks username
-
-    Returns:
-        pd.DataFrame: Pandas dataframe of all rides ever subject to the user
-    &#34;&#34;&#34;
-    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
-    r = requests.get(uri)
-    df = pd.read_html(r.text)[0]
-    with open(&#34;data.html&#34;, &#34;w&#34;) as f:
-        f.write(r.text)
-    df[&#34;ridelog_link&#34;] = self.__get_ridelog_links(r.text)
-    df[&#34;ride_id&#34;] = self._parse_ride_ids(df.ridelog_link.to_list())
-    return df</code></pre>
-</details>
-</dd>
 <dt id="PyForks.trailforks_user.TrailforksUser.get_user_gear"><code class="name flex">
 <span>def <span class="ident">get_user_gear</span></span>(<span>self, user: str) ‑> list</span>
 </code></dt>
@@ -595,7 +619,99 @@ and recent ridelogs</p>
         user_data[&#34;state&#34;],
         user_data[&#34;country&#34;],
     ) = self.__get_user_city_state_country(user)
+
+    (
+        user_data[&#34;admin_region&#34;],
+        user_data[&#34;is_regional_admin&#34;]
+    ) = self.is_regional_admin(user)
     return user_data</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all"><code class="name flex">
+<span>def <span class="ident">get_user_ridelogs_all</span></span>(<span>self, user: str) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Scrape all of the users ridelogs and throw that into a pandas
+dataframe.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>A Trailforks username</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Pandas dataframe of all rides ever subject to the user</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_user_ridelogs_all(self, user: str) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;
+    Scrape all of the users ridelogs and throw that into a pandas
+    dataframe.
+
+    Args:
+        user (str): A Trailforks username
+
+    Returns:
+        pd.DataFrame: Pandas dataframe of all rides ever subject to the user
+    &#34;&#34;&#34;
+    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
+    r = requests.get(uri)
+    df = pd.read_html(r.text)[0]
+    with open(&#34;data.html&#34;, &#34;w&#34;) as f:
+        f.write(r.text)
+    df[&#34;ridelog_link&#34;] = self.__get_ridelog_links(r.text)
+    df[&#34;ride_id&#34;] = self._parse_ride_ids(df.ridelog_link.to_list())
+    return df</code></pre>
+</details>
+</dd>
+<dt id="PyForks.trailforks_user.TrailforksUser.is_regional_admin"><code class="name flex">
+<span>def <span class="ident">is_regional_admin</span></span>(<span>self, user: str) ‑> tuple</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Determines if a user is a regional admin and returns
+the region they're an admin of (link and name)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>Trailforks username</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>({region_link, region_name}, is_admin bool)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_regional_admin(self, user: str) -&gt; tuple:
+    &#34;&#34;&#34;
+    Determines if a user is a regional admin and returns
+    the region they&#39;re an admin of (link and name)
+
+    Args:
+        user (str): Trailforks username
+
+    Returns:
+        tuple: ({region_link, region_name}, is_admin bool)
+    &#34;&#34;&#34;
+    uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/&#34;
+    r = requests.get(uri)
+    try:
+        soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
+        col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+        region_link, region_name = re.search(
+            r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
+            str(col_5), 
+            re.DOTALL|re.MULTILINE
+            ).groups()
+        return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
+    except AttributeError:
+        return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
 </details>
 </dd>
 <dt id="PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges"><code class="name flex">
@@ -678,9 +794,10 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
 <li>
 <h4><code><a title="PyForks.trailforks_user.TrailforksUser" href="#PyForks.trailforks_user.TrailforksUser">TrailforksUser</a></code></h4>
 <ul class="">
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_all_ridelogs" href="#PyForks.trailforks_user.TrailforksUser.get_user_all_ridelogs">get_user_all_ridelogs</a></code></li>
 <li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_gear" href="#PyForks.trailforks_user.TrailforksUser.get_user_gear">get_user_gear</a></code></li>
 <li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_info" href="#PyForks.trailforks_user.TrailforksUser.get_user_info">get_user_info</a></code></li>
+<li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all" href="#PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all">get_user_ridelogs_all</a></code></li>
+<li><code><a title="PyForks.trailforks_user.TrailforksUser.is_regional_admin" href="#PyForks.trailforks_user.TrailforksUser.is_regional_admin">is_regional_admin</a></code></li>
 <li><code><a title="PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges" href="#PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges">rescan_ridelogs_for_badges</a></code></li>
 </ul>
 </li>

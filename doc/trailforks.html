@@ -49,7 +49,7 @@ def authentication(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:
-            print(&#34;[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=&lt;cookie&gt;)&#34;)
+            print(&#34;[!] Need Authentication:\nYou must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs) 
     return run_checks
@@ -83,7 +83,7 @@ class Trailforks:
             &#34;fieldstack[0]&#34;: &#34;source&#34;,
             &#34;source-alpha&#34;: &#34;trailforks&#34;,
             &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-            &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+            &#34;redirect-textbasic&#34;: f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;,
             &#34;fieldstack[2]&#34;: &#34;username&#34;,
             &#34;username-login-loginlen&#34;: self.username,
             &#34;fieldstack[3]&#34;: &#34;password&#34;,
@@ -241,7 +241,7 @@ user session to complete a task such as downloading CSV reports</p>
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:
-            print(&#34;[!] Need Authentication:\nYou must provide the Trailforks class with a valid cookie (trailforks_cookie=&lt;cookie&gt;)&#34;)
+            print(&#34;[!] Need Authentication:\nYou must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs) 
     return run_checks</code></pre>
@@ -290,7 +290,7 @@ user session to complete a task such as downloading CSV reports</p>
             &#34;fieldstack[0]&#34;: &#34;source&#34;,
             &#34;source-alpha&#34;: &#34;trailforks&#34;,
             &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-            &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+            &#34;redirect-textbasic&#34;: f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;,
             &#34;fieldstack[2]&#34;: &#34;username&#34;,
             &#34;username-login-loginlen&#34;: self.username,
             &#34;fieldstack[3]&#34;: &#34;password&#34;,
@@ -511,7 +511,7 @@ viewing non-public information.</p>
         &#34;fieldstack[0]&#34;: &#34;source&#34;,
         &#34;source-alpha&#34;: &#34;trailforks&#34;,
         &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-        &#34;redirect-textbasic&#34;: &#34;https://www.trailforks.com/profile/mnmtb/&#34;,
+        &#34;redirect-textbasic&#34;: f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;,
         &#34;fieldstack[2]&#34;: &#34;username&#34;,
         &#34;username-login-loginlen&#34;: self.username,
         &#34;fieldstack[3]&#34;: &#34;password&#34;,

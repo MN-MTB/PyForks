@@ -15,7 +15,7 @@ Python Trailforks Library for interacting with Trailforks.com. Help [support](ht
 
 ## About
 
-PyForks has been designed to help me automate much of the manual data aggregation I was doing in order to build metrics for my local city and state trail systems. For example: [wlmt.mn-mtb.com](http://wlmt.mn-mtb.com). The end goal of this project is the ability to make it much easier to pull data down that people are interested in and analyze it in a way that non-technical individuals can digest and understand impact in hopes of additional funding and intrest. 
+PyForks has been designed to help me automate much of the manual data aggregation I was doing in order to build metrics for my local city and state trail systems. For example: [wlmt.mn-mtb.com](http://wlmt.mn-mtb.com). The end goal of this project is the ability to make it much easier to pull data down that people are interested in and analyze it in a way that non-technical individuals can digest and understand impact in hopes of additional funding and interest. 
 
 ## Installation & Documentation
 
@@ -42,6 +42,29 @@ tf_u.password = "<your_password>"
 tf_u.login()
 user_gear = tf_u.get_user_gear("mnmtb")
 pprint(user_gear)
+
+"""
+EXAMPLE OUTPUT:
+{
+  'admin_region': 
+    {
+    'region_link': 'https://www.trailforks.com/region/minnesota/',
+    'region_name': 'Minnesota'
+    },
+ 'city': 'Lakeville',
+ 'country': 'USA',
+ 'is_regional_admin': True,
+ 'profile_link': 'https://www.trailforks.com/profile/mnmtb',
+ 'recent_ride_locations': ['West Lake Marion Park',
+                           'Murphy-Hanrehan Park',
+                           'Lebanon Hills',
+                           'Spirit Mountain Bike Park',
+                           'Battle Creek',
+                           'Cottage Grove Bike Park',
+                           'Lakeville'],
+ 'state': 'Minnesota',
+ 'username': 'mnmtb'}
+ """
 ```
 
 **Get Information on a region**
@@ -49,6 +72,15 @@ pprint(user_gear)
 from PyForks.trailforks_region import TrailforksRegion
 tf_r = TrailforksRegion(username=<username>, password=<password>)
 tf_r.login()
+
+# Download All of a regions trails in CSV:
+tf_r.download_all_region_trails(region, region_id)
+
+# Download all region ridelogs in csv
+tf_r.download_all_region_ridelogs(region)
+
+# Download all region ridecounts in CSV
+tf_r.download_region_ridecounts(region)
 
 ```
 
