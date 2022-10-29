@@ -239,3 +239,17 @@ class Trailforks:
                 return float(distance.split(" ")[0])
         except Exception as e:
             return 0
+
+    def feet_to_miles(self, feet: int) -> float:
+        """
+        Translate feet into miles
+
+        Args:
+            feet (int): feet as a integet
+
+        Returns:
+            float: miles as a float
+        """
+        feet = int(feet.replace(",","").strip())
+        mi = 0.000189394
+        return feet * mi

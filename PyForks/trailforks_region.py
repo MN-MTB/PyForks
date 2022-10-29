@@ -3,6 +3,7 @@ import requests
 import re
 import io
 import calendar
+import tempfile
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from concurrent.futures import as_completed, ThreadPoolExecutor
@@ -60,7 +61,7 @@ class TrailforksRegion(Trailforks):
         return df
 
     @authentication
-    def download_region_ridecounts(self, region: str, output_path=".") -> bool:
+    def download_region_ridecounts(self, region: str) -> bool:
         """
         Downloads a regions total ridecounts is CSV format. Ideally, this should 
         be handled by the Trailforks API but, they've not provisioning access 
@@ -106,10 +107,10 @@ class TrailforksRegion(Trailforks):
         df['ascent_miles'] = None
         df['flat_miles'] = None
         for index, row in df.iterrows():
-            df.loc[index, 'total_miles'] = self.distance_string_to_miles_float(str(row['distance']))
-            df.loc[index, 'descent_miles'] = self.distance_string_to_miles_float(str(row['dst_descent']))
-            df.loc[index, 'ascent_miles'] = self.distance_string_to_miles_float(str(row['dst_climb']))
-            df.loc[index, 'flat_miles'] = self.distance_string_to_miles_float(str(row['dst_flat']))
+            df.loc[index, 'total_miles'] = self.feet_to_miles(str(row['distance']))
+            df.loc[index, 'descent_miles'] = self.feet_to_miles(str(row['dst_descent']))
+            df.loc[index, 'ascent_miles'] = self.feet_to_miles(str(row['dst_climb']))
+            df.loc[index, 'flat_miles'] = self.feet_to_miles(str(row['dst_flat']))
         df['total_miles'] = df['total_miles'].astype(float)
         df['descent_miles'] = df['descent_miles'].astype(float)
         df['ascent_miles'] = df['ascent_miles'].astype(float)
@@ -117,9 +118,32 @@ class TrailforksRegion(Trailforks):
 
         return df
 
+    def __clean_raw_csv_data(self, raw_data: str) -> str:
+        """
+        Trailforks CSV data is pretty bad in terms of quality. We
+        need to clean things up quite a bit to get it into a dataframe
+
+        Args:
+            raw_data (str): raw CSV data
+
+        Returns:
+            str: cleaned csv data
+        """
+        fix_csv_data = re.sub(r'\nhttps', "\",\"https", raw_data)
+        csv_data_list = []
+        for line in fix_csv_data.split("\n"):
+            line = line.strip()                     # remove un-needed chars
+
+            if "title" not in line:
+                line = line[:-1]
+
+            csv_data_list.append(line)
+
+        return "\n".join(csv_data_list)
+        
 
     @authentication
-    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> pd.DataFrame:
+    def download_all_region_trails(self, region: str, region_id: str) -> pd.DataFrame:
         """
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -136,16 +160,15 @@ class TrailforksRegion(Trailforks):
         """
         success = False
         self.check_region(region)
-        uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
+        uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&rid={region_id}"
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
+        clean_csv_data = self.__clean_raw_csv_data(raw_csv_data)
 
-        # this is a monkey patch until this (https://www.pinkbike.com/forum/x_directtolastpost/?commentid=7145318) is fixed
-        clean_csv_data = re.sub(r'(?<![miles])[aA-zZ]\n', "\",", raw_csv_data)
-
-        if "trailid,title" in clean_csv_data:
+        if "title,difficulty" in clean_csv_data:
             df = pd.read_csv(io.StringIO(clean_csv_data))
             return self.__clean_region_trails(df)
+            #return df
 
         else:
             if self._check_requires_region_admin(r.text):
@@ -190,7 +213,7 @@ class TrailforksRegion(Trailforks):
             return pd.DataFrame
 
     @authentication
-    def download_all_region_ridelogs(self, region: str, output_path=".") -> pd.DataFrame:
+    def download_all_region_ridelogs(self, region: str) -> pd.DataFrame:
         """
         Downloads all of the trail ridelogs since the begining of the 
         trails existance and stores the results in CSV format on the 
