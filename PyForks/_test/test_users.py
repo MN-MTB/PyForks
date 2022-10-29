@@ -35,3 +35,7 @@ def test_is_admin():
     region, is_admin = tf_user.is_regional_admin("mnmtb")
     assert is_admin == True
 
+def test_is_admin_fail():
+    tf_user = TrailforksUser()
+    region, is_admin = tf_user.is_regional_admin("asdfdfsafsdf")
+    assert is_admin == False

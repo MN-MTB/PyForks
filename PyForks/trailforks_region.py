@@ -1,6 +1,8 @@
 import pandas as pd
 import requests
 import re
+import io
+import calendar
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from concurrent.futures import as_completed, ThreadPoolExecutor
@@ -36,6 +38,27 @@ class TrailforksRegion(Trailforks):
             exit(1)
         return True
 
+    def __enrich_ridecounts(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Takes in a Pandas Dataframe with messy data from Trailforks
+        and cleans it up, adds values, and simply just normalizes it
+
+        Args:
+            df (pd.DataFrame): Raw Trailforks Data
+
+        Returns:
+            pd.DataFrame: Clean and Encriched Trailforks Data
+        """
+        df["date"] = pd.to_datetime(df["date"])
+        df["year"] = df["date"].dt.year
+        df['month'] = df["date"].dt.month
+        df['day'] = df["date"].dt.day
+        df['weekday_num'] = df['date'].dt.weekday
+        df['weekday'] = df["date"].dt.day_name()
+        df['month_name'] = df['month'].apply(lambda x: calendar.month_abbr[x])
+
+        return df
+
     @authentication
     def download_region_ridecounts(self, region: str, output_path=".") -> bool:
         """
@@ -57,16 +80,46 @@ class TrailforksRegion(Trailforks):
         raw_csv_data = r.text
         
         if "date,rides" in raw_csv_data:
-            open(f"{output_path}/{region}_ridelogcounts.csv", "w").write(raw_csv_data)
-            success = True
+            raw_df = pd.read_csv(io.StringIO(raw_csv_data))
+            raw_df["region"] = region
+            return self.__enrich_ridecounts(raw_df)
+
         else:
             if self._check_requires_region_admin(r.text):
                 print(f"[!] Error: You need to be an Admin for {region} to download Trail Ridecounts")
+            return pd.DataFrame
 
-        return success
+    def __clean_region_trails(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Clean the region traillog data by converting distance data into 
+        a useable metric (miles).
+
+        Args:
+            df (pd.DataFrame): _description_
+
+        Returns:
+            pd.DataFrame: _description_
+        """
+
+        df['total_miles'] = None
+        df['descent_miles'] = None
+        df['ascent_miles'] = None
+        df['flat_miles'] = None
+        for index, row in df.iterrows():
+            df.loc[index, 'total_miles'] = self.distance_string_to_miles_float(str(row['distance']))
+            df.loc[index, 'descent_miles'] = self.distance_string_to_miles_float(str(row['dst_descent']))
+            df.loc[index, 'ascent_miles'] = self.distance_string_to_miles_float(str(row['dst_climb']))
+            df.loc[index, 'flat_miles'] = self.distance_string_to_miles_float(str(row['dst_flat']))
+        df['total_miles'] = df['total_miles'].astype(float)
+        df['descent_miles'] = df['descent_miles'].astype(float)
+        df['ascent_miles'] = df['ascent_miles'].astype(float)
+        df['flat_miles'] = df['flat_miles'].astype(float)
+
+        return df
+
 
     @authentication
-    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> bool:
+    def download_all_region_trails(self, region: str, region_id: str, output_path=".") -> pd.DataFrame:
         """
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -79,26 +132,65 @@ class TrailforksRegion(Trailforks):
             output_path (str, optional): output directory for the CSV. Defaults to ".".
 
         Returns:
-            bool: true:CSV written to disk;False:failed to write CSV
+            DataFrame: Pandas DataFrame
         """
         success = False
         self.check_region(region)
         uri = f"https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=trailid,title,aka,activitytype,difficulty,status,condition,region_title,rid,difficulty_system,trailtype,usage,direction,season,unsanctioned,hidden,rating,ridden,total_checkins,total_reports,total_photos,total_videos,faved,views,global_rank,created,land_manager,closed,wet_weather,distance,time,alt_change,alt_max,alt_climb,alt_descent,grade,dst_climb,dst_descent,dst_flat,alias,inventory_exclude,trail_association,sponsors,builders,maintainers&rid={region_id}"
         r = self.trailforks_session.get(uri, allow_redirects=True)
         raw_csv_data = r.text
-        clean_data = re.sub(r'[aA-zZ]\n', "\",", raw_csv_data)
 
-        if "trailid,title" in clean_data:
-            success = True
-            open(f"{output_path}/{region}_trail_listing.csv", "w").write(clean_data)
+        # this is a monkey patch until this (https://www.pinkbike.com/forum/x_directtolastpost/?commentid=7145318) is fixed
+        clean_csv_data = re.sub(r'(?<![miles])[aA-zZ]\n', "\",", raw_csv_data)
+
+        if "trailid,title" in clean_csv_data:
+            df = pd.read_csv(io.StringIO(clean_csv_data))
+            return self.__clean_region_trails(df)
+
         else:
             if self._check_requires_region_admin(r.text):
                 print(f"[!] Error: You need to be an Admin for {region} to download Trail Data")
+            return pd.DataFrame()
 
-        return success
+    def __clean_ridelogs(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Region ridelogs are messy AF! We need to normalize the distances and climb
+        data for it to be useful. We will also re-name the dist and climb columns
+        to denote their metric type (e.g., miles, feet, etc.)
+
+        Args:
+            df (pd.DataFrame): raw Data from Trailforks
+
+        Returns:
+            pd.DataFrame: Normalized Trailforks data
+        """
+        date_rex = re.compile(r'^\d{2,4}-\d{1,2}-\d{1,2}\s')
+        try:
+            df = df.rename(columns={"dist": "dist_miles", "climb": "climb_miles", "created": "date"})
+            for index, row in df.iterrows():
+                df.loc[index, 'dist_miles'] = self.distance_string_to_miles_float(str(row['dist_miles']))
+                df.loc[index, 'climb_miles'] = self.distance_string_to_miles_float(str(row['climb_miles']))
+                df.loc[index, 'date'] = date_rex.findall(row['date'])[0]
+
+            df['dist_miles'] = df['dist_miles'].astype(float)       # miles as float
+            df['climb_miles'] = df['climb_miles'].astype(float)     # miles as float
+            df["date"] = pd.to_datetime(df["date"])                 # cast to datetime
+            df["year"] = df["date"].dt.year                         # get the year (int)
+            df['month'] = df["date"].dt.month                       # get the month (int)
+            df['day'] = df["date"].dt.day                           # get the day (int)
+            df['weekday_num'] = df['date'].dt.weekday               # get the weekday (int)
+            df['weekday'] = df["date"].dt.day_name()                # get the weekday (str)
+            df['month_name'] = df['month'].apply(lambda x: calendar.month_abbr[x])
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]    # Drop unnamed columns
+            df.fillna("unknown", inplace=True)
+
+            return df
+        except Exception as e:
+            print(f"[!!] ERROR {e}")
+            return pd.DataFrame
 
     @authentication
-    def download_all_region_ridelogs(self, region: str, output_path=".") -> bool:
+    def download_all_region_ridelogs(self, region: str, output_path=".") -> pd.DataFrame:
         """
         Downloads all of the trail ridelogs since the begining of the 
         trails existance and stores the results in CSV format on the 
@@ -110,7 +202,7 @@ class TrailforksRegion(Trailforks):
             output_path (str, optional): Path to store csv. Defaults to ".".
             
         Returns:
-            bool: true:CSV written to disk;False:failed to write CSV
+            bool: Pandas DataFrame
         """
         self.check_region(region)
         region_info = self._get_region_info(region)
@@ -140,11 +232,12 @@ class TrailforksRegion(Trailforks):
         pbar.close()
 
         try:
-            df = pd.concat(dataframes_list, axis=0, ignore_index=True)
-            df.to_csv(f"{output_path}/{region}_scraped_riders.csv")
-            return True
-        except:
-            return False
+            df = pd.concat(dataframes_list)
+            df["region"] = region
+            return self.__clean_ridelogs(df)
+        except Exception as e:
+            print(f"[!] Error: {e}")
+            return pd.DataFrame
 
 
     def _get_region_info(self, region: str) -> dict:

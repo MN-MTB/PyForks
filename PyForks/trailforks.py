@@ -1,11 +1,13 @@
 import pandas as pd
 import os
 import requests
+import pickle
 import urllib.parse
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 from functools import wraps
 from concurrent.futures import as_completed, ThreadPoolExecutor
+
 
 def authentication(func):
     """
@@ -21,7 +23,7 @@ def authentication(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:
-            print("[!] Need Authentication:\nYou must provide username= and password=")
+            print(f"[!] Need Authentication:\nYou must provide username= and password=\n+ {self._login_error}")
             exit(1)
         return func(self, *args, **kwargs) 
     return run_checks
@@ -34,6 +36,10 @@ class Trailforks:
         self.password = password
         self.trailforks_session = None
         self.authenticated = False
+        self._login_page_title = None
+        self._login_error = None
+        self.__cookie_cache = f"{os.getcwd()}/.cookie"
+
 
     def login(self) -> bool:
         """
@@ -48,6 +54,7 @@ class Trailforks:
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"}
         t = trailforks_session.get("https://www.trailforks.com/login/#loginform", headers=headers, allow_redirects=True)
         form_hash = self.__get_trailforks_formhash(t.text)
+        users_homepage = f"https://www.trailforks.com/profile/{self.uri_encode(self.username)}/"
 
         payload = {
             "ripformname": "loginform",
@@ -55,7 +62,7 @@ class Trailforks:
             "fieldstack[0]": "source",
             "source-alpha": "trailforks",
             "fieldstack[1]": "redirect",
-            "redirect-textbasic": f"https://www.trailforks.com/profile/{self.uri_encode(self.username)}/",
+            "redirect-textbasic": users_homepage,
             "fieldstack[2]": "username",
             "username-login-loginlen": self.username,
             "fieldstack[3]": "password",
@@ -89,12 +96,68 @@ class Trailforks:
             "Sec-GPC": "1"
         }
 
-        t = trailforks_session.post("https://www.trailforks.com/wosFormCheck.php", data=payload, headers=headers_login, allow_redirects=True)
-        if self.username in self.__get_trailforks_page_title(t.text):
+        if os.path.exists(self.__cookie_cache):
+            cookies = self.__load_cookie()
+            trailforks_session.cookies.update(cookies)
+            t = trailforks_session.get(users_homepage, allow_redirects=True)
+        else:
+            t = trailforks_session.post("https://www.trailforks.com/wosFormCheck.php", data=payload, headers=headers_login, allow_redirects=True)
+        
+        self._login_page_title = self.__get_trailforks_page_title(t.text)
+
+        if self.username in self._login_page_title:
             self.trailforks_session = trailforks_session
             self.authenticated = True
+            self.__cache_cookie(trailforks_session.cookies)
             return True
+
+        self._login_error = self.__get_rip_error(t.text)
         return False
+
+    def __load_cookie(self) -> requests.cookies.RequestsCookieJar:
+        """
+        Load existing Trailforks cookies for authentication
+
+        Returns:
+            requests.Session.cookies: Requests Session Cookies object
+        """
+        with open(self.__cookie_cache, 'rb') as f:
+            cookies = pickle.load(f)
+        return cookies
+
+    def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -> bool:
+        """
+        Cache a cookie incase the user wants to run other scripts. 
+        This way we will not get a too many login attempts exception
+        from Trailforks.
+
+        Args:
+            cookies (requests.Session.cookies): Requests Session Cookie object
+
+        Returns:
+            bool: True:cookie was saved;False:cookie was not saved
+        """
+        try:
+            with open(self.__cookie_cache, "wb") as f:
+                pickle.dump(cookies, f)
+            return True
+        except Exception as e:
+            print(f"[!] Error Saving Cookie: {e}")
+            return False
+
+    def __get_rip_error(self, html: str) -> str:
+        """
+        Get the login error code if we failed to login
+
+        Args:
+            html (str): Raw login HTML attempt
+
+        Returns:
+            str: string error code (i.e., too many login attempts)
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        rip_error = soup.find('div', {'class': 'ripError'}).text
+        return rip_error
 
     def __get_trailforks_formhash(self, html: str) -> str:
         """
@@ -153,19 +216,25 @@ class Trailforks:
     def distance_string_to_miles_float(self, distance: str) -> float:
         """
         Trailforks report data has mixed distance values, this
-        function attempts to normalize them into miles (int)
+        function attempts to normalize them into miles (float)
 
         Args:
-            distance (str): string of distance, 1456 ft
+            distance (str): string of distance, 1456 ft, 2.3mi
 
         Returns:
             float: number of miles
         """
+        feet_strings = ["ft", "feet"]
+        miles_strings = ["mi", "miles"]
+        distance = distance.replace('"','')
         try:
-            if "ft" in distance:
-                feet_int = int(distance.split(" ")[0].replace(",",""))
+            if any(x in distance for x in feet_strings):
+                distance_int = int(distance.split(" ")[0].replace(",",""))
                 mi = 0.000189394
-                return feet_int * mi
+                return distance_int * mi
+            elif any(x in distance for x in feet_strings):
+                distance_int = int(distance.split(" ")[0].replace(",",""))
+                return distance_int
             else:
                 return float(distance.split(" ")[0])
         except Exception as e:
