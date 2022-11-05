@@ -1,4 +1,4 @@
-from PyForks.trailforks_region import TrailforksRegion, Trailforks
+from PyForks.trailforks import Trailforks
 import pytest
 
 T = Trailforks()

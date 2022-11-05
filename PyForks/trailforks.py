@@ -1,12 +1,9 @@
-import pandas as pd
 import os
 import requests
 import pickle
 import urllib.parse
-from tqdm import tqdm
 from bs4 import BeautifulSoup
 from functools import wraps
-from concurrent.futures import as_completed, ThreadPoolExecutor
 
 
 def authentication(func):

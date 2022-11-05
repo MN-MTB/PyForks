@@ -1,15 +1,11 @@
 import pandas as pd
-import os
 import requests
-import urllib.parse
-from tqdm import tqdm
 from bs4 import BeautifulSoup
-from concurrent.futures import as_completed, ThreadPoolExecutor
 from PyForks.trailforks import Trailforks, authentication
 import re
 
 
-class TrailforksUser(Trailforks):
+class User(Trailforks):
 
     def get_user_info(self, user: str) -> dict:
         """

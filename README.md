@@ -28,11 +28,11 @@ Currently, PyForks can interact with Users and Regions to obtain data that eithe
 **Get Information on a User**
 
 ```python
-from PyForks.trailforks_user import TrailforksUser
+from PyForks.user import User
 from pprint import pprint
 
 # Get Basic information about a user
-tf_u = TrailforksUser()
+tf_u = User()
 user_info = tf_u.get_user_info("mnmtb")
 pprint(user_info)
 
@@ -69,8 +69,8 @@ EXAMPLE OUTPUT:
 
 **Get Information on a region**
 ```python
-from PyForks.trailforks_region import TrailforksRegion
-tf_r = TrailforksRegion(username=<username>, password=<password>)
+from PyForks.region import Region
+tf_r = Region(username=<username>, password=<password>)
 tf_r.login()
 
 # Download All of a regions trails in CSV:

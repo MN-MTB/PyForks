@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>PyForks.trailforks_user API documentation</title>
+<title>PyForks.user API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>PyForks.trailforks_user</code></h1>
+<h1 class="title">Module <code>PyForks.user</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -27,17 +27,13 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import pandas as pd
-import os
 import requests
-import urllib.parse
-from tqdm import tqdm
 from bs4 import BeautifulSoup
-from concurrent.futures import as_completed, ThreadPoolExecutor
 from PyForks.trailforks import Trailforks, authentication
 import re
 
 
-class TrailforksUser(Trailforks):
+class User(Trailforks):
 
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
@@ -283,8 +279,8 @@ class TrailforksUser(Trailforks):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="PyForks.trailforks_user.TrailforksUser"><code class="flex name class">
-<span>class <span class="ident">TrailforksUser</span></span>
+<dt id="PyForks.user.User"><code class="flex name class">
+<span>class <span class="ident">User</span></span>
 <span>(</span><span>username=None, password=None)</span>
 </code></dt>
 <dd>
@@ -293,7 +289,7 @@ class TrailforksUser(Trailforks):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TrailforksUser(Trailforks):
+<pre><code class="python">class User(Trailforks):
 
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
@@ -533,7 +529,7 @@ class TrailforksUser(Trailforks):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="PyForks.trailforks_user.TrailforksUser.get_user_gear"><code class="name flex">
+<dt id="PyForks.user.User.get_user_gear"><code class="name flex">
 <span>def <span class="ident">get_user_gear</span></span>(<span>self, user: str) ‑> list</span>
 </code></dt>
 <dd>
@@ -574,7 +570,7 @@ def get_user_gear(self, user: str) -&gt; list:
     return user_gear</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks_user.TrailforksUser.get_user_info"><code class="name flex">
+<dt id="PyForks.user.User.get_user_info"><code class="name flex">
 <span>def <span class="ident">get_user_info</span></span>(<span>self, user: str) ‑> dict</span>
 </code></dt>
 <dd>
@@ -627,7 +623,7 @@ and recent ridelogs</p>
     return user_data</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all"><code class="name flex">
+<dt id="PyForks.user.User.get_user_ridelogs_all"><code class="name flex">
 <span>def <span class="ident">get_user_ridelogs_all</span></span>(<span>self, user: str) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
@@ -668,7 +664,7 @@ dataframe.</p>
     return df</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks_user.TrailforksUser.is_regional_admin"><code class="name flex">
+<dt id="PyForks.user.User.is_regional_admin"><code class="name flex">
 <span>def <span class="ident">is_regional_admin</span></span>(<span>self, user: str) ‑> tuple</span>
 </code></dt>
 <dd>
@@ -714,7 +710,7 @@ the region they're an admin of (link and name)</p>
         return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges"><code class="name flex">
+<dt id="PyForks.user.User.rescan_ridelogs_for_badges"><code class="name flex">
 <span>def <span class="ident">rescan_ridelogs_for_badges</span></span>(<span>self, ride_ids: list) ‑> bool</span>
 </code></dt>
 <dd>
@@ -793,13 +789,13 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="PyForks.trailforks_user.TrailforksUser" href="#PyForks.trailforks_user.TrailforksUser">TrailforksUser</a></code></h4>
+<h4><code><a title="PyForks.user.User" href="#PyForks.user.User">User</a></code></h4>
 <ul class="">
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_gear" href="#PyForks.trailforks_user.TrailforksUser.get_user_gear">get_user_gear</a></code></li>
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_info" href="#PyForks.trailforks_user.TrailforksUser.get_user_info">get_user_info</a></code></li>
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all" href="#PyForks.trailforks_user.TrailforksUser.get_user_ridelogs_all">get_user_ridelogs_all</a></code></li>
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.is_regional_admin" href="#PyForks.trailforks_user.TrailforksUser.is_regional_admin">is_regional_admin</a></code></li>
-<li><code><a title="PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges" href="#PyForks.trailforks_user.TrailforksUser.rescan_ridelogs_for_badges">rescan_ridelogs_for_badges</a></code></li>
+<li><code><a title="PyForks.user.User.get_user_gear" href="#PyForks.user.User.get_user_gear">get_user_gear</a></code></li>
+<li><code><a title="PyForks.user.User.get_user_info" href="#PyForks.user.User.get_user_info">get_user_info</a></code></li>
+<li><code><a title="PyForks.user.User.get_user_ridelogs_all" href="#PyForks.user.User.get_user_ridelogs_all">get_user_ridelogs_all</a></code></li>
+<li><code><a title="PyForks.user.User.is_regional_admin" href="#PyForks.user.User.is_regional_admin">is_regional_admin</a></code></li>
+<li><code><a title="PyForks.user.User.rescan_ridelogs_for_badges" href="#PyForks.user.User.rescan_ridelogs_for_badges">rescan_ridelogs_for_badges</a></code></li>
 </ul>
 </li>
 </ul>

@@ -3,13 +3,11 @@ import requests
 import re
 import io
 import calendar
-import tempfile
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-from concurrent.futures import as_completed, ThreadPoolExecutor
 from PyForks.trailforks import Trailforks, authentication
 
-class TrailforksRegion(Trailforks):
+class Region(Trailforks):
 
     def is_valid_region(self, region: str) -> bool:
         """

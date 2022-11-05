@@ -26,15 +26,12 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import pandas as pd
-import os
+<pre><code class="python">import os
 import requests
 import pickle
 import urllib.parse
-from tqdm import tqdm
 from bs4 import BeautifulSoup
 from functools import wraps
-from concurrent.futures import as_completed, ThreadPoolExecutor
 
 
 def authentication(func):
@@ -572,8 +569,8 @@ user session to complete a task such as downloading CSV reports</p>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="PyForks.trailforks_region.TrailforksRegion" href="trailforks_region.html#PyForks.trailforks_region.TrailforksRegion">TrailforksRegion</a></li>
-<li><a title="PyForks.trailforks_user.TrailforksUser" href="trailforks_user.html#PyForks.trailforks_user.TrailforksUser">TrailforksUser</a></li>
+<li><a title="PyForks.region.Region" href="region.html#PyForks.region.Region">Region</a></li>
+<li><a title="PyForks.user.User" href="user.html#PyForks.user.User">User</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
