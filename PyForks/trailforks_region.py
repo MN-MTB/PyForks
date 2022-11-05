@@ -237,7 +237,6 @@ class TrailforksRegion(Trailforks):
             try:
                 domain = f"https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&page={i}"
                 tmp_df = pd.read_html(domain, index_col=None, header=0)
-
                 # Sometimes we have more than 1 table on the page.
                 if len(tmp_df) >= 2:
                     for potential_df in tmp_df:
@@ -250,12 +249,13 @@ class TrailforksRegion(Trailforks):
 
                 pbar.update(1)
             except Exception as e:
+                print(e)
                 pbar.update(1)
                 break
         pbar.close()
 
         try:
-            df = pd.concat(dataframes_list)
+            df = pd.concat(dataframes_list, ignore_index=True)
             df["region"] = region
             return self.__clean_ridelogs(df)
         except Exception as e:
