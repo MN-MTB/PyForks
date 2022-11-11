@@ -34,7 +34,6 @@ import re
 
 
 class User(Trailforks):
-
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
@@ -63,7 +62,7 @@ class User(Trailforks):
 
         (
             user_data[&#34;admin_region&#34;],
-            user_data[&#34;is_regional_admin&#34;]
+            user_data[&#34;is_regional_admin&#34;],
         ) = self.is_regional_admin(user)
         return user_data
 
@@ -87,6 +86,8 @@ class User(Trailforks):
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
                 r = self.trailforks_session.get(uri)
+                if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
+                    raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
             return True
         except Exception as e:
             print(e)
@@ -106,8 +107,6 @@ class User(Trailforks):
         uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
         r = requests.get(uri)
         df = pd.read_html(r.text)[0]
-        with open(&#34;data.html&#34;, &#34;w&#34;) as f:
-            f.write(r.text)
         df[&#34;ridelog_link&#34;] = self.__get_ridelog_links(r.text)
         df[&#34;ride_id&#34;] = self._parse_ride_ids(df.ridelog_link.to_list())
         return df
@@ -169,9 +168,7 @@ class User(Trailforks):
             tuple: (city, state, country)
         &#34;&#34;&#34;
 
-        user_uri = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
-        )
+        user_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
         page = requests.get(user_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
 
@@ -212,9 +209,9 @@ class User(Trailforks):
         try:
             activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
             activity_df = pd.read_html(activity_uri)[0]
-            activity_df = activity_df.fillna(&#39;&#39;)
+            activity_df = activity_df.fillna(&#34;&#34;)
             recent_ride_locations = activity_df.location.unique().tolist()
-            recent_ride_locations.remove(&#39;&#39;)
+            recent_ride_locations.remove(&#34;&#34;)
         except ValueError as e:
             recent_ride_locations = []
 
@@ -241,7 +238,6 @@ class User(Trailforks):
             user_gear = []
         return user_gear
 
-
     def is_regional_admin(self, user: str) -&gt; tuple:
         &#34;&#34;&#34;
         Determines if a user is a regional admin and returns
@@ -257,17 +253,15 @@ class User(Trailforks):
         r = requests.get(uri)
         try:
             soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
-            col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+            col_5 = soup.find(&#34;div&#34;, {&#34;class&#34;, &#34;col-5&#34;})
             region_link, region_name = re.search(
-                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
-                str(col_5), 
-                re.DOTALL|re.MULTILINE
-                ).groups()
+                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;,
+                str(col_5),
+                re.DOTALL | re.MULTILINE,
+            ).groups()
             return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
         except AttributeError:
-            return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)
-
-        </code></pre>
+            return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
 </details>
 </section>
 <section>
@@ -290,7 +284,6 @@ class User(Trailforks):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class User(Trailforks):
-
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
@@ -319,7 +312,7 @@ class User(Trailforks):
 
         (
             user_data[&#34;admin_region&#34;],
-            user_data[&#34;is_regional_admin&#34;]
+            user_data[&#34;is_regional_admin&#34;],
         ) = self.is_regional_admin(user)
         return user_data
 
@@ -343,6 +336,8 @@ class User(Trailforks):
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
                 r = self.trailforks_session.get(uri)
+                if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
+                    raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
             return True
         except Exception as e:
             print(e)
@@ -362,8 +357,6 @@ class User(Trailforks):
         uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
         r = requests.get(uri)
         df = pd.read_html(r.text)[0]
-        with open(&#34;data.html&#34;, &#34;w&#34;) as f:
-            f.write(r.text)
         df[&#34;ridelog_link&#34;] = self.__get_ridelog_links(r.text)
         df[&#34;ride_id&#34;] = self._parse_ride_ids(df.ridelog_link.to_list())
         return df
@@ -425,9 +418,7 @@ class User(Trailforks):
             tuple: (city, state, country)
         &#34;&#34;&#34;
 
-        user_uri = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
-        )
+        user_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}&#34;
         page = requests.get(user_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
 
@@ -468,9 +459,9 @@ class User(Trailforks):
         try:
             activity_uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&#34;
             activity_df = pd.read_html(activity_uri)[0]
-            activity_df = activity_df.fillna(&#39;&#39;)
+            activity_df = activity_df.fillna(&#34;&#34;)
             recent_ride_locations = activity_df.location.unique().tolist()
-            recent_ride_locations.remove(&#39;&#39;)
+            recent_ride_locations.remove(&#34;&#34;)
         except ValueError as e:
             recent_ride_locations = []
 
@@ -497,7 +488,6 @@ class User(Trailforks):
             user_gear = []
         return user_gear
 
-
     def is_regional_admin(self, user: str) -&gt; tuple:
         &#34;&#34;&#34;
         Determines if a user is a regional admin and returns
@@ -513,12 +503,12 @@ class User(Trailforks):
         r = requests.get(uri)
         try:
             soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
-            col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+            col_5 = soup.find(&#34;div&#34;, {&#34;class&#34;, &#34;col-5&#34;})
             region_link, region_name = re.search(
-                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
-                str(col_5), 
-                re.DOTALL|re.MULTILINE
-                ).groups()
+                r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;,
+                str(col_5),
+                re.DOTALL | re.MULTILINE,
+            ).groups()
             return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
         except AttributeError:
             return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
@@ -618,7 +608,7 @@ and recent ridelogs</p>
 
     (
         user_data[&#34;admin_region&#34;],
-        user_data[&#34;is_regional_admin&#34;]
+        user_data[&#34;is_regional_admin&#34;],
     ) = self.is_regional_admin(user)
     return user_data</code></pre>
 </details>
@@ -657,8 +647,6 @@ dataframe.</p>
     uri = f&#34;https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&amp;activitytype=1&amp;year=0&amp;bikeid=0&amp;raceid=0&#34;
     r = requests.get(uri)
     df = pd.read_html(r.text)[0]
-    with open(&#34;data.html&#34;, &#34;w&#34;) as f:
-        f.write(r.text)
     df[&#34;ridelog_link&#34;] = self.__get_ridelog_links(r.text)
     df[&#34;ride_id&#34;] = self._parse_ride_ids(df.ridelog_link.to_list())
     return df</code></pre>
@@ -699,12 +687,12 @@ the region they're an admin of (link and name)</p>
     r = requests.get(uri)
     try:
         soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
-        col_5 = soup.find(&#39;div&#39;, {&#39;class&#39;, &#39;col-5&#39;})
+        col_5 = soup.find(&#34;div&#34;, {&#34;class&#34;, &#34;col-5&#34;})
         region_link, region_name = re.search(
-            r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;, 
-            str(col_5), 
-            re.DOTALL|re.MULTILINE
-            ).groups()
+            r&#39;Admin&lt;/h4&gt;.*&lt;a href=&#34;(https.*)&#34;&gt;([aA0-zZ9]+)&lt;/a&gt;&#39;,
+            str(col_5),
+            re.DOTALL | re.MULTILINE,
+        ).groups()
         return ({&#34;region_link&#34;: region_link, &#34;region_name&#34;: region_name}, True)
     except AttributeError:
         return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
@@ -751,6 +739,8 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
                 &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
             }
             r = self.trailforks_session.get(uri)
+            if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
+                raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
         return True
     except Exception as e:
         print(e)
@@ -762,7 +752,6 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
 <ul class="hlist">
 <li><code><b><a title="PyForks.trailforks.Trailforks" href="trailforks.html#PyForks.trailforks.Trailforks">Trailforks</a></b></code>:
 <ul class="hlist">
-<li><code><a title="PyForks.trailforks.Trailforks.check_region" href="trailforks.html#PyForks.trailforks.Trailforks.check_region">check_region</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.login" href="trailforks.html#PyForks.trailforks.Trailforks.login">login</a></code></li>

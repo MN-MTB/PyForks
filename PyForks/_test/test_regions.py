@@ -65,7 +65,7 @@ def test_ridelogcount_download_lowpriv_user():
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_region_ridecounts("west-lake-marion-park")
-    assert (isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5)
+    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
 
 
 def test_trails_download_lowpriv_user(capsys):
@@ -79,7 +79,10 @@ def test_trails_download_lowpriv_user(capsys):
         "west-lake-marion-park", "20367"
     )
     captured = capsys.readouterr()
-    assert (isinstance(download_result, pd.DataFrame) and "You need to be an Admin for" in captured.out)
+    assert (
+        isinstance(download_result, pd.DataFrame)
+        and "You need to be an Admin for" in captured.out
+    )
 
 
 def test_ridelogs_download_lowpriv_user():
@@ -90,5 +93,5 @@ def test_ridelogs_download_lowpriv_user():
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_all_region_ridelogs("west-lake-marion-park")
-    
-    assert (isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5)
+
+    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5

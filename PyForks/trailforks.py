@@ -29,6 +29,7 @@ def authentication(func):
 
     return run_checks
 
+
 def requires_user_pass(func):
     """
     User Pass requirement decorator
@@ -133,7 +134,9 @@ class Trailforks:
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print("[!] Bad cookie file. Please delete the .cookie file and try again")
+                print(
+                    "[!] Bad cookie file. Please delete the .cookie file and try again"
+                )
                 return False
         else:
             t = trailforks_session.post(
