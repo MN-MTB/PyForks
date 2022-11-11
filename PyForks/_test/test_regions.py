@@ -1,18 +1,22 @@
 from PyForks.region import Region
 import pytest
 
+
 def test_nonexistant_region():
     region = Region()
     assert region.is_valid_region(region="bullcrap_region") == False
+
 
 def test_existant_region():
     region = Region()
     assert region.is_valid_region(region="buck-hill-52165") == True
 
+
 def test_trailforks_login_fail():
     region = Region(username="mnmtb", password="not_my_password")
     login = region.login()
     assert login == False
+
 
 def test_check_bad_region():
     region = Region()
@@ -21,15 +25,18 @@ def test_check_bad_region():
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 
+
 def test_check_good_region():
     region = Region()
     check = region.check_region("lebanon-hills")
     assert check == True
 
+
 def test_get_region_info():
     region = Region()
     check = region._get_region_info("lebanon-hills")
     assert isinstance(check, dict)
+
 
 """
 def test_ridelogcount_download_lowpriv_user():

@@ -17,14 +17,18 @@ def authentication(func):
     Returns:
         _type_: original function
     """
+
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if not self.authenticated:
-            print(f"[!] Need Authentication:\nYou must provide username= and password=\n+ {self._login_error}")
+            print(
+                f"[!] Need Authentication:\nYou must provide username= and password=\n+ {self._login_error}"
+            )
             exit(1)
-        return func(self, *args, **kwargs) 
+        return func(self, *args, **kwargs)
+
     return run_checks
-        
+
 
 class Trailforks:
     def __init__(self, username=None, password=None):
@@ -37,21 +41,28 @@ class Trailforks:
         self._login_error = None
         self.__cookie_cache = f"{os.getcwd()}/.cookie"
 
-
     def login(self) -> bool:
         """
         Login to Trailforks with a username and password in order to conduct
-        privileged (user based) operations such as downloading content or 
+        privileged (user based) operations such as downloading content or
         viewing non-public information.
 
         Returns:
             bool: True:successful login;False:failed to login
         """
         trailforks_session = requests.Session()
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"}
-        t = trailforks_session.get("https://www.trailforks.com/login/#loginform", headers=headers, allow_redirects=True)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
+        }
+        t = trailforks_session.get(
+            "https://www.trailforks.com/login/#loginform",
+            headers=headers,
+            allow_redirects=True,
+        )
         form_hash = self.__get_trailforks_formhash(t.text)
-        users_homepage = f"https://www.trailforks.com/profile/{self.uri_encode(self.username)}/"
+        users_homepage = (
+            f"https://www.trailforks.com/profile/{self.uri_encode(self.username)}/"
+        )
 
         payload = {
             "ripformname": "loginform",
@@ -70,7 +81,7 @@ class Trailforks:
             "submitbutton['Login']": "Login",
             "buttondest['Login']": "https://www.trailforks.com/x_login_form/",
             "iebug": "1",
-            "formhash": form_hash
+            "formhash": form_hash,
         }
 
         headers_login = {
@@ -90,7 +101,7 @@ class Trailforks:
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "same-origin",
             "Sec-Fetch-User": "?1",
-            "Sec-GPC": "1"
+            "Sec-GPC": "1",
         }
 
         if os.path.exists(self.__cookie_cache):
@@ -98,8 +109,13 @@ class Trailforks:
             trailforks_session.cookies.update(cookies)
             t = trailforks_session.get(users_homepage, allow_redirects=True)
         else:
-            t = trailforks_session.post("https://www.trailforks.com/wosFormCheck.php", data=payload, headers=headers_login, allow_redirects=True)
-        
+            t = trailforks_session.post(
+                "https://www.trailforks.com/wosFormCheck.php",
+                data=payload,
+                headers=headers_login,
+                allow_redirects=True,
+            )
+
         self._login_page_title = self.__get_trailforks_page_title(t.text)
 
         if self.username in self._login_page_title:
@@ -118,13 +134,13 @@ class Trailforks:
         Returns:
             requests.Session.cookies: Requests Session Cookies object
         """
-        with open(self.__cookie_cache, 'rb') as f:
+        with open(self.__cookie_cache, "rb") as f:
             cookies = pickle.load(f)
         return cookies
 
     def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -> bool:
         """
-        Cache a cookie incase the user wants to run other scripts. 
+        Cache a cookie incase the user wants to run other scripts.
         This way we will not get a too many login attempts exception
         from Trailforks.
 
@@ -153,7 +169,7 @@ class Trailforks:
             str: string error code (i.e., too many login attempts)
         """
         soup = BeautifulSoup(html, "html.parser")
-        rip_error = soup.find('div', {'class': 'ripError'}).text
+        rip_error = soup.find("div", {"class": "ripError"}).text
         return rip_error
 
     def __get_trailforks_formhash(self, html: str) -> str:
@@ -172,7 +188,7 @@ class Trailforks:
             str: the formhash string
         """
         soup = BeautifulSoup(html, "html.parser")
-        form_hash = soup.find('input', {'name': 'formhash'}).get('value')
+        form_hash = soup.find("input", {"name": "formhash"}).get("value")
         return form_hash
 
     def __get_trailforks_page_title(self, html: str) -> str:
@@ -186,7 +202,7 @@ class Trailforks:
             str: Title string
         """
         soup = BeautifulSoup(html, "html.parser")
-        title_tag = soup.find('title')
+        title_tag = soup.find("title")
         return title_tag.string
 
     def check_region(self) -> None:
@@ -195,8 +211,10 @@ class Trailforks:
         cookie to trailforks before you can do anything.
         """
         if self.region == None:
-            print("[!] Need Region:\nYou must provide a valid Region (region=<region_name>)")
-            exit(1)  
+            print(
+                "[!] Need Region:\nYou must provide a valid Region (region=<region_name>)"
+            )
+            exit(1)
 
     def uri_encode(self, string: str) -> str:
         """
@@ -223,14 +241,14 @@ class Trailforks:
         """
         feet_strings = ["ft", "feet"]
         miles_strings = ["mi", "miles"]
-        distance = distance.replace('"','')
+        distance = distance.replace('"', "")
         try:
             if any(x in distance for x in feet_strings):
-                distance_int = int(distance.split(" ")[0].replace(",",""))
+                distance_int = int(distance.split(" ")[0].replace(",", ""))
                 mi = 0.000189394
                 return distance_int * mi
             elif any(x in distance for x in feet_strings):
-                distance_int = int(distance.split(" ")[0].replace(",",""))
+                distance_int = int(distance.split(" ")[0].replace(",", ""))
                 return distance_int
             else:
                 return float(distance.split(" ")[0])
@@ -247,6 +265,6 @@ class Trailforks:
         Returns:
             float: miles as a float
         """
-        feet = int(feet.replace(",","").strip())
+        feet = int(feet.replace(",", "").strip())
         mi = 0.000189394
         return feet * mi

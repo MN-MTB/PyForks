@@ -17,7 +17,9 @@ elif action.lower() == "build":
 elif action.lower() == "upload":
     os.system("twine upload dist/*")
 elif action.lower() == "docs":
-    os.system("pdoc --html --template-dir ./doc/templates/light_theme/ -o ./doc/ --force PyForks")
+    os.system(
+        "pdoc --html --template-dir ./doc/templates/light_theme/ -o ./doc/ --force PyForks"
+    )
     base_dir = "./doc/PyForks"
     to_dir = "./doc"
     for file in os.listdir(base_dir):
