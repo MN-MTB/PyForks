@@ -11,7 +11,7 @@
 [![PyPI](https://img.shields.io/pypi/v/PyForks?style=flat-square)](https://pypi.org/project/PyForks/)
 
 
-Python Trailforks Library for interacting with Trailforks.com. Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
+Python Trailforks Library (Unofficial) for interacting with Trailforks.com. Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
 
 ## About
 
