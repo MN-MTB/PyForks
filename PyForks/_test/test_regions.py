@@ -1,6 +1,6 @@
 from PyForks.region import Region
+import PyForks.exceptions
 import pytest
-import os
 import pandas as pd
 
 
@@ -16,10 +16,9 @@ def test_existant_region():
 
 def test_check_bad_region():
     region = Region()
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
+    with pytest.raises(PyForks.exceptions.InvalidRegion) as pytest_wrapped_e:
         region.check_region("fake_004957856934")
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
+    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidRegion
 
 
 def test_check_good_region():
@@ -37,7 +36,7 @@ def test_get_region_info():
 def test_ridelogcount_download_auth_fail():
     region = Region()
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.download_region_ridecounts("west-lake-marion-park")
+        region.get_region_ridecounts("west-lake-marion-park")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 
@@ -45,7 +44,7 @@ def test_ridelogcount_download_auth_fail():
 def test_trails_download_auth_fail():
     region = Region()
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.download_all_region_trails("west-lake-marion-park", "20367")
+        region.get_all_region_trails("west-lake-marion-park", "20367")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 
@@ -53,7 +52,7 @@ def test_trails_download_auth_fail():
 def test_ridelogs_download_auth_fail():
     region = Region()
     with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.download_all_region_ridelogs("west-lake-marion-park")
+        region.get_all_region_ridelogs("west-lake-marion-park")
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 1
 
@@ -64,7 +63,7 @@ def test_ridelogcount_download_lowpriv_user():
     """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
-    download_result = region.download_region_ridecounts("west-lake-marion-park")
+    download_result = region.get_region_ridecounts("west-lake-marion-park")
     assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
 
 
@@ -75,14 +74,11 @@ def test_trails_download_lowpriv_user(capsys):
     """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
-    download_result = region.download_all_region_trails(
-        "west-lake-marion-park", "20367"
-    )
-    captured = capsys.readouterr()
-    assert (
-        isinstance(download_result, pd.DataFrame)
-        and "You need to be an Admin for" in captured.out
-    )
+    with pytest.raises(PyForks.exceptions.InvalidPermissions) as pytest_wrapped_e:
+        download_result = region.get_all_region_trails(
+            "west-lake-marion-park", "20367"
+        )
+    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidPermissions
 
 
 def test_ridelogs_download_lowpriv_user():
@@ -92,6 +88,16 @@ def test_ridelogs_download_lowpriv_user():
     """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
-    download_result = region.download_all_region_ridelogs("west-lake-marion-park")
+    download_result = region.get_all_region_ridelogs("west-lake-marion-park")
 
     assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
+
+
+def test_region_trails_cleanup():
+    from io import StringIO
+    region = Region()
+    raw_csv_data = open("./PyForks/_test/raw_trails.csv").read()
+    clean_csv_data = region._clean_raw_csv_data(raw_csv_data)
+    dirty_df = pd.read_csv(StringIO(clean_csv_data))
+    clean_df = region._clean_region_trails(dirty_df)
+    assert clean_df.loc[3, "flat_miles"] == 0.014204550000000002

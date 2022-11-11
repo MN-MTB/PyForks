@@ -28,12 +28,29 @@
 </summary>
 <pre><code class="python">import pandas as pd
 import requests
+import PyForks.exceptions
 from bs4 import BeautifulSoup
 from PyForks.trailforks import Trailforks, authentication
 import re
 
 
 class User(Trailforks):
+
+    def is_valid_user(self, user: str) -&gt; bool:
+        &#34;&#34;&#34;
+        Verifies the user exists on Trailforks
+
+        Args:
+            user (str): the trailforks username
+
+        Returns:
+            bool: True:user exists;False:use does not exist
+        &#34;&#34;&#34;
+        user_profile = f&#34;https://www.trailforks.com/profile/{user}&#34;
+        r = requests.get(user_profile, allow_redirects=True)
+        site_title = self.get_webpage_title(r.text)
+        return user in site_title
+
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
@@ -45,6 +62,9 @@ class User(Trailforks):
         Returns:
             dict: {username, profile, &lt;location...&gt;, recent rides}
         &#34;&#34;&#34;
+        if not self.is_valid_user(user):
+            raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
+            
         user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
@@ -284,6 +304,22 @@ class User(Trailforks):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class User(Trailforks):
+
+    def is_valid_user(self, user: str) -&gt; bool:
+        &#34;&#34;&#34;
+        Verifies the user exists on Trailforks
+
+        Args:
+            user (str): the trailforks username
+
+        Returns:
+            bool: True:user exists;False:use does not exist
+        &#34;&#34;&#34;
+        user_profile = f&#34;https://www.trailforks.com/profile/{user}&#34;
+        r = requests.get(user_profile, allow_redirects=True)
+        site_title = self.get_webpage_title(r.text)
+        return user in site_title
+
     def get_user_info(self, user: str) -&gt; dict:
         &#34;&#34;&#34;
         Obtains user information via the user profile page
@@ -295,6 +331,9 @@ class User(Trailforks):
         Returns:
             dict: {username, profile, &lt;location...&gt;, recent rides}
         &#34;&#34;&#34;
+        if not self.is_valid_user(user):
+            raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
+            
         user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
@@ -591,6 +630,9 @@ and recent ridelogs</p>
     Returns:
         dict: {username, profile, &lt;location...&gt;, recent rides}
     &#34;&#34;&#34;
+    if not self.is_valid_user(user):
+        raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
+        
     user = user.split(&#34; &#34;)[0]
     user_data = {
         &#34;username&#34;: user,
@@ -698,6 +740,41 @@ the region they're an admin of (link and name)</p>
         return ({&#34;region_link&#34;: &#34;&#34;, &#34;region_name&#34;: &#34;&#34;}, False)</code></pre>
 </details>
 </dd>
+<dt id="PyForks.user.User.is_valid_user"><code class="name flex">
+<span>def <span class="ident">is_valid_user</span></span>(<span>self, user: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verifies the user exists on Trailforks</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>str</code></dt>
+<dd>the trailforks username</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True:user exists;False:use does not exist</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_valid_user(self, user: str) -&gt; bool:
+    &#34;&#34;&#34;
+    Verifies the user exists on Trailforks
+
+    Args:
+        user (str): the trailforks username
+
+    Returns:
+        bool: True:user exists;False:use does not exist
+    &#34;&#34;&#34;
+    user_profile = f&#34;https://www.trailforks.com/profile/{user}&#34;
+    r = requests.get(user_profile, allow_redirects=True)
+    site_title = self.get_webpage_title(r.text)
+    return user in site_title</code></pre>
+</details>
+</dd>
 <dt id="PyForks.user.User.rescan_ridelogs_for_badges"><code class="name flex">
 <span>def <span class="ident">rescan_ridelogs_for_badges</span></span>(<span>self, ride_ids: list) ‑> bool</span>
 </code></dt>
@@ -754,6 +831,7 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
 <ul class="hlist">
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.get_webpage_title" href="trailforks.html#PyForks.trailforks.Trailforks.get_webpage_title">get_webpage_title</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.login" href="trailforks.html#PyForks.trailforks.Trailforks.login">login</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="trailforks.html#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
@@ -784,6 +862,7 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
 <li><code><a title="PyForks.user.User.get_user_info" href="#PyForks.user.User.get_user_info">get_user_info</a></code></li>
 <li><code><a title="PyForks.user.User.get_user_ridelogs_all" href="#PyForks.user.User.get_user_ridelogs_all">get_user_ridelogs_all</a></code></li>
 <li><code><a title="PyForks.user.User.is_regional_admin" href="#PyForks.user.User.is_regional_admin">is_regional_admin</a></code></li>
+<li><code><a title="PyForks.user.User.is_valid_user" href="#PyForks.user.User.is_valid_user">is_valid_user</a></code></li>
 <li><code><a title="PyForks.user.User.rescan_ridelogs_for_badges" href="#PyForks.user.User.rescan_ridelogs_for_badges">rescan_ridelogs_for_badges</a></code></li>
 </ul>
 </li>

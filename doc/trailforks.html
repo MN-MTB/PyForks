@@ -57,6 +57,7 @@ def authentication(func):
 
     return run_checks
 
+
 def requires_user_pass(func):
     &#34;&#34;&#34;
     User Pass requirement decorator
@@ -161,7 +162,9 @@ class Trailforks:
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print(&#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;)
+                print(
+                    &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
+                )
                 return False
         else:
             t = trailforks_session.post(
@@ -181,6 +184,20 @@ class Trailforks:
 
         self._login_error = self.__get_rip_error(t.text)
         return False
+
+    def get_webpage_title(self, html_source: str) -&gt; str:
+        &#34;&#34;&#34;
+        From HTML Source, parse the site title and return
+
+        Args:
+            html_source (str): RAW Html source
+
+        Returns:
+            str: Site Title
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
+        title = soup.find(&#39;title&#39;)
+        return title.string
 
     def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
         &#34;&#34;&#34;
@@ -506,7 +523,9 @@ user session to complete a task such as downloading CSV reports</p>
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print(&#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;)
+                print(
+                    &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
+                )
                 return False
         else:
             t = trailforks_session.post(
@@ -526,6 +545,20 @@ user session to complete a task such as downloading CSV reports</p>
 
         self._login_error = self.__get_rip_error(t.text)
         return False
+
+    def get_webpage_title(self, html_source: str) -&gt; str:
+        &#34;&#34;&#34;
+        From HTML Source, parse the site title and return
+
+        Args:
+            html_source (str): RAW Html source
+
+        Returns:
+            str: Site Title
+        &#34;&#34;&#34;
+        soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
+        title = soup.find(&#39;title&#39;)
+        return title.string
 
     def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
         &#34;&#34;&#34;
@@ -750,6 +783,40 @@ function attempts to normalize them into miles (float)</p>
     return feet * mi</code></pre>
 </details>
 </dd>
+<dt id="PyForks.trailforks.Trailforks.get_webpage_title"><code class="name flex">
+<span>def <span class="ident">get_webpage_title</span></span>(<span>self, html_source: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>From HTML Source, parse the site title and return</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>html_source</code></strong> :&ensp;<code>str</code></dt>
+<dd>RAW Html source</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Site Title</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_webpage_title(self, html_source: str) -&gt; str:
+    &#34;&#34;&#34;
+    From HTML Source, parse the site title and return
+
+    Args:
+        html_source (str): RAW Html source
+
+    Returns:
+        str: Site Title
+    &#34;&#34;&#34;
+    soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
+    title = soup.find(&#39;title&#39;)
+    return title.string</code></pre>
+</details>
+</dd>
 <dt id="PyForks.trailforks.Trailforks.login"><code class="name flex">
 <span>def <span class="ident">login</span></span>(<span>self) ‑> bool</span>
 </code></dt>
@@ -836,7 +903,9 @@ def login(self) -&gt; bool:
             trailforks_session.cookies.update(cookies)
             t = trailforks_session.get(users_homepage, allow_redirects=True)
         except TypeError as e:
-            print(&#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;)
+            print(
+                &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
+            )
             return False
     else:
         t = trailforks_session.post(
@@ -920,6 +989,7 @@ def login(self) -&gt; bool:
 <ul class="">
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.get_webpage_title" href="#PyForks.trailforks.Trailforks.get_webpage_title">get_webpage_title</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.login" href="#PyForks.trailforks.Trailforks.login">login</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>

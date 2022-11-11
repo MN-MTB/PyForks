@@ -157,6 +157,20 @@ class Trailforks:
         self._login_error = self.__get_rip_error(t.text)
         return False
 
+    def get_webpage_title(self, html_source: str) -> str:
+        """
+        From HTML Source, parse the site title and return
+
+        Args:
+            html_source (str): RAW Html source
+
+        Returns:
+            str: Site Title
+        """
+        soup = BeautifulSoup(html_source, 'html.parser')
+        title = soup.find('title')
+        return title.string
+
     def __load_cookie(self) -> requests.cookies.RequestsCookieJar:
         """
         Load existing Trailforks cookies for authentication

@@ -1,11 +1,28 @@
 import pandas as pd
 import requests
+import PyForks.exceptions
 from bs4 import BeautifulSoup
 from PyForks.trailforks import Trailforks, authentication
 import re
 
 
 class User(Trailforks):
+
+    def is_valid_user(self, user: str) -> bool:
+        """
+        Verifies the user exists on Trailforks
+
+        Args:
+            user (str): the trailforks username
+
+        Returns:
+            bool: True:user exists;False:use does not exist
+        """
+        user_profile = f"https://www.trailforks.com/profile/{user}"
+        r = requests.get(user_profile, allow_redirects=True)
+        site_title = self.get_webpage_title(r.text)
+        return user in site_title
+
     def get_user_info(self, user: str) -> dict:
         """
         Obtains user information via the user profile page
@@ -17,6 +34,9 @@ class User(Trailforks):
         Returns:
             dict: {username, profile, <location...>, recent rides}
         """
+        if not self.is_valid_user(user):
+            raise PyForks.exceptions.InvalidUser(msg=f"{user} does not exist")
+            
         user = user.split(" ")[0]
         user_data = {
             "username": user,
