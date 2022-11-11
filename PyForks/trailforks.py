@@ -235,17 +235,6 @@ class Trailforks:
         title_tag = soup.find("title")
         return title_tag.string
 
-    def check_region(self) -> None:
-        """
-        Some requests require authentication (login) and you need to present a valid
-        cookie to trailforks before you can do anything.
-        """
-        if self.region == None:
-            print(
-                "[!] Need Region:\nYou must provide a valid Region (region=<region_name>)"
-            )
-            exit(1)
-
     def uri_encode(self, string: str) -> str:
         """
         URIEncode things that need encoding

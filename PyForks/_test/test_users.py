@@ -48,6 +48,13 @@ def test_badge_rescan_bad_ids():
     check = tf_user.rescan_ridelogs_for_badges(bad_ride_ids)
     assert check == False
 
+def test_badge_rescan_good_id():
+    id = ["46233241"]
+    tf_user = User(username="apress001", password="FakePassword123")
+    tf_user.login()
+    check = tf_user.rescan_ridelogs_for_badges(id)
+    assert check == True
+
 def test_get_user_ridelogs():
     tf_user = User()
     rides_df = tf_user.get_user_ridelogs_all("mnmtb")
@@ -56,6 +63,6 @@ def test_get_user_ridelogs():
 def test_get_user_info():
     tf_user = User(username="apress001", password="FakePassword123")
     tf_user.login()
-    user_data = tf_user.get_user_info("apress001")
-    assert ((isinstance(user_data, dict)) and user_data["recent_ride_locations"] == [])
+    user_data = tf_user.get_user_info("mnmtb")
+    assert ((isinstance(user_data, dict)) and user_data["city"] == "Lakeville" and user_data["state"] == "Minnesota")
 
