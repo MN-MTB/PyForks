@@ -29,6 +29,28 @@ def authentication(func):
 
     return run_checks
 
+def requires_user_pass(func):
+    """
+    User Pass requirement decorator
+
+    Args:
+        func (_type_): callable function
+
+    Returns:
+        _type_: original function
+    """
+
+    @wraps(func)
+    def run_checks(self, *args, **kwargs):
+        if None in [self.username, self.password]:
+            print(
+                f"[!] You must provide username= and password=\n+ {self._login_error}"
+            )
+            exit(1)
+        return func(self, *args, **kwargs)
+
+    return run_checks
+
 
 class Trailforks:
     def __init__(self, username=None, password=None):
@@ -41,6 +63,7 @@ class Trailforks:
         self._login_error = None
         self.__cookie_cache = f"{os.getcwd()}/.cookie"
 
+    @requires_user_pass
     def login(self) -> bool:
         """
         Login to Trailforks with a username and password in order to conduct
@@ -106,8 +129,12 @@ class Trailforks:
 
         if os.path.exists(self.__cookie_cache):
             cookies = self.__load_cookie()
-            trailforks_session.cookies.update(cookies)
-            t = trailforks_session.get(users_homepage, allow_redirects=True)
+            try:
+                trailforks_session.cookies.update(cookies)
+                t = trailforks_session.get(users_homepage, allow_redirects=True)
+            except TypeError as e:
+                print("[!] Bad cookie file. Please delete the .cookie file and try again")
+                return False
         else:
             t = trailforks_session.post(
                 "https://www.trailforks.com/wosFormCheck.php",
@@ -134,9 +161,12 @@ class Trailforks:
         Returns:
             requests.Session.cookies: Requests Session Cookies object
         """
-        with open(self.__cookie_cache, "rb") as f:
-            cookies = pickle.load(f)
-        return cookies
+        try:
+            with open(self.__cookie_cache, "rb") as f:
+                cookies = pickle.load(f)
+            return cookies
+        except pickle.UnpicklingError as e:
+            return None
 
     def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -> bool:
         """

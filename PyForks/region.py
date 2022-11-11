@@ -72,7 +72,6 @@ class Region(Trailforks):
         Returns:
             bool: true:CSV written to disk;False:failed to write CSV
         """
-        success = False
         self.check_region(region)
         uri = f"https://www.trailforks.com/region/{region}/ridelogcountscsv/"
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -167,7 +166,6 @@ class Region(Trailforks):
         if "title,difficulty" in clean_csv_data:
             df = pd.read_csv(io.StringIO(clean_csv_data))
             return self.__clean_region_trails(df)
-            # return df
 
         else:
             if self._check_requires_region_admin(r.text):
