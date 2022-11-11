@@ -1,5 +1,7 @@
 from PyForks.region import Region
 import pytest
+import os
+import pandas as pd
 
 
 def test_nonexistant_region():
@@ -10,12 +12,6 @@ def test_nonexistant_region():
 def test_existant_region():
     region = Region()
     assert region.is_valid_region(region="buck-hill-52165") == True
-
-
-def test_trailforks_login_fail():
-    region = Region(username="mnmtb", password="not_my_password")
-    login = region.login()
-    assert login == False
 
 
 def test_check_bad_region():
@@ -38,22 +34,48 @@ def test_get_region_info():
     assert isinstance(check, dict)
 
 
-"""
+def test_ridelogcount_download_auth_fail():
+    region = Region()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        region.download_region_ridecounts("west-lake-marion-park")
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+def test_trails_download_auth_fail():
+    region = Region()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        region.download_all_region_trails("west-lake-marion-park", "20367")
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
+def test_ridelogs_download_auth_fail():
+    region = Region()
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        region.download_all_region_ridelogs("west-lake-marion-park")
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 1
+
+
 def test_ridelogcount_download_lowpriv_user():
-    region = Region(username="", password="")
+    region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_region_ridecounts("west-lake-marion-park")
-    assert download_result == True
+    assert isinstance(download_result, pd.DataFrame)
+
 
 def test_trails_download_lowpriv_user():
-    region = Region(username="", password="")
+    region = Region(username="apress001", password="FakePassword123")
     region.login()
-    download_result = region.download_all_region_trails("west-lake-marion-park", "20367")
-    assert download_result == False
+    download_result = region.download_all_region_trails(
+        "west-lake-marion-park", "20367"
+    )
+    assert isinstance(download_result, pd.DataFrame)
+
 
 def test_ridelogs_download_lowpriv_user():
-    region = Region(username="", password="")
+    region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_all_region_ridelogs("west-lake-marion-park")
-    assert download_result == True
-"""
+    assert isinstance(download_result, pd.DataFrame)
