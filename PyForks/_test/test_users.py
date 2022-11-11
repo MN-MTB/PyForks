@@ -1,5 +1,5 @@
 from PyForks.user import User
-
+import pandas as pd
 
 def test_bad_username():
     tf_user = User()
@@ -40,3 +40,22 @@ def test_is_admin_fail():
     tf_user = User()
     region, is_admin = tf_user.is_regional_admin("asdfdfsafsdf")
     assert is_admin == False
+
+def test_badge_rescan_bad_ids():
+    bad_ride_ids = ["1"]
+    tf_user = User(username="apress001", password="FakePassword123")
+    tf_user.login()
+    check = tf_user.rescan_ridelogs_for_badges(bad_ride_ids)
+    assert check == False
+
+def test_get_user_ridelogs():
+    tf_user = User()
+    rides_df = tf_user.get_user_ridelogs_all("mnmtb")
+    assert (isinstance(rides_df, pd.DataFrame) and len(rides_df.index) > 5)
+
+def test_get_user_info():
+    tf_user = User(username="apress001", password="FakePassword123")
+    tf_user.login()
+    user_data = tf_user.get_user_info("apress001")
+    assert ((isinstance(user_data, dict)) and user_data["recent_ride_locations"] == [])
+

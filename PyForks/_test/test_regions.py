@@ -59,23 +59,36 @@ def test_ridelogs_download_auth_fail():
 
 
 def test_ridelogcount_download_lowpriv_user():
+    """
+    A low-priv user should be able to download region ridecounts
+    """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_region_ridecounts("west-lake-marion-park")
-    assert isinstance(download_result, pd.DataFrame)
+    assert (isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5)
 
 
-def test_trails_download_lowpriv_user():
+def test_trails_download_lowpriv_user(capsys):
+    """
+    Trail downloads is an Admin function and a low-priv user should not be able
+    to do this.
+    """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_all_region_trails(
         "west-lake-marion-park", "20367"
     )
-    assert isinstance(download_result, pd.DataFrame)
+    captured = capsys.readouterr()
+    assert (isinstance(download_result, pd.DataFrame) and "You need to be an Admin for" in captured.out)
 
 
 def test_ridelogs_download_lowpriv_user():
+    """
+    A low-priv user (non-admin) should be able to download the ridecounts for
+    a region.
+    """
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     download_result = region.download_all_region_ridelogs("west-lake-marion-park")
-    assert isinstance(download_result, pd.DataFrame)
+    
+    assert (isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5)

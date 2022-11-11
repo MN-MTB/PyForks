@@ -58,6 +58,8 @@ class User(Trailforks):
                     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
                 }
                 r = self.trailforks_session.get(uri)
+                if "<title>Error</title>" in r.text:
+                    raise Exception("Invalid Ride ID and/or Unauthorized")
             return True
         except Exception as e:
             print(e)
@@ -77,8 +79,6 @@ class User(Trailforks):
         uri = f"https://www.trailforks.com/profile/{self.uri_encode(user)}/ridelog/?sort=l.timestamp&activitytype=1&year=0&bikeid=0&raceid=0"
         r = requests.get(uri)
         df = pd.read_html(r.text)[0]
-        with open("data.html", "w") as f:
-            f.write(r.text)
         df["ridelog_link"] = self.__get_ridelog_links(r.text)
         df["ride_id"] = self._parse_ride_ids(df.ridelog_link.to_list())
         return df
