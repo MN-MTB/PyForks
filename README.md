@@ -9,6 +9,7 @@
 [![PyForks Tests](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml/badge.svg)](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml)
 [![GitHub](https://img.shields.io/github/license/cribdragg3r/PyForks?style=flat-square)](https://github.com/cribdragg3r/PyForks/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/PyForks?style=flat-square)](https://pypi.org/project/PyForks/)
+[![codecov](https://codecov.io/gh/cribdragg3r/PyForks/branch/main/graph/badge.svg?token=225DIC4PVS)](https://codecov.io/gh/cribdragg3r/PyForks)
 
 
 Python Trailforks Library (Unofficial) for interacting with Trailforks.com. Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
