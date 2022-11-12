@@ -1,8 +1,11 @@
 import os
+import sys
 import requests
 import pickle
 import urllib.parse
+import PyForks.exceptions
 from bs4 import BeautifulSoup
+import logging
 from functools import wraps
 
 
@@ -44,9 +47,7 @@ def requires_user_pass(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if None in [self.username, self.password]:
-            print(
-                f"[!] You must provide username= and password=\n+ {self._login_error}"
-            )
+            print("[!] You must provide username= and password=")
             exit(1)
         return func(self, *args, **kwargs)
 
@@ -55,6 +56,8 @@ def requires_user_pass(func):
 
 class Trailforks:
     def __init__(self, username=None, password=None):
+        self.__init_logger()
+        self._logger = logging.getLogger("PyForks")
         self.name = "trailforks"
         self.username = username
         self.password = password
@@ -134,10 +137,8 @@ class Trailforks:
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print(
-                    "[!] Bad cookie file. Please delete the .cookie file and try again"
-                )
-                return False
+                self._logger.error(f"failed to load cookie;ERROR:{e}")
+                raise PyForks.exceptions.BadCookieError
         else:
             t = trailforks_session.post(
                 "https://www.trailforks.com/wosFormCheck.php",
@@ -167,8 +168,8 @@ class Trailforks:
         Returns:
             str: Site Title
         """
-        soup = BeautifulSoup(html_source, 'html.parser')
-        title = soup.find('title')
+        soup = BeautifulSoup(html_source, "html.parser")
+        title = soup.find("title")
         return title.string
 
     def __load_cookie(self) -> requests.cookies.RequestsCookieJar:
@@ -183,6 +184,7 @@ class Trailforks:
                 cookies = pickle.load(f)
             return cookies
         except pickle.UnpicklingError as e:
+            self._logger.error(f"failed to load cookie from cache;ERROR:{e}")
             return None
 
     def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -> bool:
@@ -202,7 +204,7 @@ class Trailforks:
                 pickle.dump(cookies, f)
             return True
         except Exception as e:
-            print(f"[!] Error Saving Cookie: {e}")
+            self._logger.error(f"failed to save cookie to disk;ERROR:{e}")
             return False
 
     def __get_rip_error(self, html: str) -> str:
@@ -276,7 +278,6 @@ class Trailforks:
             float: number of miles
         """
         feet_strings = ["ft", "feet"]
-        miles_strings = ["mi", "miles"]
         distance = distance.replace('"', "")
         try:
             if any(x in distance for x in feet_strings):
@@ -288,7 +289,7 @@ class Trailforks:
                 return distance_int
             else:
                 return float(distance.split(" ")[0])
-        except Exception as e:
+        except Exception:
             return 0
 
     def feet_to_miles(self, feet: int) -> float:
@@ -304,3 +305,14 @@ class Trailforks:
         feet = int(feet.replace(",", "").strip())
         mi = 0.000189394
         return feet * mi
+
+    def __init_logger(self) -> None:
+        logger = logging.getLogger("PyForks")
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            "%(created)f:%(levelname)s:%(name)s:%(module)s:%(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)

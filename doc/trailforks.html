@@ -27,10 +27,13 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
+import sys
 import requests
 import pickle
 import urllib.parse
+import PyForks.exceptions
 from bs4 import BeautifulSoup
+import logging
 from functools import wraps
 
 
@@ -72,9 +75,7 @@ def requires_user_pass(func):
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if None in [self.username, self.password]:
-            print(
-                f&#34;[!] You must provide username= and password=\n+ {self._login_error}&#34;
-            )
+            print(&#34;[!] You must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs)
 
@@ -83,6 +84,8 @@ def requires_user_pass(func):
 
 class Trailforks:
     def __init__(self, username=None, password=None):
+        self.__init_logger()
+        self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
         self.username = username
         self.password = password
@@ -162,10 +165,8 @@ class Trailforks:
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print(
-                    &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
-                )
-                return False
+                self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
+                raise PyForks.exceptions.BadCookieError
         else:
             t = trailforks_session.post(
                 &#34;https://www.trailforks.com/wosFormCheck.php&#34;,
@@ -195,8 +196,8 @@ class Trailforks:
         Returns:
             str: Site Title
         &#34;&#34;&#34;
-        soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
-        title = soup.find(&#39;title&#39;)
+        soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
+        title = soup.find(&#34;title&#34;)
         return title.string
 
     def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
@@ -211,6 +212,7 @@ class Trailforks:
                 cookies = pickle.load(f)
             return cookies
         except pickle.UnpicklingError as e:
+            self._logger.error(f&#34;failed to load cookie from cache;ERROR:{e}&#34;)
             return None
 
     def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -&gt; bool:
@@ -230,7 +232,7 @@ class Trailforks:
                 pickle.dump(cookies, f)
             return True
         except Exception as e:
-            print(f&#34;[!] Error Saving Cookie: {e}&#34;)
+            self._logger.error(f&#34;failed to save cookie to disk;ERROR:{e}&#34;)
             return False
 
     def __get_rip_error(self, html: str) -&gt; str:
@@ -304,7 +306,6 @@ class Trailforks:
             float: number of miles
         &#34;&#34;&#34;
         feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-        miles_strings = [&#34;mi&#34;, &#34;miles&#34;]
         distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
         try:
             if any(x in distance for x in feet_strings):
@@ -316,7 +317,7 @@ class Trailforks:
                 return distance_int
             else:
                 return float(distance.split(&#34; &#34;)[0])
-        except Exception as e:
+        except Exception:
             return 0
 
     def feet_to_miles(self, feet: int) -&gt; float:
@@ -331,7 +332,18 @@ class Trailforks:
         &#34;&#34;&#34;
         feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
         mi = 0.000189394
-        return feet * mi</code></pre>
+        return feet * mi
+
+    def __init_logger(self) -&gt; None:
+        logger = logging.getLogger(&#34;PyForks&#34;)
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            &#34;%(created)f:%(levelname)s:%(name)s:%(module)s:%(message)s&#34;
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)</code></pre>
 </details>
 </section>
 <section>
@@ -418,9 +430,7 @@ user session to complete a task such as downloading CSV reports</p>
     @wraps(func)
     def run_checks(self, *args, **kwargs):
         if None in [self.username, self.password]:
-            print(
-                f&#34;[!] You must provide username= and password=\n+ {self._login_error}&#34;
-            )
+            print(&#34;[!] You must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs)
 
@@ -444,6 +454,8 @@ user session to complete a task such as downloading CSV reports</p>
 </summary>
 <pre><code class="python">class Trailforks:
     def __init__(self, username=None, password=None):
+        self.__init_logger()
+        self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
         self.username = username
         self.password = password
@@ -523,10 +535,8 @@ user session to complete a task such as downloading CSV reports</p>
                 trailforks_session.cookies.update(cookies)
                 t = trailforks_session.get(users_homepage, allow_redirects=True)
             except TypeError as e:
-                print(
-                    &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
-                )
-                return False
+                self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
+                raise PyForks.exceptions.BadCookieError
         else:
             t = trailforks_session.post(
                 &#34;https://www.trailforks.com/wosFormCheck.php&#34;,
@@ -556,8 +566,8 @@ user session to complete a task such as downloading CSV reports</p>
         Returns:
             str: Site Title
         &#34;&#34;&#34;
-        soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
-        title = soup.find(&#39;title&#39;)
+        soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
+        title = soup.find(&#34;title&#34;)
         return title.string
 
     def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
@@ -572,6 +582,7 @@ user session to complete a task such as downloading CSV reports</p>
                 cookies = pickle.load(f)
             return cookies
         except pickle.UnpicklingError as e:
+            self._logger.error(f&#34;failed to load cookie from cache;ERROR:{e}&#34;)
             return None
 
     def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -&gt; bool:
@@ -591,7 +602,7 @@ user session to complete a task such as downloading CSV reports</p>
                 pickle.dump(cookies, f)
             return True
         except Exception as e:
-            print(f&#34;[!] Error Saving Cookie: {e}&#34;)
+            self._logger.error(f&#34;failed to save cookie to disk;ERROR:{e}&#34;)
             return False
 
     def __get_rip_error(self, html: str) -&gt; str:
@@ -665,7 +676,6 @@ user session to complete a task such as downloading CSV reports</p>
             float: number of miles
         &#34;&#34;&#34;
         feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-        miles_strings = [&#34;mi&#34;, &#34;miles&#34;]
         distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
         try:
             if any(x in distance for x in feet_strings):
@@ -677,7 +687,7 @@ user session to complete a task such as downloading CSV reports</p>
                 return distance_int
             else:
                 return float(distance.split(&#34; &#34;)[0])
-        except Exception as e:
+        except Exception:
             return 0
 
     def feet_to_miles(self, feet: int) -&gt; float:
@@ -692,7 +702,18 @@ user session to complete a task such as downloading CSV reports</p>
         &#34;&#34;&#34;
         feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
         mi = 0.000189394
-        return feet * mi</code></pre>
+        return feet * mi
+
+    def __init_logger(self) -&gt; None:
+        logger = logging.getLogger(&#34;PyForks&#34;)
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            &#34;%(created)f:%(levelname)s:%(name)s:%(module)s:%(message)s&#34;
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -733,7 +754,6 @@ function attempts to normalize them into miles (float)</p>
         float: number of miles
     &#34;&#34;&#34;
     feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-    miles_strings = [&#34;mi&#34;, &#34;miles&#34;]
     distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
     try:
         if any(x in distance for x in feet_strings):
@@ -745,7 +765,7 @@ function attempts to normalize them into miles (float)</p>
             return distance_int
         else:
             return float(distance.split(&#34; &#34;)[0])
-    except Exception as e:
+    except Exception:
         return 0</code></pre>
 </details>
 </dd>
@@ -812,8 +832,8 @@ function attempts to normalize them into miles (float)</p>
     Returns:
         str: Site Title
     &#34;&#34;&#34;
-    soup = BeautifulSoup(html_source, &#39;html.parser&#39;)
-    title = soup.find(&#39;title&#39;)
+    soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
+    title = soup.find(&#34;title&#34;)
     return title.string</code></pre>
 </details>
 </dd>
@@ -903,10 +923,8 @@ def login(self) -&gt; bool:
             trailforks_session.cookies.update(cookies)
             t = trailforks_session.get(users_homepage, allow_redirects=True)
         except TypeError as e:
-            print(
-                &#34;[!] Bad cookie file. Please delete the .cookie file and try again&#34;
-            )
-            return False
+            self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
+            raise PyForks.exceptions.BadCookieError
     else:
         t = trailforks_session.post(
             &#34;https://www.trailforks.com/wosFormCheck.php&#34;,

@@ -1,4 +1,5 @@
 from PyForks.trailforks import Trailforks
+import PyForks.exceptions
 import pytest
 import os
 
@@ -32,8 +33,9 @@ def test_bad_cookie_load_fail():
         f.write(b"not a cookie brah")
 
     tf = Trailforks(username="apress001", password="FakePassword123")
-    check = tf.login()
-    assert check == False
+    with pytest.raises(PyForks.exceptions.BadCookieError) as pytest_wrapped_e:
+        tf.login()
+    assert pytest_wrapped_e.type == PyForks.exceptions.BadCookieError
 
 
 def test_new_cookie_creation():

@@ -45,7 +45,7 @@ class Region(Trailforks):
 
         Returns:
             bool: True:is an existing region;False:region does not exist.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         uri = f&#34;https://www.trailforks.com/region/{region}&#34;
         r = requests.get(uri)
         non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
@@ -60,9 +60,11 @@ class Region(Trailforks):
 
         Returns:
             bool: True: Region is valid
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         if not self.is_valid_region(region):
-            raise PyForks.exceptions.InvalidRegion(msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
+            raise PyForks.exceptions.InvalidRegion(
+                msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;
+            )
         return True
 
     def __enrich_ridecounts(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -75,7 +77,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: Clean and Encriched Trailforks Data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])
         df[&#34;year&#34;] = df[&#34;date&#34;].dt.year
         df[&#34;month&#34;] = df[&#34;date&#34;].dt.month
@@ -99,7 +101,7 @@ class Region(Trailforks):
 
         Returns:
             bool: true:CSV written to disk;False:failed to write CSV
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -112,7 +114,9 @@ class Region(Trailforks):
 
         else:
             if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+                raise PyForks.exceptions.InvalidPermissions(
+                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+                )
             return pd.DataFrame
 
     def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -125,7 +129,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: _description_
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
 
         df[&#34;total_miles&#34;] = None
         df[&#34;descent_miles&#34;] = None
@@ -153,7 +157,7 @@ class Region(Trailforks):
 
         Returns:
             str: cleaned csv data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         fix_csv_data = re.sub(r&#34;\nhttps&#34;, &#39;&#34;,&#34;https&#39;, raw_data)
         csv_data_list = []
         for line in fix_csv_data.split(&#34;\n&#34;):
@@ -181,7 +185,7 @@ class Region(Trailforks):
 
         Returns:
             DataFrame: Pandas DataFrame
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -194,7 +198,9 @@ class Region(Trailforks):
 
         else:
             if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+                raise PyForks.exceptions.InvalidPermissions(
+                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+                )
 
             return pd.DataFrame()
 
@@ -209,7 +215,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: Normalized Trailforks data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         date_rex = re.compile(r&#34;^\d{2,4}-\d{1,2}-\d{1,2}\s&#34;)
         try:
             df = df.rename(
@@ -242,7 +248,7 @@ class Region(Trailforks):
 
             return df
         except Exception as e:
-            print(f&#34;[!!] ERROR {e}&#34;)
+            self._logger.error(f&#34;Failed to clean ridelogs;ERROR:{e}&#34;)
             return pd.DataFrame
 
     @authentication
@@ -259,7 +265,7 @@ class Region(Trailforks):
 
         Returns:
             bool: Pandas DataFrame
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         region_info = self._get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
@@ -282,7 +288,7 @@ class Region(Trailforks):
 
                 pbar.update(1)
             except Exception as e:
-                print(e)
+                self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
                 pbar.update(1)
                 break
         pbar.close()
@@ -292,7 +298,7 @@ class Region(Trailforks):
             df[&#34;region&#34;] = region
             return self.__clean_ridelogs(df)
         except Exception as e:
-            print(f&#34;[!] Error: {e}&#34;)
+            self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
             return pd.DataFrame
 
     def _get_region_info(self, region: str) -&gt; dict:
@@ -304,7 +310,7 @@ class Region(Trailforks):
 
         Returns:
             dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
         page = requests.get(region_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
@@ -345,7 +351,7 @@ class Region(Trailforks):
 
         Returns:
             bool: True:action requires admin;False:action doesn&#39;t need admin
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         error_messages = [&#34;Only trusted users can export&#34;]
         return any([x in error_message for x in error_messages])</code></pre>
 </details>
@@ -377,7 +383,7 @@ class Region(Trailforks):
 
         Returns:
             bool: True:is an existing region;False:region does not exist.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         uri = f&#34;https://www.trailforks.com/region/{region}&#34;
         r = requests.get(uri)
         non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
@@ -392,9 +398,11 @@ class Region(Trailforks):
 
         Returns:
             bool: True: Region is valid
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         if not self.is_valid_region(region):
-            raise PyForks.exceptions.InvalidRegion(msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
+            raise PyForks.exceptions.InvalidRegion(
+                msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;
+            )
         return True
 
     def __enrich_ridecounts(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -407,7 +415,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: Clean and Encriched Trailforks Data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])
         df[&#34;year&#34;] = df[&#34;date&#34;].dt.year
         df[&#34;month&#34;] = df[&#34;date&#34;].dt.month
@@ -431,7 +439,7 @@ class Region(Trailforks):
 
         Returns:
             bool: true:CSV written to disk;False:failed to write CSV
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -444,7 +452,9 @@ class Region(Trailforks):
 
         else:
             if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+                raise PyForks.exceptions.InvalidPermissions(
+                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+                )
             return pd.DataFrame
 
     def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -457,7 +467,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: _description_
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
 
         df[&#34;total_miles&#34;] = None
         df[&#34;descent_miles&#34;] = None
@@ -485,7 +495,7 @@ class Region(Trailforks):
 
         Returns:
             str: cleaned csv data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         fix_csv_data = re.sub(r&#34;\nhttps&#34;, &#39;&#34;,&#34;https&#39;, raw_data)
         csv_data_list = []
         for line in fix_csv_data.split(&#34;\n&#34;):
@@ -513,7 +523,7 @@ class Region(Trailforks):
 
         Returns:
             DataFrame: Pandas DataFrame
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
         r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -526,7 +536,9 @@ class Region(Trailforks):
 
         else:
             if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+                raise PyForks.exceptions.InvalidPermissions(
+                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+                )
 
             return pd.DataFrame()
 
@@ -541,7 +553,7 @@ class Region(Trailforks):
 
         Returns:
             pd.DataFrame: Normalized Trailforks data
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         date_rex = re.compile(r&#34;^\d{2,4}-\d{1,2}-\d{1,2}\s&#34;)
         try:
             df = df.rename(
@@ -574,7 +586,7 @@ class Region(Trailforks):
 
             return df
         except Exception as e:
-            print(f&#34;[!!] ERROR {e}&#34;)
+            self._logger.error(f&#34;Failed to clean ridelogs;ERROR:{e}&#34;)
             return pd.DataFrame
 
     @authentication
@@ -591,7 +603,7 @@ class Region(Trailforks):
 
         Returns:
             bool: Pandas DataFrame
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         self.check_region(region)
         region_info = self._get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
@@ -614,7 +626,7 @@ class Region(Trailforks):
 
                 pbar.update(1)
             except Exception as e:
-                print(e)
+                self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
                 pbar.update(1)
                 break
         pbar.close()
@@ -624,7 +636,7 @@ class Region(Trailforks):
             df[&#34;region&#34;] = region
             return self.__clean_ridelogs(df)
         except Exception as e:
-            print(f&#34;[!] Error: {e}&#34;)
+            self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
             return pd.DataFrame
 
     def _get_region_info(self, region: str) -&gt; dict:
@@ -636,7 +648,7 @@ class Region(Trailforks):
 
         Returns:
             dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
         page = requests.get(region_uri)
         soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
@@ -677,7 +689,7 @@ class Region(Trailforks):
 
         Returns:
             bool: True:action requires admin;False:action doesn&#39;t need admin
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;  # noqa
         error_messages = [&#34;Only trusted users can export&#34;]
         return any([x in error_message for x in error_messages])</code></pre>
 </details>
@@ -709,9 +721,11 @@ exit if the region is non-existant.</p>
 
     Returns:
         bool: True: Region is valid
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;  # noqa
     if not self.is_valid_region(region):
-        raise PyForks.exceptions.InvalidRegion(msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;)
+        raise PyForks.exceptions.InvalidRegion(
+            msg=f&#34;[!] {region} is not a valid Trailforks Region.&#34;
+        )
     return True</code></pre>
 </details>
 </dd>
@@ -753,7 +767,7 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
 
     Returns:
         bool: Pandas DataFrame
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;  # noqa
     self.check_region(region)
     region_info = self._get_region_info(region)
     total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
@@ -776,7 +790,7 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
 
             pbar.update(1)
         except Exception as e:
-            print(e)
+            self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
             pbar.update(1)
             break
     pbar.close()
@@ -786,7 +800,7 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
         df[&#34;region&#34;] = region
         return self.__clean_ridelogs(df)
     except Exception as e:
-        print(f&#34;[!] Error: {e}&#34;)
+        self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
         return pd.DataFrame</code></pre>
 </details>
 </dd>
@@ -831,7 +845,7 @@ def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
 
     Returns:
         DataFrame: Pandas DataFrame
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;  # noqa
     self.check_region(region)
     uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
     r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -844,7 +858,9 @@ def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
 
     else:
         if self._check_requires_region_admin(r.text):
-            raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+            raise PyForks.exceptions.InvalidPermissions(
+                msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+            )
 
         return pd.DataFrame()</code></pre>
 </details>
@@ -885,7 +901,7 @@ def get_region_ridecounts(self, region: str) -&gt; bool:
 
     Returns:
         bool: true:CSV written to disk;False:failed to write CSV
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;  # noqa
     self.check_region(region)
     uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
     r = self.trailforks_session.get(uri, allow_redirects=True)
@@ -898,7 +914,9 @@ def get_region_ridecounts(self, region: str) -&gt; bool:
 
     else:
         if self._check_requires_region_admin(r.text):
-            raise PyForks.exceptions.InvalidPermissions(msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;)
+            raise PyForks.exceptions.InvalidPermissions(
+                msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
+            )
         return pd.DataFrame</code></pre>
 </details>
 </dd>
@@ -924,7 +942,7 @@ making sure the page title is not Error</p>
 
     Returns:
         bool: True:is an existing region;False:region does not exist.
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;  # noqa
     uri = f&#34;https://www.trailforks.com/region/{region}&#34;
     r = requests.get(uri)
     non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;

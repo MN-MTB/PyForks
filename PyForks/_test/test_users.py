@@ -9,7 +9,7 @@ def test_bad_username():
 
     with pytest.raises(PyForks.exceptions.InvalidUser) as pytest_wrapped_e:
         user_data = tf_user.get_user_info("09846759345fdsadfa")
-    
+
     assert pytest_wrapped_e.type == PyForks.exceptions.InvalidUser
 
 

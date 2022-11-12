@@ -75,9 +75,7 @@ def test_trails_download_lowpriv_user(capsys):
     region = Region(username="apress001", password="FakePassword123")
     region.login()
     with pytest.raises(PyForks.exceptions.InvalidPermissions) as pytest_wrapped_e:
-        download_result = region.get_all_region_trails(
-            "west-lake-marion-park", "20367"
-        )
+        download_result = region.get_all_region_trails("west-lake-marion-park", "20367")
     assert pytest_wrapped_e.type == PyForks.exceptions.InvalidPermissions
 
 
@@ -95,6 +93,7 @@ def test_ridelogs_download_lowpriv_user():
 
 def test_region_trails_cleanup():
     from io import StringIO
+
     region = Region()
     raw_csv_data = open("./PyForks/_test/raw_trails.csv").read()
     clean_csv_data = region._clean_raw_csv_data(raw_csv_data)

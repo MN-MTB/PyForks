@@ -35,7 +35,6 @@ import re
 
 
 class User(Trailforks):
-
     def is_valid_user(self, user: str) -&gt; bool:
         &#34;&#34;&#34;
         Verifies the user exists on Trailforks
@@ -64,7 +63,7 @@ class User(Trailforks):
         &#34;&#34;&#34;
         if not self.is_valid_user(user):
             raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
-            
+
         user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
@@ -105,12 +104,12 @@ class User(Trailforks):
                 headers = {
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
-                r = self.trailforks_session.get(uri)
+                r = self.trailforks_session.get(uri, headers=headers)
                 if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
                     raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
             return True
         except Exception as e:
-            print(e)
+            self._logger.error(f&#34;Failed to rescan badges;ERROR:{e}&#34;)
             return False
 
     def get_user_ridelogs_all(self, user: str) -&gt; pd.DataFrame:
@@ -152,7 +151,7 @@ class User(Trailforks):
                     link = each.find(&#34;a&#34;)[&#34;href&#34;]
                     if &#34;ridelog/view&#34; in link and &#34;achievements&#34; not in link:
                         links.add(link)
-                except:
+                except Exception:
                     pass
         return list(links)
 
@@ -172,7 +171,7 @@ class User(Trailforks):
         for link in ridelog_links:
             try:
                 ids.append(rex.search(link).group(1))
-            except AttributeError as e:
+            except AttributeError:
                 pass
         return ids
 
@@ -202,15 +201,15 @@ class User(Trailforks):
             city = city.strip()
             state = state.strip()
             country = &#34;USA&#34;
-        except AttributeError as e:
+        except AttributeError:
             pass
-        except ValueError as e:
+        except ValueError:
             try:
                 city, state, country = location.strip().split(&#34;,&#34;)
                 city = city.strip()
                 state = &#34;unknown&#34;
                 country = country.strip()
-            except Exception as e:
+            except Exception:
                 state = location.strip()
 
         return (city, state, country)
@@ -232,7 +231,7 @@ class User(Trailforks):
             activity_df = activity_df.fillna(&#34;&#34;)
             recent_ride_locations = activity_df.location.unique().tolist()
             recent_ride_locations.remove(&#34;&#34;)
-        except ValueError as e:
+        except ValueError:
             recent_ride_locations = []
 
         return recent_ride_locations
@@ -254,7 +253,7 @@ class User(Trailforks):
             df = pd.read_html(r.text)[0]
             df = df[df[&#34;model&#34;].notna()]
             user_gear = list(zip(df.brand, df.model))
-        except ValueError as e:
+        except ValueError:
             user_gear = []
         return user_gear
 
@@ -304,7 +303,6 @@ class User(Trailforks):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class User(Trailforks):
-
     def is_valid_user(self, user: str) -&gt; bool:
         &#34;&#34;&#34;
         Verifies the user exists on Trailforks
@@ -333,7 +331,7 @@ class User(Trailforks):
         &#34;&#34;&#34;
         if not self.is_valid_user(user):
             raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
-            
+
         user = user.split(&#34; &#34;)[0]
         user_data = {
             &#34;username&#34;: user,
@@ -374,12 +372,12 @@ class User(Trailforks):
                 headers = {
                     &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
                 }
-                r = self.trailforks_session.get(uri)
+                r = self.trailforks_session.get(uri, headers=headers)
                 if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
                     raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
             return True
         except Exception as e:
-            print(e)
+            self._logger.error(f&#34;Failed to rescan badges;ERROR:{e}&#34;)
             return False
 
     def get_user_ridelogs_all(self, user: str) -&gt; pd.DataFrame:
@@ -421,7 +419,7 @@ class User(Trailforks):
                     link = each.find(&#34;a&#34;)[&#34;href&#34;]
                     if &#34;ridelog/view&#34; in link and &#34;achievements&#34; not in link:
                         links.add(link)
-                except:
+                except Exception:
                     pass
         return list(links)
 
@@ -441,7 +439,7 @@ class User(Trailforks):
         for link in ridelog_links:
             try:
                 ids.append(rex.search(link).group(1))
-            except AttributeError as e:
+            except AttributeError:
                 pass
         return ids
 
@@ -471,15 +469,15 @@ class User(Trailforks):
             city = city.strip()
             state = state.strip()
             country = &#34;USA&#34;
-        except AttributeError as e:
+        except AttributeError:
             pass
-        except ValueError as e:
+        except ValueError:
             try:
                 city, state, country = location.strip().split(&#34;,&#34;)
                 city = city.strip()
                 state = &#34;unknown&#34;
                 country = country.strip()
-            except Exception as e:
+            except Exception:
                 state = location.strip()
 
         return (city, state, country)
@@ -501,7 +499,7 @@ class User(Trailforks):
             activity_df = activity_df.fillna(&#34;&#34;)
             recent_ride_locations = activity_df.location.unique().tolist()
             recent_ride_locations.remove(&#34;&#34;)
-        except ValueError as e:
+        except ValueError:
             recent_ride_locations = []
 
         return recent_ride_locations
@@ -523,7 +521,7 @@ class User(Trailforks):
             df = pd.read_html(r.text)[0]
             df = df[df[&#34;model&#34;].notna()]
             user_gear = list(zip(df.brand, df.model))
-        except ValueError as e:
+        except ValueError:
             user_gear = []
         return user_gear
 
@@ -594,7 +592,7 @@ def get_user_gear(self, user: str) -&gt; list:
         df = pd.read_html(r.text)[0]
         df = df[df[&#34;model&#34;].notna()]
         user_gear = list(zip(df.brand, df.model))
-    except ValueError as e:
+    except ValueError:
         user_gear = []
     return user_gear</code></pre>
 </details>
@@ -632,7 +630,7 @@ and recent ridelogs</p>
     &#34;&#34;&#34;
     if not self.is_valid_user(user):
         raise PyForks.exceptions.InvalidUser(msg=f&#34;{user} does not exist&#34;)
-        
+
     user = user.split(&#34; &#34;)[0]
     user_data = {
         &#34;username&#34;: user,
@@ -815,12 +813,12 @@ def rescan_ridelogs_for_badges(self, ride_ids: list) -&gt; bool:
             headers = {
                 &#34;user_agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
             }
-            r = self.trailforks_session.get(uri)
+            r = self.trailforks_session.get(uri, headers=headers)
             if &#34;&lt;title&gt;Error&lt;/title&gt;&#34; in r.text:
                 raise Exception(&#34;Invalid Ride ID and/or Unauthorized&#34;)
         return True
     except Exception as e:
-        print(e)
+        self._logger.error(f&#34;Failed to rescan badges;ERROR:{e}&#34;)
         return False</code></pre>
 </details>
 </dd>
