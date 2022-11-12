@@ -1,11 +1,27 @@
 import pandas as pd
 import requests
+import PyForks.exceptions
 from bs4 import BeautifulSoup
 from PyForks.trailforks import Trailforks, authentication
 import re
 
 
 class User(Trailforks):
+    def is_valid_user(self, user: str) -> bool:
+        """
+        Verifies the user exists on Trailforks
+
+        Args:
+            user (str): the trailforks username
+
+        Returns:
+            bool: True:user exists;False:use does not exist
+        """
+        user_profile = f"https://www.trailforks.com/profile/{user}"
+        r = requests.get(user_profile, allow_redirects=True)
+        site_title = self.get_webpage_title(r.text)
+        return user in site_title
+
     def get_user_info(self, user: str) -> dict:
         """
         Obtains user information via the user profile page
@@ -17,6 +33,9 @@ class User(Trailforks):
         Returns:
             dict: {username, profile, <location...>, recent rides}
         """
+        if not self.is_valid_user(user):
+            raise PyForks.exceptions.InvalidUser(msg=f"{user} does not exist")
+
         user = user.split(" ")[0]
         user_data = {
             "username": user,
@@ -57,12 +76,12 @@ class User(Trailforks):
                 headers = {
                     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
                 }
-                r = self.trailforks_session.get(uri)
+                r = self.trailforks_session.get(uri, headers=headers)
                 if "<title>Error</title>" in r.text:
                     raise Exception("Invalid Ride ID and/or Unauthorized")
             return True
         except Exception as e:
-            print(e)
+            self._logger.error(f"Failed to rescan badges;ERROR:{e}")
             return False
 
     def get_user_ridelogs_all(self, user: str) -> pd.DataFrame:
@@ -104,7 +123,7 @@ class User(Trailforks):
                     link = each.find("a")["href"]
                     if "ridelog/view" in link and "achievements" not in link:
                         links.add(link)
-                except:
+                except Exception:
                     pass
         return list(links)
 
@@ -124,7 +143,7 @@ class User(Trailforks):
         for link in ridelog_links:
             try:
                 ids.append(rex.search(link).group(1))
-            except AttributeError as e:
+            except AttributeError:
                 pass
         return ids
 
@@ -154,15 +173,15 @@ class User(Trailforks):
             city = city.strip()
             state = state.strip()
             country = "USA"
-        except AttributeError as e:
+        except AttributeError:
             pass
-        except ValueError as e:
+        except ValueError:
             try:
                 city, state, country = location.strip().split(",")
                 city = city.strip()
                 state = "unknown"
                 country = country.strip()
-            except Exception as e:
+            except Exception:
                 state = location.strip()
 
         return (city, state, country)
@@ -184,7 +203,7 @@ class User(Trailforks):
             activity_df = activity_df.fillna("")
             recent_ride_locations = activity_df.location.unique().tolist()
             recent_ride_locations.remove("")
-        except ValueError as e:
+        except ValueError:
             recent_ride_locations = []
 
         return recent_ride_locations
@@ -206,7 +225,7 @@ class User(Trailforks):
             df = pd.read_html(r.text)[0]
             df = df[df["model"].notna()]
             user_gear = list(zip(df.brand, df.model))
-        except ValueError as e:
+        except ValueError:
             user_gear = []
         return user_gear
 

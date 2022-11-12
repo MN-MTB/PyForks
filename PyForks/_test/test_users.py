@@ -1,22 +1,16 @@
 from PyForks.user import User
 import pandas as pd
+import pytest
+import PyForks.exceptions
 
 
 def test_bad_username():
     tf_user = User()
-    user_data = tf_user.get_user_info("09846759345fdsadfa")
-    expected = {
-        "admin_region": {"region_link": "", "region_name": ""},
-        "city": "unknown",
-        "country": "unknown",
-        "is_regional_admin": False,
-        "profile_link": "https://www.trailforks.com/profile/09846759345fdsadfa",
-        "recent_ride_locations": [],
-        "state": "unknown",
-        "username": "09846759345fdsadfa",
-    }
 
-    assert user_data == expected
+    with pytest.raises(PyForks.exceptions.InvalidUser) as pytest_wrapped_e:
+        user_data = tf_user.get_user_info("09846759345fdsadfa")
+
+    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidUser
 
 
 def test_bad_ride_links():
