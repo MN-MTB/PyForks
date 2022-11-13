@@ -83,12 +83,7 @@ class Region(Trailforks):
             raw_df = pd.read_csv(io.StringIO(raw_csv_data))
             raw_df["region"] = region
             return self.__enrich_ridecounts(raw_df)
-
         else:
-            if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(
-                    msg=f"You need to be an Admin for {region} to download Trail Ridecounts"
-                )
             return pd.DataFrame
 
     def _clean_region_trails(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -45,6 +45,20 @@ def test_badge_rescan_bad_ids():
     assert check == False
 
 
+def test_get_user_gear():
+    tf_user = User(username="apress001", password="FakePassword123")
+    tf_user.login()
+    check = tf_user.get_user_gear("mnmtb")
+    assert check == [('Orbea', 'Occam H20 Eagle')]
+
+
+def test_get_user_gear_no_gear():
+    tf_user = User(username="apress001", password="FakePassword123")
+    tf_user.login()
+    check = tf_user.get_user_gear("apress001")
+    assert check == []
+
+
 def test_badge_rescan_good_id():
     id = ["46233241"]
     tf_user = User(username="apress001", password="FakePassword123")
@@ -60,9 +74,10 @@ def test_get_user_ridelogs():
 
 
 def test_get_user_info():
-    tf_user = User(username="apress001", password="FakePassword123")
-    tf_user.login()
-    user_data = tf_user.get_user_info("mnmtb")
+    tf_user = User()
+    users = ["bcpov","canadaka", "apress001", "mnmtb"]
+    for user in users:
+        user_data = tf_user.get_user_info(user)
     assert (
         (isinstance(user_data, dict))
         and user_data["city"] == "Lakeville"

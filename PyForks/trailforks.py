@@ -284,12 +284,10 @@ class Trailforks:
                 distance_int = int(distance.split(" ")[0].replace(",", ""))
                 mi = 0.000189394
                 return distance_int * mi
-            elif any(x in distance for x in feet_strings):
-                distance_int = int(distance.split(" ")[0].replace(",", ""))
-                return distance_int
             else:
                 return float(distance.split(" ")[0])
-        except Exception:
+        except Exception as e:
+            self._logger.error(f"distance casting failed;ERROR:{e}")
             return 0
 
     def feet_to_miles(self, feet: int) -> float:
