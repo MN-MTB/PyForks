@@ -29,7 +29,7 @@ def test_check_good_region():
 
 def test_get_region_info():
     region = Region()
-    check = region._get_region_info("lebanon-hills")
+    check = region.get_region_info("lebanon-hills")
     assert isinstance(check, dict)
 
 
@@ -100,3 +100,28 @@ def test_region_trails_cleanup():
     dirty_df = pd.read_csv(StringIO(clean_csv_data))
     clean_df = region._clean_region_trails(dirty_df)
     assert clean_df.loc[3, "flat_miles"] == 0.014204550000000002
+
+
+def test_region_get_info():
+    region = Region()
+    info = region.get_region_info("battle-creek-5538")
+    expected = {
+            "total_ridelogs": 4499,
+            "unique_riders": 1155,
+            "trails_ridden": 76745,
+            "average_trails_per_ride": 151,
+            "total_trails": "26",
+            "trails_(view_details)": "26",
+            "trails_mountain_bike": "26",
+            "trails_hike": "24",
+            "trails_trail_running": "24",
+            "total_distance": "10 miles",
+            "total_descent": "1,522 ft",
+            "total_vertical": "271 ft",
+            "highest_trailhead": "992 ft",
+            "reports": "528",
+            "photos": "21",
+            "ridden_counter": "13,882",
+        }
+    
+    assert (expected["total_trails"] == info["total_trails"] and expected["total_distance"] == info["total_distance"])

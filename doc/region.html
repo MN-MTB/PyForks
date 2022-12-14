@@ -111,12 +111,7 @@ class Region(Trailforks):
             raw_df = pd.read_csv(io.StringIO(raw_csv_data))
             raw_df[&#34;region&#34;] = region
             return self.__enrich_ridecounts(raw_df)
-
         else:
-            if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(
-                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-                )
             return pd.DataFrame
 
     def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -267,7 +262,7 @@ class Region(Trailforks):
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        region_info = self._get_region_info(region)
+        region_info = self.get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
         dataframes_list = []
 
@@ -301,9 +296,11 @@ class Region(Trailforks):
             self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
             return pd.DataFrame
 
-    def _get_region_info(self, region: str) -&gt; dict:
+    def get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
-        Pulls region specific metrics from the region page
+        Pulls region specific metrics from the region page. This whole function
+        is an abomination (I know) but, until Trailforks publishes an API I do
+        not see another way around this.
 
         Args:
             region (str): region name as is shows on a URI
@@ -319,7 +316,7 @@ class Region(Trailforks):
         soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
         list_items = soup_1.find_all(&#34;li&#34;)
 
-        region_info = {
+        region_ridelog_stats = {
             &#34;total_ridelogs&#34;: None,
             &#34;unique_riders&#34;: None,
             &#34;trails_ridden&#34;: None,
@@ -332,12 +329,38 @@ class Region(Trailforks):
             &#34;average_trails_per_ride&#34;,
         ]
 
+        # Enumerate the region ridelog stats
         for i, item in enumerate(list_items):
-            region_info[region_vars[i]] = int(
+            region_ridelog_stats[region_vars[i]] = int(
                 re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
             )
 
-        return region_info
+        # Get Region overview stats
+        region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
+        page = requests.get(region_uri)
+        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
+        data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
+        data = str(data[0])
+        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+        list_items = soup_1.find_all(&#34;dl&#34;)[0]
+        list_items_string = str(list_items)
+        list_items_text = (list_items.text).split(&#34;\n&#34;)
+
+        region_overview_stats = {}
+
+        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+
+        # Let&#39;s use the title params are the key values:
+        for index, line in enumerate(list_items_text):
+            if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
+                if not self.has_numbers(line):
+                    key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
+                    value = list_items_text[index + 1]
+                    region_overview_stats[key] = value
+
+        region_ridelog_stats.update(region_overview_stats)
+        return region_ridelog_stats
 
     def _check_requires_region_admin(self, error_message: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -449,12 +472,7 @@ class Region(Trailforks):
             raw_df = pd.read_csv(io.StringIO(raw_csv_data))
             raw_df[&#34;region&#34;] = region
             return self.__enrich_ridecounts(raw_df)
-
         else:
-            if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(
-                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-                )
             return pd.DataFrame
 
     def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -605,7 +623,7 @@ class Region(Trailforks):
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        region_info = self._get_region_info(region)
+        region_info = self.get_region_info(region)
         total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
         dataframes_list = []
 
@@ -639,9 +657,11 @@ class Region(Trailforks):
             self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
             return pd.DataFrame
 
-    def _get_region_info(self, region: str) -&gt; dict:
+    def get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
-        Pulls region specific metrics from the region page
+        Pulls region specific metrics from the region page. This whole function
+        is an abomination (I know) but, until Trailforks publishes an API I do
+        not see another way around this.
 
         Args:
             region (str): region name as is shows on a URI
@@ -657,7 +677,7 @@ class Region(Trailforks):
         soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
         list_items = soup_1.find_all(&#34;li&#34;)
 
-        region_info = {
+        region_ridelog_stats = {
             &#34;total_ridelogs&#34;: None,
             &#34;unique_riders&#34;: None,
             &#34;trails_ridden&#34;: None,
@@ -670,12 +690,38 @@ class Region(Trailforks):
             &#34;average_trails_per_ride&#34;,
         ]
 
+        # Enumerate the region ridelog stats
         for i, item in enumerate(list_items):
-            region_info[region_vars[i]] = int(
+            region_ridelog_stats[region_vars[i]] = int(
                 re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
             )
 
-        return region_info
+        # Get Region overview stats
+        region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
+        page = requests.get(region_uri)
+        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
+        data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
+        data = str(data[0])
+        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+        list_items = soup_1.find_all(&#34;dl&#34;)[0]
+        list_items_string = str(list_items)
+        list_items_text = (list_items.text).split(&#34;\n&#34;)
+
+        region_overview_stats = {}
+
+        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+
+        # Let&#39;s use the title params are the key values:
+        for index, line in enumerate(list_items_text):
+            if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
+                if not self.has_numbers(line):
+                    key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
+                    value = list_items_text[index + 1]
+                    region_overview_stats[key] = value
+
+        region_ridelog_stats.update(region_overview_stats)
+        return region_ridelog_stats
 
     def _check_requires_region_admin(self, error_message: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -769,7 +815,7 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
         bool: Pandas DataFrame
     &#34;&#34;&#34;  # noqa
     self.check_region(region)
-    region_info = self._get_region_info(region)
+    region_info = self.get_region_info(region)
     total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
     dataframes_list = []
 
@@ -865,6 +911,94 @@ def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
         return pd.DataFrame()</code></pre>
 </details>
 </dd>
+<dt id="PyForks.region.Region.get_region_info"><code class="name flex">
+<span>def <span class="ident">get_region_info</span></span>(<span>self, region: str) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pulls region specific metrics from the region page. This whole function
+is an abomination (I know) but, until Trailforks publishes an API I do
+not see another way around this.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>region</code></strong> :&ensp;<code>str</code></dt>
+<dd>region name as is shows on a URI</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>{total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_region_info(self, region: str) -&gt; dict:
+    &#34;&#34;&#34;
+    Pulls region specific metrics from the region page. This whole function
+    is an abomination (I know) but, until Trailforks publishes an API I do
+    not see another way around this.
+
+    Args:
+        region (str): region name as is shows on a URI
+
+    Returns:
+        dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
+    &#34;&#34;&#34;  # noqa
+    region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
+    page = requests.get(region_uri)
+    soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
+    data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
+    data = str(data[0])
+    soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+    list_items = soup_1.find_all(&#34;li&#34;)
+
+    region_ridelog_stats = {
+        &#34;total_ridelogs&#34;: None,
+        &#34;unique_riders&#34;: None,
+        &#34;trails_ridden&#34;: None,
+        &#34;average_trails_per_ride&#34;: None,
+    }
+    region_vars = [
+        &#34;total_ridelogs&#34;,
+        &#34;unique_riders&#34;,
+        &#34;trails_ridden&#34;,
+        &#34;average_trails_per_ride&#34;,
+    ]
+
+    # Enumerate the region ridelog stats
+    for i, item in enumerate(list_items):
+        region_ridelog_stats[region_vars[i]] = int(
+            re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
+        )
+
+    # Get Region overview stats
+    region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
+    page = requests.get(region_uri)
+    soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
+    data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
+    data = str(data[0])
+    soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
+    list_items = soup_1.find_all(&#34;dl&#34;)[0]
+    list_items_string = str(list_items)
+    list_items_text = (list_items.text).split(&#34;\n&#34;)
+
+    region_overview_stats = {}
+
+    total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+    region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+
+    # Let&#39;s use the title params are the key values:
+    for index, line in enumerate(list_items_text):
+        if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
+            if not self.has_numbers(line):
+                key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
+                value = list_items_text[index + 1]
+                region_overview_stats[key] = value
+
+    region_ridelog_stats.update(region_overview_stats)
+    return region_ridelog_stats</code></pre>
+</details>
+</dd>
 <dt id="PyForks.region.Region.get_region_ridecounts"><code class="name flex">
 <span>def <span class="ident">get_region_ridecounts</span></span>(<span>self, region: str) ‑> bool</span>
 </code></dt>
@@ -911,12 +1045,7 @@ def get_region_ridecounts(self, region: str) -&gt; bool:
         raw_df = pd.read_csv(io.StringIO(raw_csv_data))
         raw_df[&#34;region&#34;] = region
         return self.__enrich_ridecounts(raw_df)
-
     else:
-        if self._check_requires_region_admin(r.text):
-            raise PyForks.exceptions.InvalidPermissions(
-                msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-            )
         return pd.DataFrame</code></pre>
 </details>
 </dd>
@@ -959,6 +1088,7 @@ making sure the page title is not Error</p>
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.get_webpage_title" href="trailforks.html#PyForks.trailforks.Trailforks.get_webpage_title">get_webpage_title</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.has_numbers" href="trailforks.html#PyForks.trailforks.Trailforks.has_numbers">has_numbers</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.login" href="trailforks.html#PyForks.trailforks.Trailforks.login">login</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="trailforks.html#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
@@ -988,6 +1118,7 @@ making sure the page title is not Error</p>
 <li><code><a title="PyForks.region.Region.check_region" href="#PyForks.region.Region.check_region">check_region</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_region_ridelogs" href="#PyForks.region.Region.get_all_region_ridelogs">get_all_region_ridelogs</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_region_trails" href="#PyForks.region.Region.get_all_region_trails">get_all_region_trails</a></code></li>
+<li><code><a title="PyForks.region.Region.get_region_info" href="#PyForks.region.Region.get_region_info">get_region_info</a></code></li>
 <li><code><a title="PyForks.region.Region.get_region_ridecounts" href="#PyForks.region.Region.get_region_ridecounts">get_region_ridecounts</a></code></li>
 <li><code><a title="PyForks.region.Region.is_valid_region" href="#PyForks.region.Region.is_valid_region">is_valid_region</a></code></li>
 </ul>
