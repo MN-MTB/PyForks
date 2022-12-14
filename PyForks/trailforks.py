@@ -304,6 +304,22 @@ class Trailforks:
         mi = 0.000189394
         return feet * mi
 
+    def has_numbers(self, data: str) -> bool:
+        """
+        Determines if there are numbers in a string
+
+        Args:
+            data (str): String to check
+
+        Returns:
+            bool: True: numbers exist; False: numbers do not exist
+        """
+        try:
+            check = any(char.isdigit() for char in data)
+            return check
+        except TypeError:
+            return True
+
     def __init_logger(self) -> None:
         logger = logging.getLogger("PyForks")
         logger.setLevel(logging.INFO)

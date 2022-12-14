@@ -234,7 +234,7 @@ class Region(Trailforks):
             bool: Pandas DataFrame
         """  # noqa
         self.check_region(region)
-        region_info = self._get_region_info(region)
+        region_info = self.get_region_info(region)
         total_pages = round(region_info["total_ridelogs"] / 90)
         dataframes_list = []
 
@@ -268,9 +268,11 @@ class Region(Trailforks):
             self._logger.error(f"get_region_ridelogs export error;ERROR:{e}")
             return pd.DataFrame
 
-    def _get_region_info(self, region: str) -> dict:
+    def get_region_info(self, region: str) -> dict:
         """
-        Pulls region specific metrics from the region page
+        Pulls region specific metrics from the region page. This whole function
+        is an abomination (I know) but, until Trailforks publishes an API I do
+        not see another way around this.
 
         Args:
             region (str): region name as is shows on a URI
@@ -286,7 +288,7 @@ class Region(Trailforks):
         soup_1 = BeautifulSoup(data, "html.parser")
         list_items = soup_1.find_all("li")
 
-        region_info = {
+        region_ridelog_stats = {
             "total_ridelogs": None,
             "unique_riders": None,
             "trails_ridden": None,
@@ -299,12 +301,38 @@ class Region(Trailforks):
             "average_trails_per_ride",
         ]
 
+        # Enumerate the region ridelog stats
         for i, item in enumerate(list_items):
-            region_info[region_vars[i]] = int(
+            region_ridelog_stats[region_vars[i]] = int(
                 re.search(r">([0-9].*)<", str(item)).groups()[0].replace(",", "")
             )
 
-        return region_info
+        # Get Region overview stats
+        region_uri = f"https://www.trailforks.com/region/{region}"
+        page = requests.get(region_uri)
+        soup = BeautifulSoup(page.text, "html.parser")
+        data = soup.find_all("div", class_="col-6 last")
+        data = str(data[0])
+        soup_1 = BeautifulSoup(data, "html.parser")
+        list_items = soup_1.find_all("dl")[0]
+        list_items_string = str(list_items)
+        list_items_text = (list_items.text).split("\n")
+
+        region_overview_stats = {}
+
+        total_trails = re.findall(r'<dt>Trails\s<span.*\n.*<dd>([a0-Z9,]{1,10})</dd>', list_items_string, re.MULTILINE)
+        region_overview_stats["total_trails"] = total_trails[0]
+
+        # Let's use the title params are the key values:
+        for index, line in enumerate(list_items_text):
+            if line not in ["Avg Trail Rating","", "trails_(view_details)"]:
+                if not self.has_numbers(line):
+                    key = line.replace(" ", "_").lower().strip()
+                    value = list_items_text[index + 1]
+                    region_overview_stats[key] = value
+
+        region_ridelog_stats.update(region_overview_stats)
+        return region_ridelog_stats
 
     def _check_requires_region_admin(self, error_message: str) -> bool:
         """
