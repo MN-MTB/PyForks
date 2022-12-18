@@ -336,6 +336,16 @@ class Region(Trailforks):
         return region_ridelog_stats
 
     def _get_region_location(self, soup: BeautifulSoup) -> dict:
+        """
+        Attempts to gather the region location information from
+        the regions home page HTML source
+
+        Args:
+            soup (BeautifulSoup): BS4 Soup object
+
+        Returns:
+            dict: dict with country, state/province/, and city
+        """
         data = {
                 "country": None,
                 "state_province": None,
