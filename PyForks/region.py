@@ -332,7 +332,34 @@ class Region(Trailforks):
                     region_overview_stats[key] = value
 
         region_ridelog_stats.update(region_overview_stats)
+        region_ridelog_stats.update(self._get_region_location(soup))
         return region_ridelog_stats
+
+    def _get_region_location(self, soup: BeautifulSoup) -> dict:
+        """
+        Attempts to gather the region location information from
+        the regions home page HTML source
+
+        Args:
+            soup (BeautifulSoup): BS4 Soup object
+
+        Returns:
+            dict: dict with country, state/province/, and city
+        """
+        data = {
+                "country": None,
+                "state_province": None,
+                "city": None
+            }
+        try:
+            span_info = soup.find_all("span", itemprop="name")
+            location_data = [ x.text for x in span_info ]
+            data["country"] = location_data[0]
+            data["state_province"] = location_data[1]
+            data["city"] = location_data[2]
+            return data
+        except:
+            return data
 
     def _check_requires_region_admin(self, error_message: str) -> bool:
         """

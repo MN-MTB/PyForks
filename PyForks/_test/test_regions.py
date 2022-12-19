@@ -122,6 +122,15 @@ def test_region_get_info():
             "reports": "528",
             "photos": "21",
             "ridden_counter": "13,882",
+            "country": "United States",
+            "state_province": "Minnesota",
+            "city": "Metro Region"
         }
     
-    assert (expected["total_trails"] == info["total_trails"] and expected["total_distance"] == info["total_distance"])
+    assert (
+        expected["total_trails"] == info["total_trails"] 
+        and expected["total_distance"] == info["total_distance"]
+        and expected["country"] == info["country"]
+        and expected["state_province"] == info["state_province"]
+        and expected["city"] == info["city"]
+    )
