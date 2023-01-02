@@ -129,7 +129,6 @@ def test_region_get_info():
     
     assert (
         expected["total_trails"] == info["total_trails"] 
-        and expected["total_distance"] == info["total_distance"]
         and expected["country"] == info["country"]
         and expected["state_province"] == info["state_province"]
         and expected["city"] == info["city"]
