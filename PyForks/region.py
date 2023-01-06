@@ -6,6 +6,7 @@ import PyForks.exceptions
 import calendar
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 
@@ -317,11 +318,17 @@ class Region(Trailforks):
         list_items = soup_1.find_all("dl")[0]
         list_items_string = str(list_items)
         list_items_text = (list_items.text).split("\n")
-
         region_overview_stats = {}
 
-        total_trails = re.findall(r'<dt>Trails\s<span.*\n.*<dd>([a0-Z9,]{1,10})</dd>', list_items_string, re.MULTILINE)
-        region_overview_stats["total_trails"] = total_trails[0]
+        try:
+            total_trails = re.findall(r'<dt>Trails\s<span.*\n.*<dd>([a0-Z9,]{1,10})</dd>', list_items_string, re.MULTILINE)
+            region_overview_stats["total_trails"] = total_trails[0]
+        except IndexError:
+            list_items = soup_1.find_all("dl")[1]
+            list_items_string = str(list_items)
+            list_items_text = (list_items.text).split("\n")
+            total_trails = re.findall(r'<dt>Trails\s<span.*\n.*<dd>([a0-Z9,]{1,10})</dd>', list_items_string, re.MULTILINE)
+            region_overview_stats["total_trails"] = total_trails[0]
 
         # Let's use the title params are the key values:
         for index, line in enumerate(list_items_text):
@@ -376,3 +383,49 @@ class Region(Trailforks):
         """  # noqa
         error_messages = ["Only trusted users can export"]
         return any([x in error_message for x in error_messages])
+
+    def _thread_get_regions(self, page_number: int) -> pd.DataFrame: # noqa
+        """
+        Used to parallelize (yes yes, GIL I know...) the regions lookup
+
+        Args:
+            page_number (int): URI Page Number to query
+
+        Returns:
+            pd.DataFrame: Dataframe of the HTML table enumerated
+        """
+        uri = f"https://www.trailforks.com/regions/list/?activitytype=1&page={page_number}"
+        r = self.trailforks_session.get(uri)
+        soup = BeautifulSoup(r.content, "html.parser")
+        table = soup.find('table', {"class": "table1"})
+        uri_list = [tag.find("a")["href"] for tag in table.select("td:has(a)")]
+        df = pd.read_html(table.prettify(), index_col=None, header=0)
+        df = df[0]
+        df["region_link"] = uri_list
+        return df
+
+    @authentication
+    def get_all_trailforks_regions(self) -> pd.DataFrame: # noqa
+        """
+        BETA FUNCTION - retrieves all of the regions Trailforks knows about
+
+        Returns:
+            pd.DataFrame: DataFrame of all region data
+        """
+        number_of_pages = 161
+
+        df_list = []
+        threads = []
+        pbar = tqdm(total=number_of_pages)
+        with ThreadPoolExecutor() as executor:
+            for i in range(1, number_of_pages):
+                threads.append(executor.submit(self._thread_get_regions, i))
+
+                for thread in as_completed(threads):
+                    df_list.append(thread.result())
+                    pbar.update(1)
+        pbar.close()
+        final_df = pd.concat(df_list, ignore_index=True)
+        final_df.rename(columns={"Unnamed: 3":"green", "Unnamed: 4":"blue", "Unnamed: 5":"black", "Unnamed: 6":"double_black"}, inplace=True)
+        return final_df
+
