@@ -34,6 +34,7 @@ import PyForks.exceptions
 import calendar
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 
@@ -345,11 +346,17 @@ class Region(Trailforks):
         list_items = soup_1.find_all(&#34;dl&#34;)[0]
         list_items_string = str(list_items)
         list_items_text = (list_items.text).split(&#34;\n&#34;)
-
         region_overview_stats = {}
 
-        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+        try:
+            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+        except IndexError:
+            list_items = soup_1.find_all(&#34;dl&#34;)[1]
+            list_items_string = str(list_items)
+            list_items_text = (list_items.text).split(&#34;\n&#34;)
+            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
 
         # Let&#39;s use the title params are the key values:
         for index, line in enumerate(list_items_text):
@@ -360,7 +367,34 @@ class Region(Trailforks):
                     region_overview_stats[key] = value
 
         region_ridelog_stats.update(region_overview_stats)
+        region_ridelog_stats.update(self._get_region_location(soup))
         return region_ridelog_stats
+
+    def _get_region_location(self, soup: BeautifulSoup) -&gt; dict:
+        &#34;&#34;&#34;
+        Attempts to gather the region location information from
+        the regions home page HTML source
+
+        Args:
+            soup (BeautifulSoup): BS4 Soup object
+
+        Returns:
+            dict: dict with country, state/province/, and city
+        &#34;&#34;&#34;
+        data = {
+                &#34;country&#34;: None,
+                &#34;state_province&#34;: None,
+                &#34;city&#34;: None
+            }
+        try:
+            span_info = soup.find_all(&#34;span&#34;, itemprop=&#34;name&#34;)
+            location_data = [ x.text for x in span_info ]
+            data[&#34;country&#34;] = location_data[0]
+            data[&#34;state_province&#34;] = location_data[1]
+            data[&#34;city&#34;] = location_data[2]
+            return data
+        except:
+            return data
 
     def _check_requires_region_admin(self, error_message: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -376,7 +410,52 @@ class Region(Trailforks):
             bool: True:action requires admin;False:action doesn&#39;t need admin
         &#34;&#34;&#34;  # noqa
         error_messages = [&#34;Only trusted users can export&#34;]
-        return any([x in error_message for x in error_messages])</code></pre>
+        return any([x in error_message for x in error_messages])
+
+    def _thread_get_regions(self, page_number: int) -&gt; pd.DataFrame: # noqa
+        &#34;&#34;&#34;
+        Used to parallelize (yes yes, GIL I know...) the regions lookup
+
+        Args:
+            page_number (int): URI Page Number to query
+
+        Returns:
+            pd.DataFrame: Dataframe of the HTML table enumerated
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/regions/list/?activitytype=1&amp;page={page_number}&#34;
+        r = self.trailforks_session.get(uri)
+        soup = BeautifulSoup(r.content, &#34;html.parser&#34;)
+        table = soup.find(&#39;table&#39;, {&#34;class&#34;: &#34;table1&#34;})
+        uri_list = [tag.find(&#34;a&#34;)[&#34;href&#34;] for tag in table.select(&#34;td:has(a)&#34;)]
+        df = pd.read_html(table.prettify(), index_col=None, header=0)
+        df = df[0]
+        df[&#34;region_link&#34;] = uri_list
+        return df
+
+    @authentication
+    def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
+        &#34;&#34;&#34;
+        BETA FUNCTION - retrieves all of the regions Trailforks knows about
+
+        Returns:
+            pd.DataFrame: DataFrame of all region data
+        &#34;&#34;&#34;
+        number_of_pages = 161
+
+        df_list = []
+        threads = []
+        pbar = tqdm(total=number_of_pages)
+        with ThreadPoolExecutor() as executor:
+            for i in range(1, number_of_pages):
+                threads.append(executor.submit(self._thread_get_regions, i))
+
+                for thread in as_completed(threads):
+                    df_list.append(thread.result())
+                    pbar.update(1)
+        pbar.close()
+        final_df = pd.concat(df_list, ignore_index=True)
+        final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+        return final_df</code></pre>
 </details>
 </section>
 <section>
@@ -706,11 +785,17 @@ class Region(Trailforks):
         list_items = soup_1.find_all(&#34;dl&#34;)[0]
         list_items_string = str(list_items)
         list_items_text = (list_items.text).split(&#34;\n&#34;)
-
         region_overview_stats = {}
 
-        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+        try:
+            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+        except IndexError:
+            list_items = soup_1.find_all(&#34;dl&#34;)[1]
+            list_items_string = str(list_items)
+            list_items_text = (list_items.text).split(&#34;\n&#34;)
+            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
 
         # Let&#39;s use the title params are the key values:
         for index, line in enumerate(list_items_text):
@@ -721,7 +806,34 @@ class Region(Trailforks):
                     region_overview_stats[key] = value
 
         region_ridelog_stats.update(region_overview_stats)
+        region_ridelog_stats.update(self._get_region_location(soup))
         return region_ridelog_stats
+
+    def _get_region_location(self, soup: BeautifulSoup) -&gt; dict:
+        &#34;&#34;&#34;
+        Attempts to gather the region location information from
+        the regions home page HTML source
+
+        Args:
+            soup (BeautifulSoup): BS4 Soup object
+
+        Returns:
+            dict: dict with country, state/province/, and city
+        &#34;&#34;&#34;
+        data = {
+                &#34;country&#34;: None,
+                &#34;state_province&#34;: None,
+                &#34;city&#34;: None
+            }
+        try:
+            span_info = soup.find_all(&#34;span&#34;, itemprop=&#34;name&#34;)
+            location_data = [ x.text for x in span_info ]
+            data[&#34;country&#34;] = location_data[0]
+            data[&#34;state_province&#34;] = location_data[1]
+            data[&#34;city&#34;] = location_data[2]
+            return data
+        except:
+            return data
 
     def _check_requires_region_admin(self, error_message: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -737,7 +849,52 @@ class Region(Trailforks):
             bool: True:action requires admin;False:action doesn&#39;t need admin
         &#34;&#34;&#34;  # noqa
         error_messages = [&#34;Only trusted users can export&#34;]
-        return any([x in error_message for x in error_messages])</code></pre>
+        return any([x in error_message for x in error_messages])
+
+    def _thread_get_regions(self, page_number: int) -&gt; pd.DataFrame: # noqa
+        &#34;&#34;&#34;
+        Used to parallelize (yes yes, GIL I know...) the regions lookup
+
+        Args:
+            page_number (int): URI Page Number to query
+
+        Returns:
+            pd.DataFrame: Dataframe of the HTML table enumerated
+        &#34;&#34;&#34;
+        uri = f&#34;https://www.trailforks.com/regions/list/?activitytype=1&amp;page={page_number}&#34;
+        r = self.trailforks_session.get(uri)
+        soup = BeautifulSoup(r.content, &#34;html.parser&#34;)
+        table = soup.find(&#39;table&#39;, {&#34;class&#34;: &#34;table1&#34;})
+        uri_list = [tag.find(&#34;a&#34;)[&#34;href&#34;] for tag in table.select(&#34;td:has(a)&#34;)]
+        df = pd.read_html(table.prettify(), index_col=None, header=0)
+        df = df[0]
+        df[&#34;region_link&#34;] = uri_list
+        return df
+
+    @authentication
+    def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
+        &#34;&#34;&#34;
+        BETA FUNCTION - retrieves all of the regions Trailforks knows about
+
+        Returns:
+            pd.DataFrame: DataFrame of all region data
+        &#34;&#34;&#34;
+        number_of_pages = 161
+
+        df_list = []
+        threads = []
+        pbar = tqdm(total=number_of_pages)
+        with ThreadPoolExecutor() as executor:
+            for i in range(1, number_of_pages):
+                threads.append(executor.submit(self._thread_get_regions, i))
+
+                for thread in as_completed(threads):
+                    df_list.append(thread.result())
+                    pbar.update(1)
+        pbar.close()
+        final_df = pd.concat(df_list, ignore_index=True)
+        final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+        return final_df</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -911,6 +1068,46 @@ def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
         return pd.DataFrame()</code></pre>
 </details>
 </dd>
+<dt id="PyForks.region.Region.get_all_trailforks_regions"><code class="name flex">
+<span>def <span class="ident">get_all_trailforks_regions</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>BETA FUNCTION - retrieves all of the regions Trailforks knows about</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>DataFrame of all region data</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@authentication
+def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
+    &#34;&#34;&#34;
+    BETA FUNCTION - retrieves all of the regions Trailforks knows about
+
+    Returns:
+        pd.DataFrame: DataFrame of all region data
+    &#34;&#34;&#34;
+    number_of_pages = 161
+
+    df_list = []
+    threads = []
+    pbar = tqdm(total=number_of_pages)
+    with ThreadPoolExecutor() as executor:
+        for i in range(1, number_of_pages):
+            threads.append(executor.submit(self._thread_get_regions, i))
+
+            for thread in as_completed(threads):
+                df_list.append(thread.result())
+                pbar.update(1)
+    pbar.close()
+    final_df = pd.concat(df_list, ignore_index=True)
+    final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+    return final_df</code></pre>
+</details>
+</dd>
 <dt id="PyForks.region.Region.get_region_info"><code class="name flex">
 <span>def <span class="ident">get_region_info</span></span>(<span>self, region: str) ‑> dict</span>
 </code></dt>
@@ -981,11 +1178,17 @@ not see another way around this.</p>
     list_items = soup_1.find_all(&#34;dl&#34;)[0]
     list_items_string = str(list_items)
     list_items_text = (list_items.text).split(&#34;\n&#34;)
-
     region_overview_stats = {}
 
-    total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-    region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+    try:
+        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
+    except IndexError:
+        list_items = soup_1.find_all(&#34;dl&#34;)[1]
+        list_items_string = str(list_items)
+        list_items_text = (list_items.text).split(&#34;\n&#34;)
+        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
+        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
 
     # Let&#39;s use the title params are the key values:
     for index, line in enumerate(list_items_text):
@@ -996,6 +1199,7 @@ not see another way around this.</p>
                 region_overview_stats[key] = value
 
     region_ridelog_stats.update(region_overview_stats)
+    region_ridelog_stats.update(self._get_region_location(soup))
     return region_ridelog_stats</code></pre>
 </details>
 </dd>
@@ -1118,6 +1322,7 @@ making sure the page title is not Error</p>
 <li><code><a title="PyForks.region.Region.check_region" href="#PyForks.region.Region.check_region">check_region</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_region_ridelogs" href="#PyForks.region.Region.get_all_region_ridelogs">get_all_region_ridelogs</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_region_trails" href="#PyForks.region.Region.get_all_region_trails">get_all_region_trails</a></code></li>
+<li><code><a title="PyForks.region.Region.get_all_trailforks_regions" href="#PyForks.region.Region.get_all_trailforks_regions">get_all_trailforks_regions</a></code></li>
 <li><code><a title="PyForks.region.Region.get_region_info" href="#PyForks.region.Region.get_region_info">get_region_info</a></code></li>
 <li><code><a title="PyForks.region.Region.get_region_ridecounts" href="#PyForks.region.Region.get_region_ridecounts">get_region_ridecounts</a></code></li>
 <li><code><a title="PyForks.region.Region.is_valid_region" href="#PyForks.region.Region.is_valid_region">is_valid_region</a></code></li>
