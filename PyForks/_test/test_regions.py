@@ -90,6 +90,17 @@ def test_ridelogs_download_lowpriv_user():
 
     assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
 
+def test_ridelogs_download_small_pages():
+    """
+    A low-priv user (non-admin) should be able to download the ridecounts for
+    a region.
+    """
+    region = Region(username="apress001", password="FakePassword123")
+    region.login()
+    download_result = region.get_all_region_ridelogs("west-lake-marion-park", pages=1)
+
+    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
+
 
 def test_region_trails_cleanup():
     from io import StringIO

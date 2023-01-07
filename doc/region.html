@@ -248,7 +248,7 @@ class Region(Trailforks):
             return pd.DataFrame
 
     @authentication
-    def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
+    def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Downloads all of the trail ridelogs since the begining of the
         trails existance and stores the results in CSV format on the
@@ -257,17 +257,19 @@ class Region(Trailforks):
 
         Args:
             region (str): region name as is shows on a URI
-            output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+            pages(int): The number of pages (HTML) to enumerate 1page == ~100 rides
 
         Returns:
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
         region_info = self.get_region_info(region)
-        total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+        if pages == 0:
+            total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+        else:
+            total_pages = pages
         dataframes_list = []
 
-        pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {region} Rider Pages&#34;)
         for i in range(1, total_pages + 1):
             try:
                 domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
@@ -282,12 +284,9 @@ class Region(Trailforks):
                     good_df = tmp_df[0]
                     dataframes_list.append(good_df)
 
-                pbar.update(1)
             except Exception as e:
                 self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-                pbar.update(1)
                 break
-        pbar.close()
 
         try:
             df = pd.concat(dataframes_list, ignore_index=True)
@@ -687,7 +686,7 @@ class Region(Trailforks):
             return pd.DataFrame
 
     @authentication
-    def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
+    def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Downloads all of the trail ridelogs since the begining of the
         trails existance and stores the results in CSV format on the
@@ -696,17 +695,19 @@ class Region(Trailforks):
 
         Args:
             region (str): region name as is shows on a URI
-            output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+            pages(int): The number of pages (HTML) to enumerate 1page == ~100 rides
 
         Returns:
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
         region_info = self.get_region_info(region)
-        total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+        if pages == 0:
+            total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+        else:
+            total_pages = pages
         dataframes_list = []
 
-        pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {region} Rider Pages&#34;)
         for i in range(1, total_pages + 1):
             try:
                 domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
@@ -721,12 +722,9 @@ class Region(Trailforks):
                     good_df = tmp_df[0]
                     dataframes_list.append(good_df)
 
-                pbar.update(1)
             except Exception as e:
                 self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-                pbar.update(1)
                 break
-        pbar.close()
 
         try:
             df = pd.concat(dataframes_list, ignore_index=True)
@@ -933,7 +931,7 @@ exit if the region is non-existant.</p>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_all_region_ridelogs"><code class="name flex">
-<span>def <span class="ident">get_all_region_ridelogs</span></span>(<span>self, region: str) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">get_all_region_ridelogs</span></span>(<span>self, region: str, pages=0) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Downloads all of the trail ridelogs since the begining of the
@@ -944,9 +942,8 @@ they've not provisioning access at this point (<a href="https://www.trailforks.c
 <dl>
 <dt><strong><code>region</code></strong> :&ensp;<code>str</code></dt>
 <dd>region name as is shows on a URI</dd>
-<dt><strong><code>output_path</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>Path to store csv. Defaults to ".".</dd>
 </dl>
+<p>pages(int): The number of pages (HTML) to enumerate 1page == ~100 rides</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>bool</code></dt>
@@ -957,7 +954,7 @@ they've not provisioning access at this point (<a href="https://www.trailforks.c
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@authentication
-def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
+def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
     Downloads all of the trail ridelogs since the begining of the
     trails existance and stores the results in CSV format on the
@@ -966,17 +963,19 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
 
     Args:
         region (str): region name as is shows on a URI
-        output_path (str, optional): Path to store csv. Defaults to &#34;.&#34;.
+        pages(int): The number of pages (HTML) to enumerate 1page == ~100 rides
 
     Returns:
         bool: Pandas DataFrame
     &#34;&#34;&#34;  # noqa
     self.check_region(region)
     region_info = self.get_region_info(region)
-    total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+    if pages == 0:
+        total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
+    else:
+        total_pages = pages
     dataframes_list = []
 
-    pbar = tqdm(total=total_pages, desc=f&#34;Enumerating {region} Rider Pages&#34;)
     for i in range(1, total_pages + 1):
         try:
             domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
@@ -991,12 +990,9 @@ def get_all_region_ridelogs(self, region: str) -&gt; pd.DataFrame:
                 good_df = tmp_df[0]
                 dataframes_list.append(good_df)
 
-            pbar.update(1)
         except Exception as e:
             self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-            pbar.update(1)
             break
-    pbar.close()
 
     try:
         df = pd.concat(dataframes_list, ignore_index=True)
