@@ -3,7 +3,6 @@ import requests
 import urllib.parse
 import PyForks.exceptions
 import logging
-from http.client import responses
 from functools import wraps
 import pkg_resources
 
