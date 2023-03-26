@@ -2,13 +2,10 @@ from PyForks import Region
 import PyForks.exceptions
 import pytest
 import pandas as pd
-from configparser import ConfigParser
+import os
 
-parser = ConfigParser()
-parser.read("./PyForks/_test/secrets.ini")
-print(parser.items)
-APP_ID = parser['trailforks']['app_id']
-APP_SECRET = parser['trailforks']['app_secret']
+APP_ID = os.environ("APP_ID")
+APP_SECRET = os.environ("APP_SECRET")
 
 def test_nonexistant_region():
     region = Region(app_id=APP_ID, app_secret=APP_SECRET)

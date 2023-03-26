@@ -45,3 +45,13 @@ class BadCookieError(Exception):
             msg (str, optional): Message that's presented to the user. Defaults to '"Bad cookie file. Please delete the .cookie file and try again'.
         """  # noqa
         super().__init__(msg, *args, **kwargs)
+
+class RegionLockedAPI(Exception):
+    def __init__(self, msg="Invalid Permissions", *args, **kwargs):
+        """
+        User has a regional locked API token for their app_id/app_secret
+
+        Args:
+            msg (str, optional): _description_. Defaults to "Invalid Permissions".
+        """
+        super().__init__(msg, *args, **kwargs)

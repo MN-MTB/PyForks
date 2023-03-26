@@ -1,12 +1,7 @@
-import os
 import sys
 import requests
-import pickle
-import cloudscraper
 import urllib.parse
-import re
 import PyForks.exceptions
-from bs4 import BeautifulSoup
 import logging
 from http.client import responses
 from functools import wraps

@@ -5,9 +5,9 @@ name: PyForks Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "formal_api" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "formal_api" ]
 
 permissions:
   contents: read
@@ -35,6 +35,9 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      env: 
+        APP_ID: ${{ secrets.APP_ID }}
+        APP_SECRET: ${{ secrets.APP_SECRET }}
       run: |
         pytest --cov=./ --cov-report=xml
     - name: Codecov

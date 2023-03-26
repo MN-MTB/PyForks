@@ -6,7 +6,6 @@ setup(
     author="Trailforks Python Library",
     author_email="josh@mn-mtb.com",
     packages=["PyForks", "PyForks._test"],
-    # scripts=['bin/script1','bin/script2'],
     project_urls={  # Optional
         "Bug Reports": "https://github.com/cribdragg3r/PyForks/issues",
         "Funding": "https://donate.pypi.org",
@@ -26,9 +25,6 @@ setup(
         "tqdm",
         "requests",
         "pandas",
-        "lxml",
-        "bs4",
-        "html5lib",
         "pyarrow"
     ],
 )

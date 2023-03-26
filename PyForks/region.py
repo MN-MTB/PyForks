@@ -1,15 +1,9 @@
 import pandas as pd
-import requests
-import re
-import json
 import logging
 from datetime import datetime
-import io
 import PyForks.exceptions
 import calendar
-from bs4 import BeautifulSoup
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 
@@ -91,7 +85,6 @@ class Region(Trailforks):
         region_filter = self.uri_encode(f"::{region_id}")
         dfs = []
 
-
         while enumerated_results < total_ridelogs:
             try:
                 url = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
@@ -137,29 +130,6 @@ class Region(Trailforks):
         df["flat_miles"] = df["flat_miles"].astype(float)
 
         return df
-
-    def _clean_raw_csv_data(self, raw_data: str) -> str:
-        """
-        Trailforks CSV data is pretty bad in terms of quality. We
-        need to clean things up quite a bit to get it into a dataframe
-
-        Args:
-            raw_data (str): raw CSV data
-
-        Returns:
-            str: cleaned csv data
-        """  # noqa
-        fix_csv_data = re.sub(r"\nhttps", '","https', raw_data)
-        csv_data_list = []
-        for line in fix_csv_data.split("\n"):
-            line = line.strip()  # remove un-needed chars
-
-            if "title" not in line:
-                line = line[:-1]
-
-            csv_data_list.append(line)
-
-        return "\n".join(csv_data_list)
 
     @authentication
     def get_all_region_trails(self, region: str) -> pd.DataFrame:
@@ -218,11 +188,8 @@ class Region(Trailforks):
         region_filter = self.uri_encode(f"::{region_id}")
         dfs = []
 
-        logging.debug(f"get_all_region_ridelogs():region_id:{region_id}")
-
         for i in range(0,pages):
             url = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
-            logging.debug(f"get_all_region_ridelogs();URL:{url}")
             r = self.trailforks_session.get(url)
             url_json = r.json()
             url_json_data = url_json["data"]
@@ -286,43 +253,6 @@ class Region(Trailforks):
             "region_created": r_json_data["created"]
         }
         return region_info
-
-
-    def _check_requires_region_admin(self, error_message: str) -> bool:
-        """
-        If we get an error on an authenticated function, it might be because
-        the user in question is not a admin for the local trail/region and
-        are just a standard user. This function determines this by looking at
-        known error codes.
-
-        Args:
-            error_message (str): RAW Html error page
-
-        Returns:
-            bool: True:action requires admin;False:action doesn't need admin
-        """  # noqa
-        error_messages = ["Only trusted users can export"]
-        return any([x in error_message for x in error_messages])
-
-    def _thread_get_regions(self, page_number: int) -> pd.DataFrame: # noqa
-        """
-        Used to parallelize (yes yes, GIL I know...) the regions lookup
-
-        Args:
-            page_number (int): URI Page Number to query
-
-        Returns:
-            pd.DataFrame: Dataframe of the HTML table enumerated
-        """
-        uri = f"https://www.trailforks.com/regions/list/?activitytype=1&page={page_number}"
-        r = self.trailforks_session.get(uri)
-        soup = BeautifulSoup(r.content, "html.parser")
-        table = soup.find('table', {"class": "table1"})
-        uri_list = [tag.find("a")["href"] for tag in table.select("td:has(a)")]
-        df = pd.read_html(table.prettify(), index_col=None, header=0)
-        df = df[0]
-        df["region_link"] = uri_list
-        return df
 
     @authentication
     def get_all_trailforks_regions(self) -> pd.DataFrame: # noqa
