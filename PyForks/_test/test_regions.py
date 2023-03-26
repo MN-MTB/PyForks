@@ -4,8 +4,8 @@ import pytest
 import pandas as pd
 import os
 
-APP_ID = os.environ("APP_ID")
-APP_SECRET = os.environ("APP_SECRET")
+APP_ID = os.getenv("APP_ID")
+APP_SECRET = os.getenv("APP_SECRET")
 
 def test_nonexistant_region():
     region = Region(app_id=APP_ID, app_secret=APP_SECRET)
