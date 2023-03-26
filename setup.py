@@ -18,6 +18,9 @@ setup(
     description="A package to interface with Trailforks.com",
     long_description_content_type="text/markdown",
     long_description=open("README.md").read(),
+    package_data={
+        'PyForks': ['PyForks/data/region_data.parquet']
+        },
     install_requires=[
         "pytest",
         "tqdm",
@@ -26,5 +29,6 @@ setup(
         "lxml",
         "bs4",
         "html5lib",
+        "pyarrow"
     ],
 )
