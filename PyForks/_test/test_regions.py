@@ -4,8 +4,15 @@ import pytest
 import pandas as pd
 import os
 
-APP_ID = os.getenv("APP_ID")
-APP_SECRET = os.getenv("APP_SECRET")
+if os.name == 'nt':
+    from configparser import ConfigParser
+    parser = ConfigParser()
+    parser.read("./PyForks/_test/secrets.ini")
+    APP_ID = parser['trailforks']['app_id']
+    APP_SECRET = parser['trailforks']['app_secret']
+else:
+    APP_ID = os.getenv("APP_ID")
+    APP_SECRET = os.getenv("APP_SECRET")
 
 def test_nonexistant_region():
     region = Region(app_id=APP_ID, app_secret=APP_SECRET)
@@ -121,3 +128,16 @@ def test_region_get_info():
         and expected["state_province"] == info["state_province"]
         and expected["city"] == info["city"]
     )
+
+def test_get_region_trails():
+    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
+    df = region.get_all_region_trails("west-lake-marion-park")
+    assert (isinstance(df, pd.DataFrame) and "Wolf Tooth" in df.title.to_list())
+
+def test_get_region_trails_bad_region():
+    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
+    with pytest.raises(PyForks.exceptions.InvalidRegion) as pytest_wrapped_e:
+        region.check_region("west-lakeddf-marion-paa45rk")
+    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidRegion
+
+    

@@ -27,14 +27,11 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import pandas as pd
-import requests
-import re
-import io
+import logging
+from datetime import datetime
 import PyForks.exceptions
 import calendar
-from bs4 import BeautifulSoup
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 
@@ -47,10 +44,12 @@ class Region(Trailforks):
         Returns:
             bool: True:is an existing region;False:region does not exist.
         &#34;&#34;&#34;  # noqa
-        uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-        r = requests.get(uri)
-        non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
-        if non_existent in r.text:
+        filter = self.uri_encode(f&#34;alias::{region}&#34;)
+        uri = f&#34;https://www.trailforks.com/api/1/regions?filter={filter}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(uri)
+        r_json = r.json()
+        r_json_data = r_json[&#39;data&#39;]
+        if len(r_json_data) == 0:
             return False
         return True
 
@@ -77,7 +76,7 @@ class Region(Trailforks):
             df (pd.DataFrame): Raw Trailforks Data
 
         Returns:
-            pd.DataFrame: Clean and Encriched Trailforks Data
+            pd.DataFrame: Clean and Enriched Trailforks Data
         &#34;&#34;&#34;  # noqa
         df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])
         df[&#34;year&#34;] = df[&#34;date&#34;].dt.year
@@ -89,85 +88,64 @@ class Region(Trailforks):
 
         return df
 
+    
     @authentication
-    def get_region_ridecounts(self, region: str) -&gt; bool:
+    def get_region_ridecounts(self, region: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
-        Downloads a regions total ridecounts is CSV format. Ideally, this should
-        be handled by the Trailforks API but, they&#39;ve not provisioning access
-        at this point (https://www.trailforks.com/about/api/)
+        Creates a dataframe that contains that year-month-day and the
+        number of rides associated with that day.
 
         Args:
-            region (str): Trailforks region name per URI
-            output_path (str, optional): Where to store CSV Defaults to &#34;.&#34;.
+            region (str): URI name of the region
 
         Returns:
-            bool: true:CSV written to disk;False:failed to write CSV
-        &#34;&#34;&#34;  # noqa
+            pd.DataFrame: pd.Dataframe(columns=[&#34;date&#34;,&#34;rides&#34;])
+        &#34;&#34;&#34; # noqa
         self.check_region(region)
-        uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
-        r = self.trailforks_session.get(uri, allow_redirects=True)
-        raw_csv_data = r.text
+        rows_per_pull = 500
+        page_number = 0
+        enumerated_results = 0
+        fields = self.uri_encode(&#34;created&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_info = self.get_region_info(region)
+        total_ridelogs = int(region_info[&#34;ridden&#34;])
+        region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+        dfs = []
 
-        if &#34;date,rides&#34; in raw_csv_data:
-            raw_df = pd.read_csv(io.StringIO(raw_csv_data))
-            raw_df[&#34;region&#34;] = region
-            return self.__enrich_ridecounts(raw_df)
-        else:
-            return pd.DataFrame
+        while enumerated_results &lt; total_ridelogs:
+            url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+            r = self.trailforks_session.get(url)
+            url_json = r.json()
+            self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+            url_json_data = url_json[&#34;data&#34;]
+            dfs.append(pd.json_normalize(url_json_data))
+            page_number += 1
+            enumerated_results += rows_per_pull
 
-    def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        df = pd.concat(dfs, ignore_index=True)
+        df[&#34;date&#34;] = pd.to_datetime(df[&#39;created&#39;],unit=&#34;s&#34;).dt.strftime(&#34;%Y-%m-%d&#34;)
+        t_df = df.groupby([&#39;date&#39;], sort=False)[&#39;date&#39;].count().sort_index(ascending=False).reset_index(name=&#34;rides&#34;)
+        return self.__enrich_ridecounts(t_df)
+
+
+    def _handle_status_code(self, status_code: int, message: str) -&gt; None:
         &#34;&#34;&#34;
-        Clean the region traillog data by converting distance data into
-        a useable metric (miles).
+        Handle unauthenticated or incorrect permissions errors for HTTP requests
 
         Args:
-            df (pd.DataFrame): _description_
+            status_code (int): HTTP Status Code
+            message (str): Trailforks API Message
 
-        Returns:
-            pd.DataFrame: _description_
-        &#34;&#34;&#34;  # noqa
-
-        df[&#34;total_miles&#34;] = None
-        df[&#34;descent_miles&#34;] = None
-        df[&#34;ascent_miles&#34;] = None
-        df[&#34;flat_miles&#34;] = None
-        for index, row in df.iterrows():
-            df.loc[index, &#34;total_miles&#34;] = self.feet_to_miles(str(row[&#34;distance&#34;]))
-            df.loc[index, &#34;descent_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_descent&#34;]))
-            df.loc[index, &#34;ascent_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_climb&#34;]))
-            df.loc[index, &#34;flat_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_flat&#34;]))
-        df[&#34;total_miles&#34;] = df[&#34;total_miles&#34;].astype(float)
-        df[&#34;descent_miles&#34;] = df[&#34;descent_miles&#34;].astype(float)
-        df[&#34;ascent_miles&#34;] = df[&#34;ascent_miles&#34;].astype(float)
-        df[&#34;flat_miles&#34;] = df[&#34;flat_miles&#34;].astype(float)
-
-        return df
-
-    def _clean_raw_csv_data(self, raw_data: str) -&gt; str:
+        Raises:
+            PyForks.exceptions.RegionLockedAPI: 401 is usually tied to a failure in permissions for a token
         &#34;&#34;&#34;
-        Trailforks CSV data is pretty bad in terms of quality. We
-        need to clean things up quite a bit to get it into a dataframe
-
-        Args:
-            raw_data (str): raw CSV data
-
-        Returns:
-            str: cleaned csv data
-        &#34;&#34;&#34;  # noqa
-        fix_csv_data = re.sub(r&#34;\nhttps&#34;, &#39;&#34;,&#34;https&#39;, raw_data)
-        csv_data_list = []
-        for line in fix_csv_data.split(&#34;\n&#34;):
-            line = line.strip()  # remove un-needed chars
-
-            if &#34;title&#34; not in line:
-                line = line[:-1]
-
-            csv_data_list.append(line)
-
-        return &#34;\n&#34;.join(csv_data_list)
+        if status_code == 401:
+            raise PyForks.exceptions.RegionLockedAPI(
+                msg=f&#34;[!] Error: {message}&#34;
+            )
 
     @authentication
-    def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
+    def get_all_region_trails(self, region: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -183,72 +161,20 @@ class Region(Trailforks):
             DataFrame: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
-        r = self.trailforks_session.get(uri, allow_redirects=True)
-        raw_csv_data = r.text
-        clean_csv_data = self._clean_raw_csv_data(raw_csv_data)
-
-        if &#34;title,difficulty&#34; in clean_csv_data:
-            df = pd.read_csv(io.StringIO(clean_csv_data))
-            return self._clean_region_trails(df)
-
-        else:
-            if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(
-                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-                )
-
-            return pd.DataFrame()
-
-    def __clean_ridelogs(self, df: pd.DataFrame) -&gt; pd.DataFrame:
-        &#34;&#34;&#34;
-        Region ridelogs are messy AF! We need to normalize the distances and climb
-        data for it to be useful. We will also re-name the dist and climb columns
-        to denote their metric type (e.g., miles, feet, etc.)
-
-        Args:
-            df (pd.DataFrame): raw Data from Trailforks
-
-        Returns:
-            pd.DataFrame: Normalized Trailforks data
-        &#34;&#34;&#34;  # noqa
-        date_rex = re.compile(r&#34;^\d{2,4}-\d{1,2}-\d{1,2}\s&#34;)
-        try:
-            df = df.rename(
-                columns={
-                    &#34;dist&#34;: &#34;dist_miles&#34;,
-                    &#34;climb&#34;: &#34;climb_miles&#34;,
-                    &#34;created&#34;: &#34;date&#34;,
-                }
-            )
-            for index, row in df.iterrows():
-                df.loc[index, &#34;dist_miles&#34;] = self.distance_string_to_miles_float(
-                    str(row[&#34;dist_miles&#34;])
-                )
-                df.loc[index, &#34;climb_miles&#34;] = self.distance_string_to_miles_float(
-                    str(row[&#34;climb_miles&#34;])
-                )
-                df.loc[index, &#34;date&#34;] = date_rex.findall(row[&#34;date&#34;])[0]
-
-            df[&#34;dist_miles&#34;] = df[&#34;dist_miles&#34;].astype(float)  # miles as float
-            df[&#34;climb_miles&#34;] = df[&#34;climb_miles&#34;].astype(float)  # miles as float
-            df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])  # cast to datetime
-            df[&#34;year&#34;] = df[&#34;date&#34;].dt.year  # get the year (int)
-            df[&#34;month&#34;] = df[&#34;date&#34;].dt.month  # get the month (int)
-            df[&#34;day&#34;] = df[&#34;date&#34;].dt.day  # get the day (int)
-            df[&#34;weekday_num&#34;] = df[&#34;date&#34;].dt.weekday  # get the weekday (int)
-            df[&#34;weekday&#34;] = df[&#34;date&#34;].dt.day_name()  # get the weekday (str)
-            df[&#34;month_name&#34;] = df[&#34;month&#34;].apply(lambda x: calendar.month_abbr[x])
-            df = df.loc[:, ~df.columns.str.contains(&#34;^Unnamed&#34;)]  # Drop unnamed columns
-            df.fillna(&#34;unknown&#34;, inplace=True)
-
-            return df
-        except Exception as e:
-            self._logger.error(f&#34;Failed to clean ridelogs;ERROR:{e}&#34;)
-            return pd.DataFrame
+        fields = self.uri_encode(&#34;created,title,difficulty,physical_rating,total_jumps,total_poi,alias,faved,stats&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f&#34;rid::{region_id}&#34;)
+        rows = 100
+        url = f&#34;https://www.trailforks.com/api/1/trails?scope=full&amp;fields={fields}&amp;filter={region_filter}&amp;rows={rows}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        url_json = r.json()
+        self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+        url_json_data = url_json[&#34;data&#34;]
+        df = pd.json_normalize(url_json_data)
+        return df
 
     @authentication
-    def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
+    def get_all_region_ridelogs(self, region: str, pages=1) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Downloads all of the trail ridelogs since the begining of the
         trails existance and stores the results in CSV format on the
@@ -263,39 +189,48 @@ class Region(Trailforks):
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        region_info = self.get_region_info(region)
-        if pages == 0:
-            total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
-        else:
-            total_pages = pages
-        dataframes_list = []
+        def get_date_string(row) -&gt; int:
+            epoch = float(row[&#34;created&#34;])
+            date = datetime.fromtimestamp(epoch).strftime(&#34;%m/%d/%Y&#34;)
+            return date
 
-        for i in range(1, total_pages + 1):
-            try:
-                domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
-                tmp_df = pd.read_html(domain, index_col=None, header=0)
-                # Sometimes we have more than 1 table on the page.
-                if len(tmp_df) &gt;= 2:
-                    for potential_df in tmp_df:
-                        if &#34;city&#34; not in potential_df.columns:
-                            good_df = potential_df
-                            dataframes_list.append(good_df)
-                else:
-                    good_df = tmp_df[0]
-                    dataframes_list.append(good_df)
 
-            except Exception as e:
-                self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-                break
+        rows_per_pull = 100
+        page_number = 0
+        fields = self.uri_encode(&#34;note,created,location_name,location_id,year,device_name,username&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+        dfs = []
 
-        try:
-            df = pd.concat(dataframes_list, ignore_index=True)
-            df[&#34;region&#34;] = region
-            return self.__clean_ridelogs(df)
-        except Exception as e:
-            self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
-            return pd.DataFrame
+        for i in range(0,pages):
+            url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+            r = self.trailforks_session.get(url)
+            url_json = r.json()
+            self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+            url_json_data = url_json[&#34;data&#34;]
+            dfs.append(pd.json_normalize(url_json_data))
+            page_number += 1
+        
+        final_df = pd.concat(dfs, ignore_index=True)
+        final_df[&#34;date&#34;] = final_df.apply(get_date_string, axis=1)
+        return final_df
 
+    def get_region_id_by_alias(self, region_alias: str) -&gt; int:
+        &#34;&#34;&#34;
+        Given a region alias (the URI name of the region), obtain the region
+        id (int) and return it
+
+        Args:
+            region_alias (str): URI name of the region
+
+        Returns:
+            int: Trailforks Region ID
+        &#34;&#34;&#34;
+        df = pd.read_parquet(self.region_data_file, engine=&#34;pyarrow&#34;)
+        region_id = df.loc[df[&#34;alias&#34;] == region_alias, &#39;rid&#39;].item()
+        return region_id
+    
+    @authentication
     def get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
         Pulls region specific metrics from the region page. This whole function
@@ -308,128 +243,33 @@ class Region(Trailforks):
         Returns:
             dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
         &#34;&#34;&#34;  # noqa
-        region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
-        page = requests.get(region_uri)
-        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-        data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
-        data = str(data[0])
-        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-        list_items = soup_1.find_all(&#34;li&#34;)
+        self.check_region(region)
+        region_id = self.get_region_id_by_alias(region)
+        url = f&#34;https://www.trailforks.com/api/1/region?id={region_id}&amp;scope=detailed&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        r_json = r.json()
+        self._handle_status_code(r.status_code, r_json[&#34;message&#34;])
+        r_json_data = r_json[&#34;data&#34;]
 
-        region_ridelog_stats = {
-            &#34;total_ridelogs&#34;: None,
-            &#34;unique_riders&#34;: None,
-            &#34;trails_ridden&#34;: None,
-            &#34;average_trails_per_ride&#34;: None,
+        region_info = {
+            &#34;region_title&#34;: r_json_data[&#34;title&#34;],
+            &#34;total_ridelogs&#34;: r_json_data[&#34;total_ridelogs&#34;],
+            &#34;total_trails&#34;: r_json_data[&#34;total_trails&#34;],
+            &#34;total_distance&#34;: self.meters_to_miles(r_json_data[&#34;total_distance&#34;]),
+            &#34;total_descent&#34;: self.meters_to_miles(r_json_data[&#34;total_descent_distance&#34;]),
+            &#34;highest_trailhead&#34;: self.meters_to_miles(r_json_data[&#34;highest_trailhead&#34;]),
+            &#34;reports&#34;: r_json_data[&#34;total_reports&#34;],
+            &#34;photos&#34;: r_json_data[&#34;total_photos&#34;],
+            &#34;ridden&#34;: r_json_data[&#34;ridden&#34;],
+            &#34;country&#34;: r_json_data[&#34;country_title&#34;],
+            &#34;state_province&#34;: r_json_data[&#34;prov_title&#34;],
+            &#34;city&#34;: r_json_data[&#34;city_title&#34;],
+            &#34;links&#34;: r_json_data[&#34;links&#34;],
+            &#34;favorites&#34;: r_json_data[&#34;faved&#34;],
+            &#34;rating&#34;: r_json_data[&#34;rating&#34;],
+            &#34;region_created&#34;: r_json_data[&#34;created&#34;]
         }
-        region_vars = [
-            &#34;total_ridelogs&#34;,
-            &#34;unique_riders&#34;,
-            &#34;trails_ridden&#34;,
-            &#34;average_trails_per_ride&#34;,
-        ]
-
-        # Enumerate the region ridelog stats
-        for i, item in enumerate(list_items):
-            region_ridelog_stats[region_vars[i]] = int(
-                re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
-            )
-
-        # Get Region overview stats
-        region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-        page = requests.get(region_uri)
-        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-        data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
-        data = str(data[0])
-        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-        list_items = soup_1.find_all(&#34;dl&#34;)[0]
-        list_items_string = str(list_items)
-        list_items_text = (list_items.text).split(&#34;\n&#34;)
-        region_overview_stats = {}
-
-        try:
-            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-        except IndexError:
-            list_items = soup_1.find_all(&#34;dl&#34;)[1]
-            list_items_string = str(list_items)
-            list_items_text = (list_items.text).split(&#34;\n&#34;)
-            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-
-        # Let&#39;s use the title params are the key values:
-        for index, line in enumerate(list_items_text):
-            if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
-                if not self.has_numbers(line):
-                    key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
-                    value = list_items_text[index + 1]
-                    region_overview_stats[key] = value
-
-        region_ridelog_stats.update(region_overview_stats)
-        region_ridelog_stats.update(self._get_region_location(soup))
-        return region_ridelog_stats
-
-    def _get_region_location(self, soup: BeautifulSoup) -&gt; dict:
-        &#34;&#34;&#34;
-        Attempts to gather the region location information from
-        the regions home page HTML source
-
-        Args:
-            soup (BeautifulSoup): BS4 Soup object
-
-        Returns:
-            dict: dict with country, state/province/, and city
-        &#34;&#34;&#34;
-        data = {
-                &#34;country&#34;: None,
-                &#34;state_province&#34;: None,
-                &#34;city&#34;: None
-            }
-        try:
-            span_info = soup.find_all(&#34;span&#34;, itemprop=&#34;name&#34;)
-            location_data = [ x.text for x in span_info ]
-            data[&#34;country&#34;] = location_data[0]
-            data[&#34;state_province&#34;] = location_data[1]
-            data[&#34;city&#34;] = location_data[2]
-            return data
-        except:
-            return data
-
-    def _check_requires_region_admin(self, error_message: str) -&gt; bool:
-        &#34;&#34;&#34;
-        If we get an error on an authenticated function, it might be because
-        the user in question is not a admin for the local trail/region and
-        are just a standard user. This function determines this by looking at
-        known error codes.
-
-        Args:
-            error_message (str): RAW Html error page
-
-        Returns:
-            bool: True:action requires admin;False:action doesn&#39;t need admin
-        &#34;&#34;&#34;  # noqa
-        error_messages = [&#34;Only trusted users can export&#34;]
-        return any([x in error_message for x in error_messages])
-
-    def _thread_get_regions(self, page_number: int) -&gt; pd.DataFrame: # noqa
-        &#34;&#34;&#34;
-        Used to parallelize (yes yes, GIL I know...) the regions lookup
-
-        Args:
-            page_number (int): URI Page Number to query
-
-        Returns:
-            pd.DataFrame: Dataframe of the HTML table enumerated
-        &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/regions/list/?activitytype=1&amp;page={page_number}&#34;
-        r = self.trailforks_session.get(uri)
-        soup = BeautifulSoup(r.content, &#34;html.parser&#34;)
-        table = soup.find(&#39;table&#39;, {&#34;class&#34;: &#34;table1&#34;})
-        uri_list = [tag.find(&#34;a&#34;)[&#34;href&#34;] for tag in table.select(&#34;td:has(a)&#34;)]
-        df = pd.read_html(table.prettify(), index_col=None, header=0)
-        df = df[0]
-        df[&#34;region_link&#34;] = uri_list
-        return df
+        return region_info
 
     @authentication
     def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
@@ -439,21 +279,29 @@ class Region(Trailforks):
         Returns:
             pd.DataFrame: DataFrame of all region data
         &#34;&#34;&#34;
-        number_of_pages = 161
+        number_of_regions = 40_000
+        enumerated_results = 0
+        page_number = 0
+        results_per_page = 500
+        fields = self.uri_encode(&#34;rid,title,alias&#34;)
+        dfs = []
 
-        df_list = []
-        threads = []
-        pbar = tqdm(total=number_of_pages)
-        with ThreadPoolExecutor() as executor:
-            for i in range(1, number_of_pages):
-                threads.append(executor.submit(self._thread_get_regions, i))
-
-                for thread in as_completed(threads):
-                    df_list.append(thread.result())
-                    pbar.update(1)
+        pbar = tqdm(total=number_of_regions)
+        while enumerated_results &lt;= number_of_regions:
+            url = f&#34;https://www.trailforks.com/api/1/regions?scope=basic&amp;app_id={self.app_id}&amp;fields={fields}&amp;app_secret={self.app_secret}&amp;rows={results_per_page}&amp;page={page_number}&#34;
+            headers = {
+                &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100102 Firefox/102.0&#34;
+            }
+            r = self.trailforks_session.get(url, headers=headers, allow_redirects=True)
+            t_json = r.json()
+            self._handle_status_code(r.status_code, t_json[&#34;message&#34;])
+            dfs.append(pd.json_normalize(t_json[&#34;data&#34;]))
+            page_number += 1
+            enumerated_results += results_per_page
+            pbar.update(results_per_page)
         pbar.close()
-        final_df = pd.concat(df_list, ignore_index=True)
-        final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+        final_df = pd.concat(dfs)
+
         return final_df</code></pre>
 </details>
 </section>
@@ -468,7 +316,7 @@ class Region(Trailforks):
 <dl>
 <dt id="PyForks.region.Region"><code class="flex name class">
 <span>class <span class="ident">Region</span></span>
-<span>(</span><span>username=None, password=None)</span>
+<span>(</span><span>app_id=None, app_secret=None, debug=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -485,10 +333,12 @@ class Region(Trailforks):
         Returns:
             bool: True:is an existing region;False:region does not exist.
         &#34;&#34;&#34;  # noqa
-        uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-        r = requests.get(uri)
-        non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
-        if non_existent in r.text:
+        filter = self.uri_encode(f&#34;alias::{region}&#34;)
+        uri = f&#34;https://www.trailforks.com/api/1/regions?filter={filter}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(uri)
+        r_json = r.json()
+        r_json_data = r_json[&#39;data&#39;]
+        if len(r_json_data) == 0:
             return False
         return True
 
@@ -515,7 +365,7 @@ class Region(Trailforks):
             df (pd.DataFrame): Raw Trailforks Data
 
         Returns:
-            pd.DataFrame: Clean and Encriched Trailforks Data
+            pd.DataFrame: Clean and Enriched Trailforks Data
         &#34;&#34;&#34;  # noqa
         df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])
         df[&#34;year&#34;] = df[&#34;date&#34;].dt.year
@@ -527,85 +377,64 @@ class Region(Trailforks):
 
         return df
 
+    
     @authentication
-    def get_region_ridecounts(self, region: str) -&gt; bool:
+    def get_region_ridecounts(self, region: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
-        Downloads a regions total ridecounts is CSV format. Ideally, this should
-        be handled by the Trailforks API but, they&#39;ve not provisioning access
-        at this point (https://www.trailforks.com/about/api/)
+        Creates a dataframe that contains that year-month-day and the
+        number of rides associated with that day.
 
         Args:
-            region (str): Trailforks region name per URI
-            output_path (str, optional): Where to store CSV Defaults to &#34;.&#34;.
+            region (str): URI name of the region
 
         Returns:
-            bool: true:CSV written to disk;False:failed to write CSV
-        &#34;&#34;&#34;  # noqa
+            pd.DataFrame: pd.Dataframe(columns=[&#34;date&#34;,&#34;rides&#34;])
+        &#34;&#34;&#34; # noqa
         self.check_region(region)
-        uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
-        r = self.trailforks_session.get(uri, allow_redirects=True)
-        raw_csv_data = r.text
+        rows_per_pull = 500
+        page_number = 0
+        enumerated_results = 0
+        fields = self.uri_encode(&#34;created&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_info = self.get_region_info(region)
+        total_ridelogs = int(region_info[&#34;ridden&#34;])
+        region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+        dfs = []
 
-        if &#34;date,rides&#34; in raw_csv_data:
-            raw_df = pd.read_csv(io.StringIO(raw_csv_data))
-            raw_df[&#34;region&#34;] = region
-            return self.__enrich_ridecounts(raw_df)
-        else:
-            return pd.DataFrame
+        while enumerated_results &lt; total_ridelogs:
+            url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+            r = self.trailforks_session.get(url)
+            url_json = r.json()
+            self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+            url_json_data = url_json[&#34;data&#34;]
+            dfs.append(pd.json_normalize(url_json_data))
+            page_number += 1
+            enumerated_results += rows_per_pull
 
-    def _clean_region_trails(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        df = pd.concat(dfs, ignore_index=True)
+        df[&#34;date&#34;] = pd.to_datetime(df[&#39;created&#39;],unit=&#34;s&#34;).dt.strftime(&#34;%Y-%m-%d&#34;)
+        t_df = df.groupby([&#39;date&#39;], sort=False)[&#39;date&#39;].count().sort_index(ascending=False).reset_index(name=&#34;rides&#34;)
+        return self.__enrich_ridecounts(t_df)
+
+
+    def _handle_status_code(self, status_code: int, message: str) -&gt; None:
         &#34;&#34;&#34;
-        Clean the region traillog data by converting distance data into
-        a useable metric (miles).
+        Handle unauthenticated or incorrect permissions errors for HTTP requests
 
         Args:
-            df (pd.DataFrame): _description_
+            status_code (int): HTTP Status Code
+            message (str): Trailforks API Message
 
-        Returns:
-            pd.DataFrame: _description_
-        &#34;&#34;&#34;  # noqa
-
-        df[&#34;total_miles&#34;] = None
-        df[&#34;descent_miles&#34;] = None
-        df[&#34;ascent_miles&#34;] = None
-        df[&#34;flat_miles&#34;] = None
-        for index, row in df.iterrows():
-            df.loc[index, &#34;total_miles&#34;] = self.feet_to_miles(str(row[&#34;distance&#34;]))
-            df.loc[index, &#34;descent_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_descent&#34;]))
-            df.loc[index, &#34;ascent_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_climb&#34;]))
-            df.loc[index, &#34;flat_miles&#34;] = self.feet_to_miles(str(row[&#34;dst_flat&#34;]))
-        df[&#34;total_miles&#34;] = df[&#34;total_miles&#34;].astype(float)
-        df[&#34;descent_miles&#34;] = df[&#34;descent_miles&#34;].astype(float)
-        df[&#34;ascent_miles&#34;] = df[&#34;ascent_miles&#34;].astype(float)
-        df[&#34;flat_miles&#34;] = df[&#34;flat_miles&#34;].astype(float)
-
-        return df
-
-    def _clean_raw_csv_data(self, raw_data: str) -&gt; str:
+        Raises:
+            PyForks.exceptions.RegionLockedAPI: 401 is usually tied to a failure in permissions for a token
         &#34;&#34;&#34;
-        Trailforks CSV data is pretty bad in terms of quality. We
-        need to clean things up quite a bit to get it into a dataframe
-
-        Args:
-            raw_data (str): raw CSV data
-
-        Returns:
-            str: cleaned csv data
-        &#34;&#34;&#34;  # noqa
-        fix_csv_data = re.sub(r&#34;\nhttps&#34;, &#39;&#34;,&#34;https&#39;, raw_data)
-        csv_data_list = []
-        for line in fix_csv_data.split(&#34;\n&#34;):
-            line = line.strip()  # remove un-needed chars
-
-            if &#34;title&#34; not in line:
-                line = line[:-1]
-
-            csv_data_list.append(line)
-
-        return &#34;\n&#34;.join(csv_data_list)
+        if status_code == 401:
+            raise PyForks.exceptions.RegionLockedAPI(
+                msg=f&#34;[!] Error: {message}&#34;
+            )
 
     @authentication
-    def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
+    def get_all_region_trails(self, region: str) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Each region has a CSV export capability to export all trails within the region.
         This function automates that export for the end user and saves a csv to local
@@ -621,72 +450,20 @@ class Region(Trailforks):
             DataFrame: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
-        r = self.trailforks_session.get(uri, allow_redirects=True)
-        raw_csv_data = r.text
-        clean_csv_data = self._clean_raw_csv_data(raw_csv_data)
-
-        if &#34;title,difficulty&#34; in clean_csv_data:
-            df = pd.read_csv(io.StringIO(clean_csv_data))
-            return self._clean_region_trails(df)
-
-        else:
-            if self._check_requires_region_admin(r.text):
-                raise PyForks.exceptions.InvalidPermissions(
-                    msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-                )
-
-            return pd.DataFrame()
-
-    def __clean_ridelogs(self, df: pd.DataFrame) -&gt; pd.DataFrame:
-        &#34;&#34;&#34;
-        Region ridelogs are messy AF! We need to normalize the distances and climb
-        data for it to be useful. We will also re-name the dist and climb columns
-        to denote their metric type (e.g., miles, feet, etc.)
-
-        Args:
-            df (pd.DataFrame): raw Data from Trailforks
-
-        Returns:
-            pd.DataFrame: Normalized Trailforks data
-        &#34;&#34;&#34;  # noqa
-        date_rex = re.compile(r&#34;^\d{2,4}-\d{1,2}-\d{1,2}\s&#34;)
-        try:
-            df = df.rename(
-                columns={
-                    &#34;dist&#34;: &#34;dist_miles&#34;,
-                    &#34;climb&#34;: &#34;climb_miles&#34;,
-                    &#34;created&#34;: &#34;date&#34;,
-                }
-            )
-            for index, row in df.iterrows():
-                df.loc[index, &#34;dist_miles&#34;] = self.distance_string_to_miles_float(
-                    str(row[&#34;dist_miles&#34;])
-                )
-                df.loc[index, &#34;climb_miles&#34;] = self.distance_string_to_miles_float(
-                    str(row[&#34;climb_miles&#34;])
-                )
-                df.loc[index, &#34;date&#34;] = date_rex.findall(row[&#34;date&#34;])[0]
-
-            df[&#34;dist_miles&#34;] = df[&#34;dist_miles&#34;].astype(float)  # miles as float
-            df[&#34;climb_miles&#34;] = df[&#34;climb_miles&#34;].astype(float)  # miles as float
-            df[&#34;date&#34;] = pd.to_datetime(df[&#34;date&#34;])  # cast to datetime
-            df[&#34;year&#34;] = df[&#34;date&#34;].dt.year  # get the year (int)
-            df[&#34;month&#34;] = df[&#34;date&#34;].dt.month  # get the month (int)
-            df[&#34;day&#34;] = df[&#34;date&#34;].dt.day  # get the day (int)
-            df[&#34;weekday_num&#34;] = df[&#34;date&#34;].dt.weekday  # get the weekday (int)
-            df[&#34;weekday&#34;] = df[&#34;date&#34;].dt.day_name()  # get the weekday (str)
-            df[&#34;month_name&#34;] = df[&#34;month&#34;].apply(lambda x: calendar.month_abbr[x])
-            df = df.loc[:, ~df.columns.str.contains(&#34;^Unnamed&#34;)]  # Drop unnamed columns
-            df.fillna(&#34;unknown&#34;, inplace=True)
-
-            return df
-        except Exception as e:
-            self._logger.error(f&#34;Failed to clean ridelogs;ERROR:{e}&#34;)
-            return pd.DataFrame
+        fields = self.uri_encode(&#34;created,title,difficulty,physical_rating,total_jumps,total_poi,alias,faved,stats&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f&#34;rid::{region_id}&#34;)
+        rows = 100
+        url = f&#34;https://www.trailforks.com/api/1/trails?scope=full&amp;fields={fields}&amp;filter={region_filter}&amp;rows={rows}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        url_json = r.json()
+        self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+        url_json_data = url_json[&#34;data&#34;]
+        df = pd.json_normalize(url_json_data)
+        return df
 
     @authentication
-    def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
+    def get_all_region_ridelogs(self, region: str, pages=1) -&gt; pd.DataFrame:
         &#34;&#34;&#34;
         Downloads all of the trail ridelogs since the begining of the
         trails existance and stores the results in CSV format on the
@@ -701,39 +478,48 @@ class Region(Trailforks):
             bool: Pandas DataFrame
         &#34;&#34;&#34;  # noqa
         self.check_region(region)
-        region_info = self.get_region_info(region)
-        if pages == 0:
-            total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
-        else:
-            total_pages = pages
-        dataframes_list = []
+        def get_date_string(row) -&gt; int:
+            epoch = float(row[&#34;created&#34;])
+            date = datetime.fromtimestamp(epoch).strftime(&#34;%m/%d/%Y&#34;)
+            return date
 
-        for i in range(1, total_pages + 1):
-            try:
-                domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
-                tmp_df = pd.read_html(domain, index_col=None, header=0)
-                # Sometimes we have more than 1 table on the page.
-                if len(tmp_df) &gt;= 2:
-                    for potential_df in tmp_df:
-                        if &#34;city&#34; not in potential_df.columns:
-                            good_df = potential_df
-                            dataframes_list.append(good_df)
-                else:
-                    good_df = tmp_df[0]
-                    dataframes_list.append(good_df)
 
-            except Exception as e:
-                self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-                break
+        rows_per_pull = 100
+        page_number = 0
+        fields = self.uri_encode(&#34;note,created,location_name,location_id,year,device_name,username&#34;)
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+        dfs = []
 
-        try:
-            df = pd.concat(dataframes_list, ignore_index=True)
-            df[&#34;region&#34;] = region
-            return self.__clean_ridelogs(df)
-        except Exception as e:
-            self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
-            return pd.DataFrame
+        for i in range(0,pages):
+            url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+            r = self.trailforks_session.get(url)
+            url_json = r.json()
+            self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+            url_json_data = url_json[&#34;data&#34;]
+            dfs.append(pd.json_normalize(url_json_data))
+            page_number += 1
+        
+        final_df = pd.concat(dfs, ignore_index=True)
+        final_df[&#34;date&#34;] = final_df.apply(get_date_string, axis=1)
+        return final_df
 
+    def get_region_id_by_alias(self, region_alias: str) -&gt; int:
+        &#34;&#34;&#34;
+        Given a region alias (the URI name of the region), obtain the region
+        id (int) and return it
+
+        Args:
+            region_alias (str): URI name of the region
+
+        Returns:
+            int: Trailforks Region ID
+        &#34;&#34;&#34;
+        df = pd.read_parquet(self.region_data_file, engine=&#34;pyarrow&#34;)
+        region_id = df.loc[df[&#34;alias&#34;] == region_alias, &#39;rid&#39;].item()
+        return region_id
+    
+    @authentication
     def get_region_info(self, region: str) -&gt; dict:
         &#34;&#34;&#34;
         Pulls region specific metrics from the region page. This whole function
@@ -746,128 +532,33 @@ class Region(Trailforks):
         Returns:
             dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
         &#34;&#34;&#34;  # noqa
-        region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
-        page = requests.get(region_uri)
-        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-        data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
-        data = str(data[0])
-        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-        list_items = soup_1.find_all(&#34;li&#34;)
+        self.check_region(region)
+        region_id = self.get_region_id_by_alias(region)
+        url = f&#34;https://www.trailforks.com/api/1/region?id={region_id}&amp;scope=detailed&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        r_json = r.json()
+        self._handle_status_code(r.status_code, r_json[&#34;message&#34;])
+        r_json_data = r_json[&#34;data&#34;]
 
-        region_ridelog_stats = {
-            &#34;total_ridelogs&#34;: None,
-            &#34;unique_riders&#34;: None,
-            &#34;trails_ridden&#34;: None,
-            &#34;average_trails_per_ride&#34;: None,
+        region_info = {
+            &#34;region_title&#34;: r_json_data[&#34;title&#34;],
+            &#34;total_ridelogs&#34;: r_json_data[&#34;total_ridelogs&#34;],
+            &#34;total_trails&#34;: r_json_data[&#34;total_trails&#34;],
+            &#34;total_distance&#34;: self.meters_to_miles(r_json_data[&#34;total_distance&#34;]),
+            &#34;total_descent&#34;: self.meters_to_miles(r_json_data[&#34;total_descent_distance&#34;]),
+            &#34;highest_trailhead&#34;: self.meters_to_miles(r_json_data[&#34;highest_trailhead&#34;]),
+            &#34;reports&#34;: r_json_data[&#34;total_reports&#34;],
+            &#34;photos&#34;: r_json_data[&#34;total_photos&#34;],
+            &#34;ridden&#34;: r_json_data[&#34;ridden&#34;],
+            &#34;country&#34;: r_json_data[&#34;country_title&#34;],
+            &#34;state_province&#34;: r_json_data[&#34;prov_title&#34;],
+            &#34;city&#34;: r_json_data[&#34;city_title&#34;],
+            &#34;links&#34;: r_json_data[&#34;links&#34;],
+            &#34;favorites&#34;: r_json_data[&#34;faved&#34;],
+            &#34;rating&#34;: r_json_data[&#34;rating&#34;],
+            &#34;region_created&#34;: r_json_data[&#34;created&#34;]
         }
-        region_vars = [
-            &#34;total_ridelogs&#34;,
-            &#34;unique_riders&#34;,
-            &#34;trails_ridden&#34;,
-            &#34;average_trails_per_ride&#34;,
-        ]
-
-        # Enumerate the region ridelog stats
-        for i, item in enumerate(list_items):
-            region_ridelog_stats[region_vars[i]] = int(
-                re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
-            )
-
-        # Get Region overview stats
-        region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-        page = requests.get(region_uri)
-        soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-        data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
-        data = str(data[0])
-        soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-        list_items = soup_1.find_all(&#34;dl&#34;)[0]
-        list_items_string = str(list_items)
-        list_items_text = (list_items.text).split(&#34;\n&#34;)
-        region_overview_stats = {}
-
-        try:
-            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-        except IndexError:
-            list_items = soup_1.find_all(&#34;dl&#34;)[1]
-            list_items_string = str(list_items)
-            list_items_text = (list_items.text).split(&#34;\n&#34;)
-            total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-            region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-
-        # Let&#39;s use the title params are the key values:
-        for index, line in enumerate(list_items_text):
-            if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
-                if not self.has_numbers(line):
-                    key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
-                    value = list_items_text[index + 1]
-                    region_overview_stats[key] = value
-
-        region_ridelog_stats.update(region_overview_stats)
-        region_ridelog_stats.update(self._get_region_location(soup))
-        return region_ridelog_stats
-
-    def _get_region_location(self, soup: BeautifulSoup) -&gt; dict:
-        &#34;&#34;&#34;
-        Attempts to gather the region location information from
-        the regions home page HTML source
-
-        Args:
-            soup (BeautifulSoup): BS4 Soup object
-
-        Returns:
-            dict: dict with country, state/province/, and city
-        &#34;&#34;&#34;
-        data = {
-                &#34;country&#34;: None,
-                &#34;state_province&#34;: None,
-                &#34;city&#34;: None
-            }
-        try:
-            span_info = soup.find_all(&#34;span&#34;, itemprop=&#34;name&#34;)
-            location_data = [ x.text for x in span_info ]
-            data[&#34;country&#34;] = location_data[0]
-            data[&#34;state_province&#34;] = location_data[1]
-            data[&#34;city&#34;] = location_data[2]
-            return data
-        except:
-            return data
-
-    def _check_requires_region_admin(self, error_message: str) -&gt; bool:
-        &#34;&#34;&#34;
-        If we get an error on an authenticated function, it might be because
-        the user in question is not a admin for the local trail/region and
-        are just a standard user. This function determines this by looking at
-        known error codes.
-
-        Args:
-            error_message (str): RAW Html error page
-
-        Returns:
-            bool: True:action requires admin;False:action doesn&#39;t need admin
-        &#34;&#34;&#34;  # noqa
-        error_messages = [&#34;Only trusted users can export&#34;]
-        return any([x in error_message for x in error_messages])
-
-    def _thread_get_regions(self, page_number: int) -&gt; pd.DataFrame: # noqa
-        &#34;&#34;&#34;
-        Used to parallelize (yes yes, GIL I know...) the regions lookup
-
-        Args:
-            page_number (int): URI Page Number to query
-
-        Returns:
-            pd.DataFrame: Dataframe of the HTML table enumerated
-        &#34;&#34;&#34;
-        uri = f&#34;https://www.trailforks.com/regions/list/?activitytype=1&amp;page={page_number}&#34;
-        r = self.trailforks_session.get(uri)
-        soup = BeautifulSoup(r.content, &#34;html.parser&#34;)
-        table = soup.find(&#39;table&#39;, {&#34;class&#34;: &#34;table1&#34;})
-        uri_list = [tag.find(&#34;a&#34;)[&#34;href&#34;] for tag in table.select(&#34;td:has(a)&#34;)]
-        df = pd.read_html(table.prettify(), index_col=None, header=0)
-        df = df[0]
-        df[&#34;region_link&#34;] = uri_list
-        return df
+        return region_info
 
     @authentication
     def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
@@ -877,21 +568,29 @@ class Region(Trailforks):
         Returns:
             pd.DataFrame: DataFrame of all region data
         &#34;&#34;&#34;
-        number_of_pages = 161
+        number_of_regions = 40_000
+        enumerated_results = 0
+        page_number = 0
+        results_per_page = 500
+        fields = self.uri_encode(&#34;rid,title,alias&#34;)
+        dfs = []
 
-        df_list = []
-        threads = []
-        pbar = tqdm(total=number_of_pages)
-        with ThreadPoolExecutor() as executor:
-            for i in range(1, number_of_pages):
-                threads.append(executor.submit(self._thread_get_regions, i))
-
-                for thread in as_completed(threads):
-                    df_list.append(thread.result())
-                    pbar.update(1)
+        pbar = tqdm(total=number_of_regions)
+        while enumerated_results &lt;= number_of_regions:
+            url = f&#34;https://www.trailforks.com/api/1/regions?scope=basic&amp;app_id={self.app_id}&amp;fields={fields}&amp;app_secret={self.app_secret}&amp;rows={results_per_page}&amp;page={page_number}&#34;
+            headers = {
+                &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100102 Firefox/102.0&#34;
+            }
+            r = self.trailforks_session.get(url, headers=headers, allow_redirects=True)
+            t_json = r.json()
+            self._handle_status_code(r.status_code, t_json[&#34;message&#34;])
+            dfs.append(pd.json_normalize(t_json[&#34;data&#34;]))
+            page_number += 1
+            enumerated_results += results_per_page
+            pbar.update(results_per_page)
         pbar.close()
-        final_df = pd.concat(df_list, ignore_index=True)
-        final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+        final_df = pd.concat(dfs)
+
         return final_df</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -931,7 +630,7 @@ exit if the region is non-existant.</p>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_all_region_ridelogs"><code class="name flex">
-<span>def <span class="ident">get_all_region_ridelogs</span></span>(<span>self, region: str, pages=0) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">get_all_region_ridelogs</span></span>(<span>self, region: str, pages=1) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Downloads all of the trail ridelogs since the begining of the
@@ -954,7 +653,7 @@ they've not provisioning access at this point (<a href="https://www.trailforks.c
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@authentication
-def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
+def get_all_region_ridelogs(self, region: str, pages=1) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
     Downloads all of the trail ridelogs since the begining of the
     trails existance and stores the results in CSV format on the
@@ -969,42 +668,35 @@ def get_all_region_ridelogs(self, region: str, pages=0) -&gt; pd.DataFrame:
         bool: Pandas DataFrame
     &#34;&#34;&#34;  # noqa
     self.check_region(region)
-    region_info = self.get_region_info(region)
-    if pages == 0:
-        total_pages = round(region_info[&#34;total_ridelogs&#34;] / 90)
-    else:
-        total_pages = pages
-    dataframes_list = []
+    def get_date_string(row) -&gt; int:
+        epoch = float(row[&#34;created&#34;])
+        date = datetime.fromtimestamp(epoch).strftime(&#34;%m/%d/%Y&#34;)
+        return date
 
-    for i in range(1, total_pages + 1):
-        try:
-            domain = f&#34;https://www.trailforks.com/region/{region}/ridelogs/?viewMode=table&amp;page={i}&#34;
-            tmp_df = pd.read_html(domain, index_col=None, header=0)
-            # Sometimes we have more than 1 table on the page.
-            if len(tmp_df) &gt;= 2:
-                for potential_df in tmp_df:
-                    if &#34;city&#34; not in potential_df.columns:
-                        good_df = potential_df
-                        dataframes_list.append(good_df)
-            else:
-                good_df = tmp_df[0]
-                dataframes_list.append(good_df)
 
-        except Exception as e:
-            self._logger.error(f&#34;get_region_ridelogs_error;ERROR:{e}&#34;)
-            break
+    rows_per_pull = 100
+    page_number = 0
+    fields = self.uri_encode(&#34;note,created,location_name,location_id,year,device_name,username&#34;)
+    region_id = self.get_region_id_by_alias(region)
+    region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+    dfs = []
 
-    try:
-        df = pd.concat(dataframes_list, ignore_index=True)
-        df[&#34;region&#34;] = region
-        return self.__clean_ridelogs(df)
-    except Exception as e:
-        self._logger.error(f&#34;get_region_ridelogs export error;ERROR:{e}&#34;)
-        return pd.DataFrame</code></pre>
+    for i in range(0,pages):
+        url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        url_json = r.json()
+        self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+        url_json_data = url_json[&#34;data&#34;]
+        dfs.append(pd.json_normalize(url_json_data))
+        page_number += 1
+    
+    final_df = pd.concat(dfs, ignore_index=True)
+    final_df[&#34;date&#34;] = final_df.apply(get_date_string, axis=1)
+    return final_df</code></pre>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_all_region_trails"><code class="name flex">
-<span>def <span class="ident">get_all_region_trails</span></span>(<span>self, region: str, region_id: str) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">get_all_region_trails</span></span>(<span>self, region: str) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Each region has a CSV export capability to export all trails within the region.
@@ -1030,7 +722,7 @@ they've not provisioning access at this point (<a href="https://www.trailforks.c
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@authentication
-def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
+def get_all_region_trails(self, region: str) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
     Each region has a CSV export capability to export all trails within the region.
     This function automates that export for the end user and saves a csv to local
@@ -1046,22 +738,17 @@ def get_all_region_trails(self, region: str, region_id: str) -&gt; pd.DataFrame:
         DataFrame: Pandas DataFrame
     &#34;&#34;&#34;  # noqa
     self.check_region(region)
-    uri = f&#34;https://www.trailforks.com/tools/trailspreadsheet_csv/?cols=title,difficulty,region_title,distance,dst_climb,dst_descent,dst_flat&amp;rid={region_id}&#34;
-    r = self.trailforks_session.get(uri, allow_redirects=True)
-    raw_csv_data = r.text
-    clean_csv_data = self._clean_raw_csv_data(raw_csv_data)
-
-    if &#34;title,difficulty&#34; in clean_csv_data:
-        df = pd.read_csv(io.StringIO(clean_csv_data))
-        return self._clean_region_trails(df)
-
-    else:
-        if self._check_requires_region_admin(r.text):
-            raise PyForks.exceptions.InvalidPermissions(
-                msg=f&#34;You need to be an Admin for {region} to download Trail Ridecounts&#34;
-            )
-
-        return pd.DataFrame()</code></pre>
+    fields = self.uri_encode(&#34;created,title,difficulty,physical_rating,total_jumps,total_poi,alias,faved,stats&#34;)
+    region_id = self.get_region_id_by_alias(region)
+    region_filter = self.uri_encode(f&#34;rid::{region_id}&#34;)
+    rows = 100
+    url = f&#34;https://www.trailforks.com/api/1/trails?scope=full&amp;fields={fields}&amp;filter={region_filter}&amp;rows={rows}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+    r = self.trailforks_session.get(url)
+    url_json = r.json()
+    self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+    url_json_data = url_json[&#34;data&#34;]
+    df = pd.json_normalize(url_json_data)
+    return df</code></pre>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_all_trailforks_regions"><code class="name flex">
@@ -1086,22 +773,66 @@ def get_all_trailforks_regions(self) -&gt; pd.DataFrame: # noqa
     Returns:
         pd.DataFrame: DataFrame of all region data
     &#34;&#34;&#34;
-    number_of_pages = 161
+    number_of_regions = 40_000
+    enumerated_results = 0
+    page_number = 0
+    results_per_page = 500
+    fields = self.uri_encode(&#34;rid,title,alias&#34;)
+    dfs = []
 
-    df_list = []
-    threads = []
-    pbar = tqdm(total=number_of_pages)
-    with ThreadPoolExecutor() as executor:
-        for i in range(1, number_of_pages):
-            threads.append(executor.submit(self._thread_get_regions, i))
-
-            for thread in as_completed(threads):
-                df_list.append(thread.result())
-                pbar.update(1)
+    pbar = tqdm(total=number_of_regions)
+    while enumerated_results &lt;= number_of_regions:
+        url = f&#34;https://www.trailforks.com/api/1/regions?scope=basic&amp;app_id={self.app_id}&amp;fields={fields}&amp;app_secret={self.app_secret}&amp;rows={results_per_page}&amp;page={page_number}&#34;
+        headers = {
+            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100102 Firefox/102.0&#34;
+        }
+        r = self.trailforks_session.get(url, headers=headers, allow_redirects=True)
+        t_json = r.json()
+        self._handle_status_code(r.status_code, t_json[&#34;message&#34;])
+        dfs.append(pd.json_normalize(t_json[&#34;data&#34;]))
+        page_number += 1
+        enumerated_results += results_per_page
+        pbar.update(results_per_page)
     pbar.close()
-    final_df = pd.concat(df_list, ignore_index=True)
-    final_df.rename(columns={&#34;Unnamed: 3&#34;:&#34;green&#34;, &#34;Unnamed: 4&#34;:&#34;blue&#34;, &#34;Unnamed: 5&#34;:&#34;black&#34;, &#34;Unnamed: 6&#34;:&#34;double_black&#34;}, inplace=True)
+    final_df = pd.concat(dfs)
+
     return final_df</code></pre>
+</details>
+</dd>
+<dt id="PyForks.region.Region.get_region_id_by_alias"><code class="name flex">
+<span>def <span class="ident">get_region_id_by_alias</span></span>(<span>self, region_alias: str) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a region alias (the URI name of the region), obtain the region
+id (int) and return it</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>region_alias</code></strong> :&ensp;<code>str</code></dt>
+<dd>URI name of the region</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>int</code></dt>
+<dd>Trailforks Region ID</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_region_id_by_alias(self, region_alias: str) -&gt; int:
+    &#34;&#34;&#34;
+    Given a region alias (the URI name of the region), obtain the region
+    id (int) and return it
+
+    Args:
+        region_alias (str): URI name of the region
+
+    Returns:
+        int: Trailforks Region ID
+    &#34;&#34;&#34;
+    df = pd.read_parquet(self.region_data_file, engine=&#34;pyarrow&#34;)
+    region_id = df.loc[df[&#34;alias&#34;] == region_alias, &#39;rid&#39;].item()
+    return region_id</code></pre>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_region_info"><code class="name flex">
@@ -1125,7 +856,8 @@ not see another way around this.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_region_info(self, region: str) -&gt; dict:
+<pre><code class="python">@authentication
+def get_region_info(self, region: str) -&gt; dict:
     &#34;&#34;&#34;
     Pulls region specific metrics from the region page. This whole function
     is an abomination (I know) but, until Trailforks publishes an API I do
@@ -1137,116 +869,92 @@ not see another way around this.</p>
     Returns:
         dict: {total_ridelogs, unique_riders, trails_ridden, avg_trails_per_ride}
     &#34;&#34;&#34;  # noqa
-    region_uri = f&#34;https://www.trailforks.com/region/{region}/ridelogstats/&#34;
-    page = requests.get(region_uri)
-    soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-    data = soup.find_all(&#34;div&#34;, class_=&#34;col-2 center&#34;)
-    data = str(data[0])
-    soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-    list_items = soup_1.find_all(&#34;li&#34;)
+    self.check_region(region)
+    region_id = self.get_region_id_by_alias(region)
+    url = f&#34;https://www.trailforks.com/api/1/region?id={region_id}&amp;scope=detailed&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+    r = self.trailforks_session.get(url)
+    r_json = r.json()
+    self._handle_status_code(r.status_code, r_json[&#34;message&#34;])
+    r_json_data = r_json[&#34;data&#34;]
 
-    region_ridelog_stats = {
-        &#34;total_ridelogs&#34;: None,
-        &#34;unique_riders&#34;: None,
-        &#34;trails_ridden&#34;: None,
-        &#34;average_trails_per_ride&#34;: None,
+    region_info = {
+        &#34;region_title&#34;: r_json_data[&#34;title&#34;],
+        &#34;total_ridelogs&#34;: r_json_data[&#34;total_ridelogs&#34;],
+        &#34;total_trails&#34;: r_json_data[&#34;total_trails&#34;],
+        &#34;total_distance&#34;: self.meters_to_miles(r_json_data[&#34;total_distance&#34;]),
+        &#34;total_descent&#34;: self.meters_to_miles(r_json_data[&#34;total_descent_distance&#34;]),
+        &#34;highest_trailhead&#34;: self.meters_to_miles(r_json_data[&#34;highest_trailhead&#34;]),
+        &#34;reports&#34;: r_json_data[&#34;total_reports&#34;],
+        &#34;photos&#34;: r_json_data[&#34;total_photos&#34;],
+        &#34;ridden&#34;: r_json_data[&#34;ridden&#34;],
+        &#34;country&#34;: r_json_data[&#34;country_title&#34;],
+        &#34;state_province&#34;: r_json_data[&#34;prov_title&#34;],
+        &#34;city&#34;: r_json_data[&#34;city_title&#34;],
+        &#34;links&#34;: r_json_data[&#34;links&#34;],
+        &#34;favorites&#34;: r_json_data[&#34;faved&#34;],
+        &#34;rating&#34;: r_json_data[&#34;rating&#34;],
+        &#34;region_created&#34;: r_json_data[&#34;created&#34;]
     }
-    region_vars = [
-        &#34;total_ridelogs&#34;,
-        &#34;unique_riders&#34;,
-        &#34;trails_ridden&#34;,
-        &#34;average_trails_per_ride&#34;,
-    ]
-
-    # Enumerate the region ridelog stats
-    for i, item in enumerate(list_items):
-        region_ridelog_stats[region_vars[i]] = int(
-            re.search(r&#34;&gt;([0-9].*)&lt;&#34;, str(item)).groups()[0].replace(&#34;,&#34;, &#34;&#34;)
-        )
-
-    # Get Region overview stats
-    region_uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-    page = requests.get(region_uri)
-    soup = BeautifulSoup(page.text, &#34;html.parser&#34;)
-    data = soup.find_all(&#34;div&#34;, class_=&#34;col-6 last&#34;)
-    data = str(data[0])
-    soup_1 = BeautifulSoup(data, &#34;html.parser&#34;)
-    list_items = soup_1.find_all(&#34;dl&#34;)[0]
-    list_items_string = str(list_items)
-    list_items_text = (list_items.text).split(&#34;\n&#34;)
-    region_overview_stats = {}
-
-    try:
-        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-    except IndexError:
-        list_items = soup_1.find_all(&#34;dl&#34;)[1]
-        list_items_string = str(list_items)
-        list_items_text = (list_items.text).split(&#34;\n&#34;)
-        total_trails = re.findall(r&#39;&lt;dt&gt;Trails\s&lt;span.*\n.*&lt;dd&gt;([a0-Z9,]{1,10})&lt;/dd&gt;&#39;, list_items_string, re.MULTILINE)
-        region_overview_stats[&#34;total_trails&#34;] = total_trails[0]
-
-    # Let&#39;s use the title params are the key values:
-    for index, line in enumerate(list_items_text):
-        if line not in [&#34;Avg Trail Rating&#34;,&#34;&#34;, &#34;trails_(view_details)&#34;]:
-            if not self.has_numbers(line):
-                key = line.replace(&#34; &#34;, &#34;_&#34;).lower().strip()
-                value = list_items_text[index + 1]
-                region_overview_stats[key] = value
-
-    region_ridelog_stats.update(region_overview_stats)
-    region_ridelog_stats.update(self._get_region_location(soup))
-    return region_ridelog_stats</code></pre>
+    return region_info</code></pre>
 </details>
 </dd>
 <dt id="PyForks.region.Region.get_region_ridecounts"><code class="name flex">
-<span>def <span class="ident">get_region_ridecounts</span></span>(<span>self, region: str) ‑> bool</span>
+<span>def <span class="ident">get_region_ridecounts</span></span>(<span>self, region: str) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Downloads a regions total ridecounts is CSV format. Ideally, this should
-be handled by the Trailforks API but, they've not provisioning access
-at this point (<a href="https://www.trailforks.com/about/api/">https://www.trailforks.com/about/api/</a>)</p>
+<div class="desc"><p>Creates a dataframe that contains that year-month-day and the
+number of rides associated with that day.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>region</code></strong> :&ensp;<code>str</code></dt>
-<dd>Trailforks region name per URI</dd>
-<dt><strong><code>output_path</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>Where to store CSV Defaults to ".".</dd>
+<dd>URI name of the region</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>bool</code></dt>
-<dd>true:CSV written to disk;False:failed to write CSV</dd>
+<dt><code>pd.DataFrame</code></dt>
+<dd>pd.Dataframe(columns=["date","rides"])</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@authentication
-def get_region_ridecounts(self, region: str) -&gt; bool:
+def get_region_ridecounts(self, region: str) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
-    Downloads a regions total ridecounts is CSV format. Ideally, this should
-    be handled by the Trailforks API but, they&#39;ve not provisioning access
-    at this point (https://www.trailforks.com/about/api/)
+    Creates a dataframe that contains that year-month-day and the
+    number of rides associated with that day.
 
     Args:
-        region (str): Trailforks region name per URI
-        output_path (str, optional): Where to store CSV Defaults to &#34;.&#34;.
+        region (str): URI name of the region
 
     Returns:
-        bool: true:CSV written to disk;False:failed to write CSV
-    &#34;&#34;&#34;  # noqa
+        pd.DataFrame: pd.Dataframe(columns=[&#34;date&#34;,&#34;rides&#34;])
+    &#34;&#34;&#34; # noqa
     self.check_region(region)
-    uri = f&#34;https://www.trailforks.com/region/{region}/ridelogcountscsv/&#34;
-    r = self.trailforks_session.get(uri, allow_redirects=True)
-    raw_csv_data = r.text
+    rows_per_pull = 500
+    page_number = 0
+    enumerated_results = 0
+    fields = self.uri_encode(&#34;created&#34;)
+    region_id = self.get_region_id_by_alias(region)
+    region_info = self.get_region_info(region)
+    total_ridelogs = int(region_info[&#34;ridden&#34;])
+    region_filter = self.uri_encode(f&#34;::{region_id}&#34;)
+    dfs = []
 
-    if &#34;date,rides&#34; in raw_csv_data:
-        raw_df = pd.read_csv(io.StringIO(raw_csv_data))
-        raw_df[&#34;region&#34;] = region
-        return self.__enrich_ridecounts(raw_df)
-    else:
-        return pd.DataFrame</code></pre>
+    while enumerated_results &lt; total_ridelogs:
+        url = f&#34;https://www.trailforks.com/api/1/ridelogs?fields={fields}&amp;filter=rid{region_filter}&amp;rows={rows_per_pull}&amp;page={page_number}&amp;order=desc&amp;sort=created&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+        r = self.trailforks_session.get(url)
+        url_json = r.json()
+        self._handle_status_code(r.status_code, url_json[&#34;message&#34;])
+        url_json_data = url_json[&#34;data&#34;]
+        dfs.append(pd.json_normalize(url_json_data))
+        page_number += 1
+        enumerated_results += rows_per_pull
+
+    df = pd.concat(dfs, ignore_index=True)
+    df[&#34;date&#34;] = pd.to_datetime(df[&#39;created&#39;],unit=&#34;s&#34;).dt.strftime(&#34;%Y-%m-%d&#34;)
+    t_df = df.groupby([&#39;date&#39;], sort=False)[&#39;date&#39;].count().sort_index(ascending=False).reset_index(name=&#34;rides&#34;)
+    return self.__enrich_ridecounts(t_df)</code></pre>
 </details>
 </dd>
 <dt id="PyForks.region.Region.is_valid_region"><code class="name flex">
@@ -1272,10 +980,12 @@ making sure the page title is not Error</p>
     Returns:
         bool: True:is an existing region;False:region does not exist.
     &#34;&#34;&#34;  # noqa
-    uri = f&#34;https://www.trailforks.com/region/{region}&#34;
-    r = requests.get(uri)
-    non_existent = &#34;&lt;title&gt;Error&lt;/title&gt;&#34;
-    if non_existent in r.text:
+    filter = self.uri_encode(f&#34;alias::{region}&#34;)
+    uri = f&#34;https://www.trailforks.com/api/1/regions?filter={filter}&amp;app_id={self.app_id}&amp;app_secret={self.app_secret}&#34;
+    r = self.trailforks_session.get(uri)
+    r_json = r.json()
+    r_json_data = r_json[&#39;data&#39;]
+    if len(r_json_data) == 0:
         return False
     return True</code></pre>
 </details>
@@ -1287,9 +997,8 @@ making sure the page title is not Error</p>
 <ul class="hlist">
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.get_webpage_title" href="trailforks.html#PyForks.trailforks.Trailforks.get_webpage_title">get_webpage_title</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.has_numbers" href="trailforks.html#PyForks.trailforks.Trailforks.has_numbers">has_numbers</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.login" href="trailforks.html#PyForks.trailforks.Trailforks.login">login</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.meters_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.meters_to_miles">meters_to_miles</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="trailforks.html#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
 </li>
@@ -1319,6 +1028,7 @@ making sure the page title is not Error</p>
 <li><code><a title="PyForks.region.Region.get_all_region_ridelogs" href="#PyForks.region.Region.get_all_region_ridelogs">get_all_region_ridelogs</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_region_trails" href="#PyForks.region.Region.get_all_region_trails">get_all_region_trails</a></code></li>
 <li><code><a title="PyForks.region.Region.get_all_trailforks_regions" href="#PyForks.region.Region.get_all_trailforks_regions">get_all_trailforks_regions</a></code></li>
+<li><code><a title="PyForks.region.Region.get_region_id_by_alias" href="#PyForks.region.Region.get_region_id_by_alias">get_region_id_by_alias</a></code></li>
 <li><code><a title="PyForks.region.Region.get_region_info" href="#PyForks.region.Region.get_region_info">get_region_info</a></code></li>
 <li><code><a title="PyForks.region.Region.get_region_ridecounts" href="#PyForks.region.Region.get_region_ridecounts">get_region_ridecounts</a></code></li>
 <li><code><a title="PyForks.region.Region.is_valid_region" href="#PyForks.region.Region.is_valid_region">is_valid_region</a></code></li>

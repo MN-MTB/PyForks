@@ -36,18 +36,6 @@
         &#34;&#34;&#34;  # noqa
         super().__init__(msg, *args, **kwargs)
 
-
-class InvalidUser(Exception):
-    def __init__(self, msg=&#34;Not a valid Trailforks User&#34;, *args, **kwargs):
-        &#34;&#34;&#34;
-        Invalid Trailforks User Exception Handler
-
-        Args:
-            msg (str, optional): Message that&#39;s presented to the user. Defaults to &#39;Not a valid Trailforks User&#39;.
-        &#34;&#34;&#34;  # noqa
-        super().__init__(msg, *args, **kwargs)
-
-
 class InvalidPermissions(Exception):
     def __init__(self, msg=&#34;Invalid Permissions&#34;, *args, **kwargs):
         &#34;&#34;&#34;
@@ -59,19 +47,14 @@ class InvalidPermissions(Exception):
         super().__init__(msg, *args, **kwargs)
 
 
-class BadCookieError(Exception):
-    def __init__(
-        self,
-        msg=&#34;Bad cookie file. Please delete the .cookie file and try again&#34;,
-        *args,
-        **kwargs
-    ):
+class RegionLockedAPI(Exception):
+    def __init__(self, msg=&#34;Invalid Permissions&#34;, *args, **kwargs):
         &#34;&#34;&#34;
-        User does not have necessary permissions exception handler
+        User has a regional locked API token for their app_id/app_secret
 
         Args:
-            msg (str, optional): Message that&#39;s presented to the user. Defaults to &#39;&#34;Bad cookie file. Please delete the .cookie file and try again&#39;.
-        &#34;&#34;&#34;  # noqa
+            msg (str, optional): _description_. Defaults to &#34;Invalid Permissions&#34;.
+        &#34;&#34;&#34;
         super().__init__(msg, *args, **kwargs)</code></pre>
 </details>
 </section>
@@ -84,43 +67,6 @@ class BadCookieError(Exception):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="PyForks.exceptions.BadCookieError"><code class="flex name class">
-<span>class <span class="ident">BadCookieError</span></span>
-<span>(</span><span>msg='Bad cookie file. Please delete the .cookie file and try again', *args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Common base class for all non-exit exceptions.</p>
-<p>User does not have necessary permissions exception handler</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>msg</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>Message that's presented to the user. Defaults to '"Bad cookie file. Please delete the .cookie file and try again'.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class BadCookieError(Exception):
-    def __init__(
-        self,
-        msg=&#34;Bad cookie file. Please delete the .cookie file and try again&#34;,
-        *args,
-        **kwargs
-    ):
-        &#34;&#34;&#34;
-        User does not have necessary permissions exception handler
-
-        Args:
-            msg (str, optional): Message that&#39;s presented to the user. Defaults to &#39;&#34;Bad cookie file. Please delete the .cookie file and try again&#39;.
-        &#34;&#34;&#34;  # noqa
-        super().__init__(msg, *args, **kwargs)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
 <dt id="PyForks.exceptions.InvalidPermissions"><code class="flex name class">
 <span>class <span class="ident">InvalidPermissions</span></span>
 <span>(</span><span>msg='Invalid Permissions', *args, **kwargs)</span>
@@ -185,30 +131,30 @@ class BadCookieError(Exception):
 <li>builtins.BaseException</li>
 </ul>
 </dd>
-<dt id="PyForks.exceptions.InvalidUser"><code class="flex name class">
-<span>class <span class="ident">InvalidUser</span></span>
-<span>(</span><span>msg='Not a valid Trailforks User', *args, **kwargs)</span>
+<dt id="PyForks.exceptions.RegionLockedAPI"><code class="flex name class">
+<span>class <span class="ident">RegionLockedAPI</span></span>
+<span>(</span><span>msg='Invalid Permissions', *args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Common base class for all non-exit exceptions.</p>
-<p>Invalid Trailforks User Exception Handler</p>
+<p>User has a regional locked API token for their app_id/app_secret</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>msg</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>Message that's presented to the user. Defaults to 'Not a valid Trailforks User'.</dd>
+<dd><em>description</em>. Defaults to "Invalid Permissions".</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class InvalidUser(Exception):
-    def __init__(self, msg=&#34;Not a valid Trailforks User&#34;, *args, **kwargs):
+<pre><code class="python">class RegionLockedAPI(Exception):
+    def __init__(self, msg=&#34;Invalid Permissions&#34;, *args, **kwargs):
         &#34;&#34;&#34;
-        Invalid Trailforks User Exception Handler
+        User has a regional locked API token for their app_id/app_secret
 
         Args:
-            msg (str, optional): Message that&#39;s presented to the user. Defaults to &#39;Not a valid Trailforks User&#39;.
-        &#34;&#34;&#34;  # noqa
+            msg (str, optional): _description_. Defaults to &#34;Invalid Permissions&#34;.
+        &#34;&#34;&#34;
         super().__init__(msg, *args, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -235,16 +181,13 @@ class BadCookieError(Exception):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="PyForks.exceptions.BadCookieError" href="#PyForks.exceptions.BadCookieError">BadCookieError</a></code></h4>
-</li>
-<li>
 <h4><code><a title="PyForks.exceptions.InvalidPermissions" href="#PyForks.exceptions.InvalidPermissions">InvalidPermissions</a></code></h4>
 </li>
 <li>
 <h4><code><a title="PyForks.exceptions.InvalidRegion" href="#PyForks.exceptions.InvalidRegion">InvalidRegion</a></code></h4>
 </li>
 <li>
-<h4><code><a title="PyForks.exceptions.InvalidUser" href="#PyForks.exceptions.InvalidUser">InvalidUser</a></code></h4>
+<h4><code><a title="PyForks.exceptions.RegionLockedAPI" href="#PyForks.exceptions.RegionLockedAPI">RegionLockedAPI</a></code></h4>
 </li>
 </ul>
 </li>

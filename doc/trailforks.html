@@ -26,15 +26,13 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import os
-import sys
+<pre><code class="python">import sys
 import requests
-import pickle
 import urllib.parse
 import PyForks.exceptions
-from bs4 import BeautifulSoup
 import logging
 from functools import wraps
+import pkg_resources
 
 
 def authentication(func):
@@ -51,31 +49,10 @@ def authentication(func):
 
     @wraps(func)
     def run_checks(self, *args, **kwargs):
-        if not self.authenticated:
+        if self.app_id == None or self.app_secret == None:
             print(
-                f&#34;[!] Need Authentication:\nYou must provide username= and password=\n+ {self._login_error}&#34;
+                f&#34;[!] Need Authentication:\nYou must provide app_id= and app_secret=\n&#34;
             )
-            exit(1)
-        return func(self, *args, **kwargs)
-
-    return run_checks
-
-
-def requires_user_pass(func):
-    &#34;&#34;&#34;
-    User Pass requirement decorator
-
-    Args:
-        func (_type_): callable function
-
-    Returns:
-        _type_: original function
-    &#34;&#34;&#34;
-
-    @wraps(func)
-    def run_checks(self, *args, **kwargs):
-        if None in [self.username, self.password]:
-            print(&#34;[!] You must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs)
 
@@ -83,204 +60,21 @@ def requires_user_pass(func):
 
 
 class Trailforks:
-    def __init__(self, username=None, password=None):
+    def __init__(self, app_id=None, app_secret=None, debug=False):
         self.__init_logger()
         self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
-        self.username = username
-        self.password = password
-        self.trailforks_session = None
-        self.authenticated = False
+        self.app_id = app_id
+        self.app_secret = app_secret
+        self.trailforks_session = requests.Session()
         self._login_page_title = None
         self._login_error = None
-        self.__cookie_cache = f&#34;{os.getcwd()}/.cookie&#34;
+        self.debug = debug
+        self.region_data_file = pkg_resources.resource_filename(&#34;PyForks&#34;, &#34;data/region_data.parquet&#34;)
 
-    @requires_user_pass
-    def login(self) -&gt; bool:
-        &#34;&#34;&#34;
-        Login to Trailforks with a username and password in order to conduct
-        privileged (user based) operations such as downloading content or
-        viewing non-public information.
+        if self.debug:
+            logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
-        Returns:
-            bool: True:successful login;False:failed to login
-        &#34;&#34;&#34;
-        trailforks_session = requests.Session()
-        headers = {
-            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
-        }
-        t = trailforks_session.get(
-            &#34;https://www.trailforks.com/login/#loginform&#34;,
-            headers=headers,
-            allow_redirects=True,
-        )
-        form_hash = self.__get_trailforks_formhash(t.text)
-        users_homepage = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;
-        )
-
-        payload = {
-            &#34;ripformname&#34;: &#34;loginform&#34;,
-            &#34;formpage&#34;: &#34;/login/#loginform&#34;,
-            &#34;fieldstack[0]&#34;: &#34;source&#34;,
-            &#34;source-alpha&#34;: &#34;trailforks&#34;,
-            &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-            &#34;redirect-textbasic&#34;: users_homepage,
-            &#34;fieldstack[2]&#34;: &#34;username&#34;,
-            &#34;username-login-loginlen&#34;: self.username,
-            &#34;fieldstack[3]&#34;: &#34;password&#34;,
-            &#34;password-password-lt200&#34;: self.password,
-            &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
-            &#34;rememberme&#34;: &#34;&#34;,
-            &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
-            &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
-            &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
-            &#34;iebug&#34;: &#34;1&#34;,
-            &#34;formhash&#34;: form_hash,
-        }
-
-        headers_login = {
-            &#34;Host&#34;: &#34;www.trailforks.com&#34;,
-            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
-            &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
-            &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
-            &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
-            &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
-            &#34;Content-Length&#34;: &#34;773&#34;,
-            &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
-            &#34;DNT&#34;: &#34;1&#34;,
-            &#34;Connection&#34;: &#34;keep-alive&#34;,
-            &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
-            &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
-            &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
-            &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
-            &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
-            &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
-            &#34;Sec-GPC&#34;: &#34;1&#34;,
-        }
-
-        if os.path.exists(self.__cookie_cache):
-            cookies = self.__load_cookie()
-            try:
-                trailforks_session.cookies.update(cookies)
-                t = trailforks_session.get(users_homepage, allow_redirects=True)
-            except TypeError as e:
-                self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
-                raise PyForks.exceptions.BadCookieError
-        else:
-            t = trailforks_session.post(
-                &#34;https://www.trailforks.com/wosFormCheck.php&#34;,
-                data=payload,
-                headers=headers_login,
-                allow_redirects=True,
-            )
-
-        self._login_page_title = self.__get_trailforks_page_title(t.text)
-
-        if self.username in self._login_page_title:
-            self.trailforks_session = trailforks_session
-            self.authenticated = True
-            self.__cache_cookie(trailforks_session.cookies)
-            return True
-
-        self._login_error = self.__get_rip_error(t.text)
-        return False
-
-    def get_webpage_title(self, html_source: str) -&gt; str:
-        &#34;&#34;&#34;
-        From HTML Source, parse the site title and return
-
-        Args:
-            html_source (str): RAW Html source
-
-        Returns:
-            str: Site Title
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
-        title = soup.find(&#34;title&#34;)
-        return title.string
-
-    def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
-        &#34;&#34;&#34;
-        Load existing Trailforks cookies for authentication
-
-        Returns:
-            requests.Session.cookies: Requests Session Cookies object
-        &#34;&#34;&#34;
-        try:
-            with open(self.__cookie_cache, &#34;rb&#34;) as f:
-                cookies = pickle.load(f)
-            return cookies
-        except pickle.UnpicklingError as e:
-            self._logger.error(f&#34;failed to load cookie from cache;ERROR:{e}&#34;)
-            return None
-
-    def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -&gt; bool:
-        &#34;&#34;&#34;
-        Cache a cookie incase the user wants to run other scripts.
-        This way we will not get a too many login attempts exception
-        from Trailforks.
-
-        Args:
-            cookies (requests.Session.cookies): Requests Session Cookie object
-
-        Returns:
-            bool: True:cookie was saved;False:cookie was not saved
-        &#34;&#34;&#34;
-        try:
-            with open(self.__cookie_cache, &#34;wb&#34;) as f:
-                pickle.dump(cookies, f)
-            return True
-        except Exception as e:
-            self._logger.error(f&#34;failed to save cookie to disk;ERROR:{e}&#34;)
-            return False
-
-    def __get_rip_error(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Get the login error code if we failed to login
-
-        Args:
-            html (str): Raw login HTML attempt
-
-        Returns:
-            str: string error code (i.e., too many login attempts)
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        rip_error = soup.find(&#34;div&#34;, {&#34;class&#34;: &#34;ripError&#34;}).text
-        return rip_error
-
-    def __get_trailforks_formhash(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Trailforms uses a login form hash value that dictates if a login
-        action is valid as it&#39;s tied to either a previous login and/or a
-        datetime object that serves as the expiration date. However, anytime
-        a user vists the login page, a new formhash is generated and exists
-        within the HTML. This function parses that hash out in order to
-        successfully login to Trailforks without using Selenium
-
-        Args:
-            html (str): Raw HTML of the get request to the login page
-
-        Returns:
-            str: the formhash string
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        form_hash = soup.find(&#34;input&#34;, {&#34;name&#34;: &#34;formhash&#34;}).get(&#34;value&#34;)
-        return form_hash
-
-    def __get_trailforks_page_title(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Obtain the title of any page given its HTML content
-
-        Args:
-            html (str): Raw HTML
-
-        Returns:
-            str: Title string
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        title_tag = soup.find(&#34;title&#34;)
-        return title_tag.string
 
     def uri_encode(self, string: str) -&gt; str:
         &#34;&#34;&#34;
@@ -331,6 +125,21 @@ class Trailforks:
         feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
         mi = 0.000189394
         return feet * mi
+    
+    def meters_to_miles(self, meters: float) -&gt; float:
+        &#34;&#34;&#34;
+        Translates meters to miles since the trailforks uses
+        metric measurements for their API.
+
+        Args:
+            meters (int): Total Meters
+
+        Returns:
+            float: Total Miles
+        &#34;&#34;&#34;
+        meters = float(meters)
+        miles = meters * 0.00062137
+        return miles
 
     def has_numbers(self, data: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -401,50 +210,10 @@ user session to complete a task such as downloading CSV reports</p>
 
     @wraps(func)
     def run_checks(self, *args, **kwargs):
-        if not self.authenticated:
+        if self.app_id == None or self.app_secret == None:
             print(
-                f&#34;[!] Need Authentication:\nYou must provide username= and password=\n+ {self._login_error}&#34;
+                f&#34;[!] Need Authentication:\nYou must provide app_id= and app_secret=\n&#34;
             )
-            exit(1)
-        return func(self, *args, **kwargs)
-
-    return run_checks</code></pre>
-</details>
-</dd>
-<dt id="PyForks.trailforks.requires_user_pass"><code class="name flex">
-<span>def <span class="ident">requires_user_pass</span></span>(<span>func)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>User Pass requirement decorator</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>func</code></strong> :&ensp;<code>_type_</code></dt>
-<dd>callable function</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>_type_</code></dt>
-<dd>original function</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def requires_user_pass(func):
-    &#34;&#34;&#34;
-    User Pass requirement decorator
-
-    Args:
-        func (_type_): callable function
-
-    Returns:
-        _type_: original function
-    &#34;&#34;&#34;
-
-    @wraps(func)
-    def run_checks(self, *args, **kwargs):
-        if None in [self.username, self.password]:
-            print(&#34;[!] You must provide username= and password=&#34;)
             exit(1)
         return func(self, *args, **kwargs)
 
@@ -458,7 +227,7 @@ user session to complete a task such as downloading CSV reports</p>
 <dl>
 <dt id="PyForks.trailforks.Trailforks"><code class="flex name class">
 <span>class <span class="ident">Trailforks</span></span>
-<span>(</span><span>username=None, password=None)</span>
+<span>(</span><span>app_id=None, app_secret=None, debug=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -467,204 +236,21 @@ user session to complete a task such as downloading CSV reports</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Trailforks:
-    def __init__(self, username=None, password=None):
+    def __init__(self, app_id=None, app_secret=None, debug=False):
         self.__init_logger()
         self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
-        self.username = username
-        self.password = password
-        self.trailforks_session = None
-        self.authenticated = False
+        self.app_id = app_id
+        self.app_secret = app_secret
+        self.trailforks_session = requests.Session()
         self._login_page_title = None
         self._login_error = None
-        self.__cookie_cache = f&#34;{os.getcwd()}/.cookie&#34;
+        self.debug = debug
+        self.region_data_file = pkg_resources.resource_filename(&#34;PyForks&#34;, &#34;data/region_data.parquet&#34;)
 
-    @requires_user_pass
-    def login(self) -&gt; bool:
-        &#34;&#34;&#34;
-        Login to Trailforks with a username and password in order to conduct
-        privileged (user based) operations such as downloading content or
-        viewing non-public information.
+        if self.debug:
+            logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
-        Returns:
-            bool: True:successful login;False:failed to login
-        &#34;&#34;&#34;
-        trailforks_session = requests.Session()
-        headers = {
-            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
-        }
-        t = trailforks_session.get(
-            &#34;https://www.trailforks.com/login/#loginform&#34;,
-            headers=headers,
-            allow_redirects=True,
-        )
-        form_hash = self.__get_trailforks_formhash(t.text)
-        users_homepage = (
-            f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;
-        )
-
-        payload = {
-            &#34;ripformname&#34;: &#34;loginform&#34;,
-            &#34;formpage&#34;: &#34;/login/#loginform&#34;,
-            &#34;fieldstack[0]&#34;: &#34;source&#34;,
-            &#34;source-alpha&#34;: &#34;trailforks&#34;,
-            &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-            &#34;redirect-textbasic&#34;: users_homepage,
-            &#34;fieldstack[2]&#34;: &#34;username&#34;,
-            &#34;username-login-loginlen&#34;: self.username,
-            &#34;fieldstack[3]&#34;: &#34;password&#34;,
-            &#34;password-password-lt200&#34;: self.password,
-            &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
-            &#34;rememberme&#34;: &#34;&#34;,
-            &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
-            &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
-            &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
-            &#34;iebug&#34;: &#34;1&#34;,
-            &#34;formhash&#34;: form_hash,
-        }
-
-        headers_login = {
-            &#34;Host&#34;: &#34;www.trailforks.com&#34;,
-            &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
-            &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
-            &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
-            &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
-            &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
-            &#34;Content-Length&#34;: &#34;773&#34;,
-            &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
-            &#34;DNT&#34;: &#34;1&#34;,
-            &#34;Connection&#34;: &#34;keep-alive&#34;,
-            &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
-            &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
-            &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
-            &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
-            &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
-            &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
-            &#34;Sec-GPC&#34;: &#34;1&#34;,
-        }
-
-        if os.path.exists(self.__cookie_cache):
-            cookies = self.__load_cookie()
-            try:
-                trailforks_session.cookies.update(cookies)
-                t = trailforks_session.get(users_homepage, allow_redirects=True)
-            except TypeError as e:
-                self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
-                raise PyForks.exceptions.BadCookieError
-        else:
-            t = trailforks_session.post(
-                &#34;https://www.trailforks.com/wosFormCheck.php&#34;,
-                data=payload,
-                headers=headers_login,
-                allow_redirects=True,
-            )
-
-        self._login_page_title = self.__get_trailforks_page_title(t.text)
-
-        if self.username in self._login_page_title:
-            self.trailforks_session = trailforks_session
-            self.authenticated = True
-            self.__cache_cookie(trailforks_session.cookies)
-            return True
-
-        self._login_error = self.__get_rip_error(t.text)
-        return False
-
-    def get_webpage_title(self, html_source: str) -&gt; str:
-        &#34;&#34;&#34;
-        From HTML Source, parse the site title and return
-
-        Args:
-            html_source (str): RAW Html source
-
-        Returns:
-            str: Site Title
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
-        title = soup.find(&#34;title&#34;)
-        return title.string
-
-    def __load_cookie(self) -&gt; requests.cookies.RequestsCookieJar:
-        &#34;&#34;&#34;
-        Load existing Trailforks cookies for authentication
-
-        Returns:
-            requests.Session.cookies: Requests Session Cookies object
-        &#34;&#34;&#34;
-        try:
-            with open(self.__cookie_cache, &#34;rb&#34;) as f:
-                cookies = pickle.load(f)
-            return cookies
-        except pickle.UnpicklingError as e:
-            self._logger.error(f&#34;failed to load cookie from cache;ERROR:{e}&#34;)
-            return None
-
-    def __cache_cookie(self, cookies: requests.cookies.RequestsCookieJar) -&gt; bool:
-        &#34;&#34;&#34;
-        Cache a cookie incase the user wants to run other scripts.
-        This way we will not get a too many login attempts exception
-        from Trailforks.
-
-        Args:
-            cookies (requests.Session.cookies): Requests Session Cookie object
-
-        Returns:
-            bool: True:cookie was saved;False:cookie was not saved
-        &#34;&#34;&#34;
-        try:
-            with open(self.__cookie_cache, &#34;wb&#34;) as f:
-                pickle.dump(cookies, f)
-            return True
-        except Exception as e:
-            self._logger.error(f&#34;failed to save cookie to disk;ERROR:{e}&#34;)
-            return False
-
-    def __get_rip_error(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Get the login error code if we failed to login
-
-        Args:
-            html (str): Raw login HTML attempt
-
-        Returns:
-            str: string error code (i.e., too many login attempts)
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        rip_error = soup.find(&#34;div&#34;, {&#34;class&#34;: &#34;ripError&#34;}).text
-        return rip_error
-
-    def __get_trailforks_formhash(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Trailforms uses a login form hash value that dictates if a login
-        action is valid as it&#39;s tied to either a previous login and/or a
-        datetime object that serves as the expiration date. However, anytime
-        a user vists the login page, a new formhash is generated and exists
-        within the HTML. This function parses that hash out in order to
-        successfully login to Trailforks without using Selenium
-
-        Args:
-            html (str): Raw HTML of the get request to the login page
-
-        Returns:
-            str: the formhash string
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        form_hash = soup.find(&#34;input&#34;, {&#34;name&#34;: &#34;formhash&#34;}).get(&#34;value&#34;)
-        return form_hash
-
-    def __get_trailforks_page_title(self, html: str) -&gt; str:
-        &#34;&#34;&#34;
-        Obtain the title of any page given its HTML content
-
-        Args:
-            html (str): Raw HTML
-
-        Returns:
-            str: Title string
-        &#34;&#34;&#34;
-        soup = BeautifulSoup(html, &#34;html.parser&#34;)
-        title_tag = soup.find(&#34;title&#34;)
-        return title_tag.string
 
     def uri_encode(self, string: str) -&gt; str:
         &#34;&#34;&#34;
@@ -715,6 +301,21 @@ user session to complete a task such as downloading CSV reports</p>
         feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
         mi = 0.000189394
         return feet * mi
+    
+    def meters_to_miles(self, meters: float) -&gt; float:
+        &#34;&#34;&#34;
+        Translates meters to miles since the trailforks uses
+        metric measurements for their API.
+
+        Args:
+            meters (int): Total Meters
+
+        Returns:
+            float: Total Miles
+        &#34;&#34;&#34;
+        meters = float(meters)
+        miles = meters * 0.00062137
+        return miles
 
     def has_numbers(self, data: str) -&gt; bool:
         &#34;&#34;&#34;
@@ -746,7 +347,6 @@ user session to complete a task such as downloading CSV reports</p>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="PyForks.region.Region" href="region.html#PyForks.region.Region">Region</a></li>
-<li><a title="PyForks.user.User" href="user.html#PyForks.user.User">User</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -829,40 +429,6 @@ function attempts to normalize them into miles (float)</p>
     return feet * mi</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks.Trailforks.get_webpage_title"><code class="name flex">
-<span>def <span class="ident">get_webpage_title</span></span>(<span>self, html_source: str) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>From HTML Source, parse the site title and return</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>html_source</code></strong> :&ensp;<code>str</code></dt>
-<dd>RAW Html source</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str</code></dt>
-<dd>Site Title</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_webpage_title(self, html_source: str) -&gt; str:
-    &#34;&#34;&#34;
-    From HTML Source, parse the site title and return
-
-    Args:
-        html_source (str): RAW Html source
-
-    Returns:
-        str: Site Title
-    &#34;&#34;&#34;
-    soup = BeautifulSoup(html_source, &#34;html.parser&#34;)
-    title = soup.find(&#34;title&#34;)
-    return title.string</code></pre>
-</details>
-</dd>
 <dt id="PyForks.trailforks.Trailforks.has_numbers"><code class="name flex">
 <span>def <span class="ident">has_numbers</span></span>(<span>self, data: str) ‑> bool</span>
 </code></dt>
@@ -899,112 +465,40 @@ function attempts to normalize them into miles (float)</p>
         return True</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks.Trailforks.login"><code class="name flex">
-<span>def <span class="ident">login</span></span>(<span>self) ‑> bool</span>
+<dt id="PyForks.trailforks.Trailforks.meters_to_miles"><code class="name flex">
+<span>def <span class="ident">meters_to_miles</span></span>(<span>self, meters: float) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Login to Trailforks with a username and password in order to conduct
-privileged (user based) operations such as downloading content or
-viewing non-public information.</p>
+<div class="desc"><p>Translates meters to miles since the trailforks uses
+metric measurements for their API.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>meters</code></strong> :&ensp;<code>int</code></dt>
+<dd>Total Meters</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>bool</code></dt>
-<dd>True:successful login;False:failed to login</dd>
+<dt><code>float</code></dt>
+<dd>Total Miles</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@requires_user_pass
-def login(self) -&gt; bool:
+<pre><code class="python">def meters_to_miles(self, meters: float) -&gt; float:
     &#34;&#34;&#34;
-    Login to Trailforks with a username and password in order to conduct
-    privileged (user based) operations such as downloading content or
-    viewing non-public information.
+    Translates meters to miles since the trailforks uses
+    metric measurements for their API.
+
+    Args:
+        meters (int): Total Meters
 
     Returns:
-        bool: True:successful login;False:failed to login
+        float: Total Miles
     &#34;&#34;&#34;
-    trailforks_session = requests.Session()
-    headers = {
-        &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0&#34;
-    }
-    t = trailforks_session.get(
-        &#34;https://www.trailforks.com/login/#loginform&#34;,
-        headers=headers,
-        allow_redirects=True,
-    )
-    form_hash = self.__get_trailforks_formhash(t.text)
-    users_homepage = (
-        f&#34;https://www.trailforks.com/profile/{self.uri_encode(self.username)}/&#34;
-    )
-
-    payload = {
-        &#34;ripformname&#34;: &#34;loginform&#34;,
-        &#34;formpage&#34;: &#34;/login/#loginform&#34;,
-        &#34;fieldstack[0]&#34;: &#34;source&#34;,
-        &#34;source-alpha&#34;: &#34;trailforks&#34;,
-        &#34;fieldstack[1]&#34;: &#34;redirect&#34;,
-        &#34;redirect-textbasic&#34;: users_homepage,
-        &#34;fieldstack[2]&#34;: &#34;username&#34;,
-        &#34;username-login-loginlen&#34;: self.username,
-        &#34;fieldstack[3]&#34;: &#34;password&#34;,
-        &#34;password-password-lt200&#34;: self.password,
-        &#34;fieldstack[4]&#34;: &#34;rememberme&#34;,
-        &#34;rememberme&#34;: &#34;&#34;,
-        &#34;fieldstack[5]&#34;: &#34;logoutother&#34;,
-        &#34;submitbutton[&#39;Login&#39;]&#34;: &#34;Login&#34;,
-        &#34;buttondest[&#39;Login&#39;]&#34;: &#34;https://www.trailforks.com/x_login_form/&#34;,
-        &#34;iebug&#34;: &#34;1&#34;,
-        &#34;formhash&#34;: form_hash,
-    }
-
-    headers_login = {
-        &#34;Host&#34;: &#34;www.trailforks.com&#34;,
-        &#34;User-Agent&#34;: &#34;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0&#34;,
-        &#34;Accept&#34;: &#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;,
-        &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
-        &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
-        &#34;Content-Type&#34;: &#34;application/x-www-form-urlencoded&#34;,
-        &#34;Content-Length&#34;: &#34;773&#34;,
-        &#34;Origin&#34;: &#34;https://www.trailforks.com&#34;,
-        &#34;DNT&#34;: &#34;1&#34;,
-        &#34;Connection&#34;: &#34;keep-alive&#34;,
-        &#34;Referer&#34;: &#34;https://www.trailforks.com/login/&#34;,
-        &#34;Upgrade-Insecure-Requests&#34;: &#34;1&#34;,
-        &#34;Sec-Fetch-Dest&#34;: &#34;document&#34;,
-        &#34;Sec-Fetch-Mode&#34;: &#34;navigate&#34;,
-        &#34;Sec-Fetch-Site&#34;: &#34;same-origin&#34;,
-        &#34;Sec-Fetch-User&#34;: &#34;?1&#34;,
-        &#34;Sec-GPC&#34;: &#34;1&#34;,
-    }
-
-    if os.path.exists(self.__cookie_cache):
-        cookies = self.__load_cookie()
-        try:
-            trailforks_session.cookies.update(cookies)
-            t = trailforks_session.get(users_homepage, allow_redirects=True)
-        except TypeError as e:
-            self._logger.error(f&#34;failed to load cookie;ERROR:{e}&#34;)
-            raise PyForks.exceptions.BadCookieError
-    else:
-        t = trailforks_session.post(
-            &#34;https://www.trailforks.com/wosFormCheck.php&#34;,
-            data=payload,
-            headers=headers_login,
-            allow_redirects=True,
-        )
-
-    self._login_page_title = self.__get_trailforks_page_title(t.text)
-
-    if self.username in self._login_page_title:
-        self.trailforks_session = trailforks_session
-        self.authenticated = True
-        self.__cache_cookie(trailforks_session.cookies)
-        return True
-
-    self._login_error = self.__get_rip_error(t.text)
-    return False</code></pre>
+    meters = float(meters)
+    miles = meters * 0.00062137
+    return miles</code></pre>
 </details>
 </dd>
 <dt id="PyForks.trailforks.Trailforks.uri_encode"><code class="name flex">
@@ -1059,7 +553,6 @@ def login(self) -&gt; bool:
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="PyForks.trailforks.authentication" href="#PyForks.trailforks.authentication">authentication</a></code></li>
-<li><code><a title="PyForks.trailforks.requires_user_pass" href="#PyForks.trailforks.requires_user_pass">requires_user_pass</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -1069,9 +562,8 @@ def login(self) -&gt; bool:
 <ul class="">
 <li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.get_webpage_title" href="#PyForks.trailforks.Trailforks.get_webpage_title">get_webpage_title</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.has_numbers" href="#PyForks.trailforks.Trailforks.has_numbers">has_numbers</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.login" href="#PyForks.trailforks.Trailforks.login">login</a></code></li>
+<li><code><a title="PyForks.trailforks.Trailforks.meters_to_miles" href="#PyForks.trailforks.Trailforks.meters_to_miles">meters_to_miles</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
 </li>
