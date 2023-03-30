@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="PyForks",
-    version="0.0.24",
+    version="0.0.25",
     author="Trailforks Python Library",
     author_email="josh@mn-mtb.com",
     packages=["PyForks"],

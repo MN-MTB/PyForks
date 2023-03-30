@@ -4,6 +4,7 @@ from datetime import datetime
 import PyForks.exceptions
 import calendar
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 class Region(Trailforks):
@@ -71,7 +72,7 @@ class Region(Trailforks):
             pd.DataFrame: pd.DataFrame(columns=["date","rides"])
         """ # noqa
         self.check_region(region)
-        rows_per_pull = 500
+        rows_per_pull = 10000
         page_number = 0
         enumerated_results = 0
         fields = self.uri_encode("created")
@@ -81,12 +82,18 @@ class Region(Trailforks):
         region_filter = self.uri_encode(f"::{region_id}")
         dfs = []
 
-        while enumerated_results < total_ridelogs:
-            uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
-            json_response = self.make_trailforks_request(uri)
-            dfs.append(pd.json_normalize(json_response))
-            page_number += 1
-            enumerated_results += rows_per_pull
+        threads = []
+        with ThreadPoolExecutor() as executor:
+
+            while enumerated_results < total_ridelogs:
+                uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
+                threads.append(executor.submit(self.make_trailforks_request, uri))
+                page_number += 1
+                enumerated_results += rows_per_pull
+                
+            for job in as_completed(threads):
+                json_response = job.result()
+                dfs.append(pd.json_normalize(json_response))
 
         df = pd.concat(dfs, ignore_index=True)
         df["date"] = pd.to_datetime(df['created'],unit="s").dt.strftime("%Y-%m-%d")
