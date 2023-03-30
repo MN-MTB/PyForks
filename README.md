@@ -12,13 +12,13 @@
 [![codecov](https://codecov.io/gh/cribdragg3r/PyForks/branch/main/graph/badge.svg?token=225DIC4PVS)](https://codecov.io/gh/cribdragg3r/PyForks)
 
 
-Python Trailforks Library (Unofficial) for interacting with Trailforks.com. Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
+Python TrailForks Library (Unofficial) for interacting with [TrailForks](Trailforks.com). Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
 
 ## About
 
 PyForks has been designed to help me automate much of the manual data aggregation I was doing in order to build metrics for my local city and state trail systems. For example: [app.mn-mtb.com](https://app.mn-mtb.com). The end goal of this project is the ability to make it much easier to pull data down that people are interested in and analyze it in a way that non-technical individuals can digest and understand impact in hopes of additional funding and interest. 
 
-This package uses the [Offical Trailforks API](https://www.trailforks.com/about/api). This means that in order to use this package, you must have a valid Trailforks `app_id` and `app_secret`. See the API link to get your keys.
+This package uses the [Official TrailForks API](https://www.trailforks.com/about/api). This means that in order to use this package, you must have a valid TrailForks `app_id` and `app_secret`. See the API link to get your keys.
 
 ## Installation & Documentation
 

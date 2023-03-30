@@ -55,6 +55,17 @@ class RegionLockedAPI(Exception):
         Args:
             msg (str, optional): _description_. Defaults to &#34;Invalid Permissions&#34;.
         &#34;&#34;&#34;
+        super().__init__(msg, *args, **kwargs)
+
+
+class TrailforksAPIException(Exception):
+    def __init__(self, msg=&#34;Invalid Permissions&#34;, *args, **kwargs):
+        &#34;&#34;&#34;
+        Generic Trailforks ARest API exception Handler
+
+        Args:
+            msg (str, optional): _description_. Defaults to &#34;Invalid Permissions&#34;.
+        &#34;&#34;&#34;
         super().__init__(msg, *args, **kwargs)</code></pre>
 </details>
 </section>
@@ -163,6 +174,38 @@ class RegionLockedAPI(Exception):
 <li>builtins.BaseException</li>
 </ul>
 </dd>
+<dt id="PyForks.exceptions.TrailforksAPIException"><code class="flex name class">
+<span>class <span class="ident">TrailforksAPIException</span></span>
+<span>(</span><span>msg='Invalid Permissions', *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p>
+<p>Generic Trailforks ARest API exception Handler</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>msg</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd><em>description</em>. Defaults to "Invalid Permissions".</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TrailforksAPIException(Exception):
+    def __init__(self, msg=&#34;Invalid Permissions&#34;, *args, **kwargs):
+        &#34;&#34;&#34;
+        Generic Trailforks ARest API exception Handler
+
+        Args:
+            msg (str, optional): _description_. Defaults to &#34;Invalid Permissions&#34;.
+        &#34;&#34;&#34;
+        super().__init__(msg, *args, **kwargs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -188,6 +231,9 @@ class RegionLockedAPI(Exception):
 </li>
 <li>
 <h4><code><a title="PyForks.exceptions.RegionLockedAPI" href="#PyForks.exceptions.RegionLockedAPI">RegionLockedAPI</a></code></h4>
+</li>
+<li>
+<h4><code><a title="PyForks.exceptions.TrailforksAPIException" href="#PyForks.exceptions.TrailforksAPIException">TrailforksAPIException</a></code></h4>
 </li>
 </ul>
 </li>

@@ -140,4 +140,13 @@ def test_get_region_trails_bad_region():
         region.check_region("west-lakeddf-marion-paa45rk")
     assert pytest_wrapped_e.type == PyForks.exceptions.InvalidRegion
 
-    
+def test_download_all_regions():
+    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
+    df = region.get_all_trailforks_regions(number_of_regions=500)
+    assert (isinstance(df, pd.DataFrame) and "Mount Fromme" in df.title.to_list())
+
+def test_auth_bad_api():
+    region = Region(app_id="no_exist", app_secret="secret_squirrel")
+    with pytest.raises(PyForks.exceptions.TrailforksAPIException) as pytest_wrapped_e:
+        region_dict = region.get_region_info("west-lake-marion-park")
+    assert pytest_wrapped_e.type == PyForks.exceptions.TrailforksAPIException

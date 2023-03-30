@@ -28,3 +28,14 @@ class RegionLockedAPI(Exception):
             msg (str, optional): _description_. Defaults to "Invalid Permissions".
         """
         super().__init__(msg, *args, **kwargs)
+
+
+class TrailforksAPIException(Exception):
+    def __init__(self, msg="Invalid Permissions", *args, **kwargs):
+        """
+        Generic Trailforks ARest API exception Handler
+
+        Args:
+            msg (str, optional): _description_. Defaults to "Invalid Permissions".
+        """
+        super().__init__(msg, *args, **kwargs)

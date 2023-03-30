@@ -1,8 +1,9 @@
 import sys
 import requests
 import urllib.parse
-import PyForks.exceptions
 import logging
+import json
+import PyForks.exceptions
 from functools import wraps
 import pkg_resources
 
@@ -39,10 +40,8 @@ class Trailforks:
         self.app_id = app_id
         self.app_secret = app_secret
         self.trailforks_session = requests.Session()
-        self._login_page_title = None
-        self._login_error = None
-        self.debug = debug
         self.region_data_file = pkg_resources.resource_filename("PyForks", "data/region_data.parquet")
+        self.debug = debug
 
         if self.debug:
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
@@ -129,7 +128,65 @@ class Trailforks:
         except TypeError:
             return True
 
+    def make_trailforks_request(self, uri: str) -> json:
+        """
+        Makes a request give a URI
+
+        Args:
+            uri (str): URI String
+
+        Returns:
+            json: Trailforks API response JSON Data object
+        """
+        try:
+            r = self.trailforks_session.get(uri)
+            url_json = r.json()
+            self._handle_api_error(url_json)
+            self._handle_status_code(r.status_code, url_json["message"])
+            url_json_data = url_json["data"]
+            return url_json_data
+        except Exception as e:
+            raise PyForks.exceptions.TrailforksAPIException(
+                msg="[!] ERROR: Bad API App or Secret Key"
+            )
+
+    def _handle_status_code(self, status_code: int, message: str) -> None:
+        """
+        Handle unauthenticated or incorrect permissions errors for HTTP requests
+
+        Args:
+            status_code (int): HTTP Status Code
+            message (str): Trailforks API Message
+
+        Raises:
+            PyForks.exceptions.RegionLockedAPI: 401 is usually tied to a failure in permissions for a token
+        """
+        if status_code == 401:
+            raise PyForks.exceptions.RegionLockedAPI(
+                msg=f"[!] Error: {message}"
+            )
+        
+    def _handle_api_error(self, api_response: json) -> None:
+        """
+        The Trailforks API gives us an indication if a request has been made that
+        resulted in an error. This function handles that notification to a user if
+        an error state is seen
+
+        Args:
+            api_response (json): API Response JSON object
+
+        Raises:
+            PyForks.exceptions.TrailforksAPIException: _description_
+        """
+        if api_response['error'] != 0:
+            raise PyForks.exceptions.TrailforksAPIException(
+                msg=f"[!] API Error: {api_response['message']}"
+            )
+        
     def __init_logger(self) -> None:
+        """
+        Initializes the PyForks Logging facility
+        """
         logger = logging.getLogger("PyForks")
         logger.setLevel(logging.INFO)
         handler = logging.StreamHandler(sys.stderr)
