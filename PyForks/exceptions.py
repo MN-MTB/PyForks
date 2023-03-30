@@ -8,18 +8,6 @@ class InvalidRegion(Exception):
         """  # noqa
         super().__init__(msg, *args, **kwargs)
 
-
-class InvalidUser(Exception):
-    def __init__(self, msg="Not a valid Trailforks User", *args, **kwargs):
-        """
-        Invalid Trailforks User Exception Handler
-
-        Args:
-            msg (str, optional): Message that's presented to the user. Defaults to 'Not a valid Trailforks User'.
-        """  # noqa
-        super().__init__(msg, *args, **kwargs)
-
-
 class InvalidPermissions(Exception):
     def __init__(self, msg="Invalid Permissions", *args, **kwargs):
         """
@@ -31,17 +19,23 @@ class InvalidPermissions(Exception):
         super().__init__(msg, *args, **kwargs)
 
 
-class BadCookieError(Exception):
-    def __init__(
-        self,
-        msg="Bad cookie file. Please delete the .cookie file and try again",
-        *args,
-        **kwargs
-    ):
+class RegionLockedAPI(Exception):
+    def __init__(self, msg="Invalid Permissions", *args, **kwargs):
         """
-        User does not have necessary permissions exception handler
+        User has a regional locked API token for their app_id/app_secret
 
         Args:
-            msg (str, optional): Message that's presented to the user. Defaults to '"Bad cookie file. Please delete the .cookie file and try again'.
-        """  # noqa
+            msg (str, optional): _description_. Defaults to "Invalid Permissions".
+        """
+        super().__init__(msg, *args, **kwargs)
+
+
+class TrailforksAPIException(Exception):
+    def __init__(self, msg="Invalid Permissions", *args, **kwargs):
+        """
+        Generic Trailforks ARest API exception Handler
+
+        Args:
+            msg (str, optional): _description_. Defaults to "Invalid Permissions".
+        """
         super().__init__(msg, *args, **kwargs)

@@ -11,8 +11,8 @@ endif
 clean:
 	$(RM) ".cookie" "build" "dist" "PyForks.egg-info" "PyForks/__pycache__" "PyForks/test" "PyForks/_test/__pycache__" ".pytest_cache"
 
-build:
-	pip3 install wheel twine
+build: clean
+	pip install wheel twine
 	python setup.py sdist bdist_wheel
 
 publish: build

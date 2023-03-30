@@ -1,4 +1,4 @@
-from PyForks.trailforks import Trailforks
+from PyForks import Trailforks
 import PyForks.exceptions
 import pytest
 import os
@@ -14,43 +14,3 @@ def test_distance_cleaning():
 
     assert clean_distances == expected_distances
 
-
-def test_trailforks_login_fail():
-    # remove any latent cookies to avoid valid logins since we check for cookies first
-    if os.path.exists(".cookie"):
-        os.remove(".cookie")
-    tf = Trailforks(username="mnmtb", password="not_my_password")
-    login = tf.login()
-    assert login == False
-
-
-def test_bad_cookie_load_fail():
-    # remove any latent cookies to avoid valid logins since we check for cookies first
-    if os.path.exists(".cookie"):
-        os.remove(".cookie")
-
-    with open(".cookie", "wb") as f:
-        f.write(b"not a cookie brah")
-
-    tf = Trailforks(username="apress001", password="FakePassword123")
-    with pytest.raises(PyForks.exceptions.BadCookieError) as pytest_wrapped_e:
-        tf.login()
-    assert pytest_wrapped_e.type == PyForks.exceptions.BadCookieError
-
-
-def test_new_cookie_creation():
-    # remove any latent cookies to avoid valid logins since we check for cookies first
-    if os.path.exists(".cookie"):
-        os.remove(".cookie")
-
-    tf = Trailforks(username="apress001", password="FakePassword123")
-    check = tf.login()
-    assert os.path.exists(".cookie") == True
-
-
-def test_login_with_cookie_only():
-    tf = Trailforks()
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        tf.login()
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1

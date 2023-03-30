@@ -8,7 +8,9 @@ __pycache__/
 test.py
 # Python Stuff
 .venv*
-
+*secrets.ini
+*.vscode
+*.ipynb
 # Distribution / packaging
 .Python
 build/
