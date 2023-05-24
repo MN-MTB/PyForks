@@ -58,7 +58,48 @@ class Region(Trailforks):
 
         return df
 
+    @authentication
+    def get_region_ridecounts_by_rider(self, region: str) -> pd.DataFrame:
+        """
+        Creates a dataframe that contains a username and the
+        number of rides associated with that user.
+
+        Args:
+            region (str): URI name of the region
+
+        Returns:
+            pd.DataFrame: pd.DataFrame(columns=["username","rides"])
+        """ # noqa
+        self.check_region(region)
+        rows_per_pull = 8000
+        page_number = 0
+        enumerated_results = 0
+        fields = self.uri_encode("created,username")
+        region_id = self.get_region_id_by_alias(region)
+        region_info = self.get_region_info(region)
+        total_ridelogs = int(region_info["ridden"])
+        region_filter = self.uri_encode(f"::{region_id}")
+        dfs = []
+
+        threads = []
+        with ThreadPoolExecutor() as executor:
+
+            while enumerated_results < total_ridelogs:
+                uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
+                threads.append(executor.submit(self.make_trailforks_request, uri))
+                page_number += 1
+                enumerated_results += rows_per_pull
+                
+            for job in as_completed(threads):
+                json_response = job.result()
+                dfs.append(pd.json_normalize(json_response))
+
+        df = pd.concat(dfs, ignore_index=True)
+        t_df = df.groupby(['username'], sort=True).count().sort_values(by='created', ascending=False).reset_index()
+        t_df.rename(columns={'created':'rides'}, inplace=True)
+        return t_df
     
+
     @authentication
     def get_region_ridecounts(self, region: str) -> pd.DataFrame:
         """
@@ -247,7 +288,7 @@ class Region(Trailforks):
         enumerated_results = 0
         page_number = 0
         results_per_page = 500
-        fields = self.uri_encode("rid,title,alias")
+        fields = self.uri_encode("rid,title,alias,country_title,prov_title,city_title")
         dfs = []
 
         pbar = tqdm(total=number_of_regions)
@@ -263,3 +304,54 @@ class Region(Trailforks):
         final_df.astype(str).drop_duplicates(inplace=True)
         return final_df
 
+
+    @authentication
+    def get_region_photos(self, region: str) -> list:
+        """
+        Get a list of photos taken by riders for a specific region
+
+        Args:
+            region (str): Region URI Name
+
+        Returns:
+            list: List of pinkbike photo links
+        """
+        self.check_region(region)
+        photos = []
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f"::{region_id}")
+        uri = f"https://www.trailforks.com/api/1/photos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
+        json_response = self.make_trailforks_request(uri)
+        for obj in json_response:
+            photos.append(obj.get('thumbs', {}).get("l", None))
+        return photos
+    
+    @authentication
+    def get_region_videos(self, region: str) -> dict:
+        """
+        Get a dict of videos taken by riders for a specific region
+
+        Args:
+            region (str): Region URI Name
+
+        Returns:
+            dict: Dict{videos: [{source, source_id, source_url}]}
+        """
+        self.check_region(region)
+        videos = {'videos': []}
+        region_id = self.get_region_id_by_alias(region)
+        region_filter = self.uri_encode(f"::{region_id}")
+        uri = f"https://www.trailforks.com/api/1/videos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
+        json_response = self.make_trailforks_request(uri)
+        for obj in json_response:
+            source = obj.get('source', None)
+            # Source is either youtube or pb
+            if source == "youtube":
+                id = obj.get('source_id', None)
+                url = obj.get('source_url', None)
+                videos['videos'].append({'source': source, 'id':id, 'url':url})
+            else:
+                id = obj.get('id', None)
+                url = obj.get('media', {}).get('s1080', None)
+                videos['videos'].append({'source': source, 'id':id, 'url':url})
+        return videos

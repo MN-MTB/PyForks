@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+trailforks_regions.json
+region_names.json
+
 # C extensions
 *.so
 test.py
