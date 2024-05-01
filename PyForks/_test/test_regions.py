@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 import os
 
-if os.name in ['nt', 'posix']:
+if os.name in ['nt']:
     print(os.name)
     from configparser import ConfigParser
     parser = ConfigParser()
