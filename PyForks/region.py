@@ -8,20 +8,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from PyForks.trailforks import Trailforks, authentication
 
 class Region(Trailforks):
+
     def is_valid_region(self, region: str) -> bool:
         """
         Check to make sure a region name is a real region by
-        making sure the page title is not Error
+        verifying it against the region data file.
 
         Returns:
             bool: True:is an existing region;False:region does not exist.
         """  # noqa
-        filter = self.uri_encode(f"alias::{region}")
-        uri = f"https://www.trailforks.com/api/1/regions?filter={filter}&app_id={self.app_id}&app_secret={self.app_secret}"
-        json_response = self.make_trailforks_request(uri)
-        if len(json_response) == 0:
-            return False
-        return True
+        return self.regions_df['alias'].isin([region]).any()
 
     def check_region(self, region: str) -> bool:
         """
@@ -213,9 +209,9 @@ class Region(Trailforks):
         Returns:
             int: Trailforks Region ID
         """
-        df = pd.read_parquet(self.region_data_file, engine="pyarrow")
-        region_id = df.loc[df["alias"] == region_alias, 'rid'].item()
+        region_id = self.regions_df.loc[self.regions_df["alias"] == region_alias, 'rid'].item() 
         return region_id
+
     
     @authentication
     def get_region_info(self, region: str) -> dict:
