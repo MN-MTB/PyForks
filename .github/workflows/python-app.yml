@@ -42,4 +42,6 @@ jobs:
         pytest --cov=./ --cov-report=xml
     - name: Codecov
       uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
