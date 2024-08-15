@@ -34,6 +34,7 @@ def authentication(func):
 
 class Trailforks:
     def __init__(self, app_id=None, app_secret=None, debug=False):
+        self.base_uri = "https://www.trailforks.com/api/1"
         self.__init_logger()
         self._logger = logging.getLogger("PyForks")
         self.name = "trailforks"
@@ -46,6 +47,43 @@ class Trailforks:
         if self.debug:
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
+
+    def _get(self, endpoint: str,  params:dict) -> requests.Response:
+        """
+        Performs a GET request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        """
+        try:
+            auth_params = {"app_id": self.app_id, "app_secret": self.app_secret}
+            params.update(auth_params)
+            
+            r = self.trailforks_session.get(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f"[!] ERROR: {e}")
+
+    def _post(self, endpoint: str,  params:dict) -> requests.Response:
+        """
+        Performs a POST request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        """
+        try:
+            auth_params = {"app_id": self.app_id, "app_secret": self.app_secret}
+            params.update(auth_params)
+            r = self.trailforks_session.post(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f"[!] ERROR: {e}")
 
     def uri_encode(self, string: str) -> str:
         """

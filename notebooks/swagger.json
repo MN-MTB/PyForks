@@ -1,0 +1,1096 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Trailforks API",
+    "description": "Unoffical REST API documentation for Trailforks.com",
+    "version": "1.0.0"
+  },
+  "host": "https://www.trailforks.com/",
+  "basePath": "/api/1/",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/event": {
+      "get": {
+        "operationId": "getEvent",
+        "parameters": [
+          {
+            "description": "id of the event",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "detail of event object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific event"
+      }
+    },
+    "/events": {
+      "get": {
+        "description": "special filters: (parent, search)",
+        "operationId": "getEvents",
+        "parameters": [
+          {
+            "description": "detail level of event object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b>",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of events to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of events"
+      }
+    },
+    "/maptrails": {
+      "get": {
+        "description": "bbox filter is in the format of top-left lat/lon and bottom-right lat/lon values seperated by commas. Example: bbox::49.33,-122.973,49.322,-122.957",
+        "operationId": "getMapTrails",
+        "parameters": [
+          {
+            "description": "output format of the trails, default is Google encoded path",
+            "in": "query",
+            "name": "output",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format:  field::value;field2::value2<br><br>allowed filters:<br>bbox, rid, nearby_range, difficulty, biketype, trailtype, physical_rating, unsanctioned, ttfs, search, status, condition, usage, direction, closed, climb_difficulty",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of trails within a bounding box for displaying on a map"
+      }
+    },
+    "/photos": {
+      "get": {
+        "operationId": "getPhotos",
+        "parameters": [
+          {
+            "description": "detail level of photo objects to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b>",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of photos to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of trail or region photos"
+      }
+    },
+    "/poi": {
+      "get": {
+        "operationId": "getPoi",
+        "parameters": [
+          {
+            "description": "id of the poi",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "detail of poi object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific poi"
+      }
+    },
+    "/region": {
+      "get": {
+        "operationId": "getTrails",
+        "parameters": [
+          {
+            "description": "rid of the region",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "detail of region object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific region"
+      }
+    },
+    "/region_status": {
+      "get": {
+        "description": "Response is a special format to minimize data size. This is meant to be used with the 'since' param, where you store a unix timestamp of the last time you synced the local copy in your app. When you pass since, the API will only return regions that have changed a status or condition since that time, making the response smaller.",
+        "operationId": "getRegionStatus",
+        "parameters": [
+          {
+            "description": "rid of the regions",
+            "in": "query",
+            "name": "rids",
+            "required": false,
+            "type": "csvint"
+          },
+          {
+            "description": "timestamp backbutton return status after",
+            "format": "int32",
+            "in": "query",
+            "name": "since",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return region status & condition"
+      }
+    },
+    "/regions": {
+      "get": {
+        "description": "filters: (rid, parent, bottom, difficulty, search, favs, alias, total_trails, total_ridingareas, total_reports, total_routes, isridingarea, bikepark, shuttle, showonmap, nearby_range, lat, lon, bbox)",
+        "operationId": "getRegions",
+        "parameters": [
+          {
+            "description": "detail level of region object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b><br><br>special case: <b>parent::3009;depth::1</b>",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of regions to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of regions"
+      }
+    },
+    "/report": {
+      "post": {
+        "description": "Too make authenticated api calls, you need to include the following params with your POST data (timestamp, token_public, hash). You must first login via the API and get a valid user token. timestamp = a unix timestamp, hash = SHA1(timestamp+token_private)",
+        "operationId": "postReport",
+        "parameters": [
+          {
+            "description": "trailid of the trail",
+            "format": "int32",
+            "in": "query",
+            "name": "trailid",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "status of the trail",
+            "format": "int32",
+            "in": "query",
+            "name": "status",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "condition of the trail",
+            "format": "int32",
+            "in": "query",
+            "name": "condition",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "description of trail condition or issues",
+            "in": "query",
+            "name": "description",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "description": "location of report. (lat, lon)",
+            "in": "query",
+            "name": "marker",
+            "required": false,
+            "type": "varchar"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "add a trail report"
+      }
+    },
+    "/reports": {
+      "get": {
+        "description": "Available filters: reportid, nid, rid, type, nearby_range, search, user, status, condition, hastext, group, trail_work, active, assessment, ridelogid, lat, lon, activitytype",
+        "operationId": "getReports",
+        "parameters": [
+          {
+            "description": "detail level of report object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format:  <b>field::value;field2::value2</b>",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of reports to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of reports"
+      }
+    },
+    "/ridelogs": {
+      "get": {
+        "description": "only returns public ridelogs, unless authenticated with a user token",
+        "operationId": "getRidelogs",
+        "parameters": [
+          {
+            "description": "detail level of ridelog object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b><br><br>Valid filters: id,rid,trailid,hastrack,nearby_range,difficulty,search,userid,biketype,firstchar,lat,lon,activitytype,friends",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of ridelogs to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results<br>Valid sorts: created,changed,views,last_comment_ts,last_report_ts,total_achievements,distance,route_popularity",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of ridelogs for trail or region"
+      }
+    },
+    "/rideplan": {
+      "get": {
+        "description": "return personal rideplan, must be authenticated with user token.",
+        "operationId": "getrideplan",
+        "parameters": [
+          {
+            "description": "id of the rideplan",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific rideplan"
+      }
+    },
+    "/rideplans": {
+      "get": {
+        "operationId": "getRideplans",
+        "parameters": [
+          {
+            "description": "detail level of route object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b><br>Valid filters: rid,title,userid",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of rideplans to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results<br>Valid sorts: created,title,distance,views",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of personal rideplans, must be authenticated with user token."
+      }
+    },
+    "/route": {
+      "get": {
+        "operationId": "getroute",
+        "parameters": [
+          {
+            "description": "id of the route",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "detail of route object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific route"
+      }
+    },
+    "/routes": {
+      "get": {
+        "operationId": "getRoutes",
+        "parameters": [
+          {
+            "description": "detail level of route object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b><br>Valid filters: id,rid,nearby_range,difficulty,direction,search,user,ridden,wishlist,firstchar,lat,lon,bbox,featured,garmin,supporter,race,activitytype",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of routes to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results<br>Valid sorts: created,changed,views,rating,ridden,faved,last_comment_ts,last_report_ts,total_checkins,distance,title,event_date,global_rank,global_rank_score,prov_rank",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of public routes"
+      }
+    },
+    "/supporters": {
+      "get": {
+        "operationId": "getSupporters",
+        "parameters": [
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b><br>Valid filters: id,rid,trailid,routeid,year",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of supporters to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of a supporters for a trail, region or route"
+      }
+    },
+    "/trail": {
+      "get": {
+        "description": "use 'trackencoded' field to get a Google encoded polyline.",
+        "operationId": "getTrail",
+        "parameters": [
+          {
+            "description": "trailid of the trail",
+            "format": "int32",
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "detail of trail object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a specific trail"
+      }
+    },
+    "/trail_status": {
+      "get": {
+        "description": "Response is a special format to minimize data size. This is meant to be used with the 'since' param, where you store a unix timestamp of the last time you synced the local copy in your app. When you pass since, the API will only return trails that have changed a status or condition since that time, making the response smaller.",
+        "operationId": "getTrailStatus",
+        "parameters": [
+          {
+            "description": "rid of the regions",
+            "in": "query",
+            "name": "rids",
+            "required": false,
+            "type": "csvint"
+          },
+          {
+            "description": "timestamp backbutton return status after",
+            "format": "int32",
+            "in": "query",
+            "name": "since",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "comma seperated list of trail ids to get status for. Use instead of rids above.",
+            "in": "query",
+            "name": "trailids",
+            "required": false,
+            "type": "csvint"
+          },
+          {
+            "description": "show details of most recent trail report with trail status",
+            "format": "int32",
+            "in": "query",
+            "name": "reportdetail",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return trail status & condition for trails in region"
+      }
+    },
+    "/trails": {
+      "get": {
+        "description": "Use a combination of `bbox` filter and field `trackencoded` to get trails for map usage.<br><br>filters: (trailid, rid, parent, nearby_range, difficulty, biketype, trailtype, physical_rating, unsanctioned, ttfs, search, userid, ridden, wishlist, firstchar, status, condition, usage, direction, closed, climb_difficulty, lat, lon, bbox, season_type, rated, rating, activitytype)",
+        "operationId": "getTrails",
+        "parameters": [
+          {
+            "description": "detail level of trail object to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned by a comma seperated list of allowed fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format:  field::value;field2::value2<br><br>allowed filters:<br>trailid, rid, parent, nearby_range, difficulty, biketype, trailtype, physical_rating, unsanctioned, ttfs, search, userid, ridden, wishlist, firstchar, status, condition, usage, direction, closed, climb_difficulty, lat, lon, bbox, season_type, rated, rating, activitytype",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of trails to return, max 500",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of trails"
+      }
+    },
+    "/videos": {
+      "get": {
+        "operationId": "getVideos",
+        "parameters": [
+          {
+            "description": "detail level of video objects to return",
+            "in": "query",
+            "name": "scope",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "limit the fields returned",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "filter variables in the format: <b>field::value;field2::value2</b>",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "number of videos to return",
+            "format": "int32",
+            "in": "query",
+            "name": "rows",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "page through results",
+            "format": "int32",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "sort the results",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "order the results",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "return a list of trail or region videos"
+      }
+    },
+    "/waypoint": {
+      "post": {
+        "description": "User auth token required",
+        "operationId": "postWaypoint",
+        "parameters": [
+          {
+            "description": "add|edit",
+            "in": "post",
+            "name": "action",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "description": "activitytype",
+            "format": "int32",
+            "in": "post",
+            "name": "activitytype",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "description": "<100",
+            "in": "post",
+            "name": "title",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "description": "<255",
+            "in": "post",
+            "name": "note",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "description": "html color code",
+            "in": "post",
+            "name": "color",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "description": "1|0",
+            "format": "int32",
+            "in": "post",
+            "name": "private",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "format": "float",
+            "in": "post",
+            "name": "latitude",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "format": "float",
+            "in": "post",
+            "name": "longitude",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "description": "app|api",
+            "in": "post",
+            "name": "source",
+            "required": false,
+            "type": "varchar"
+          },
+          {
+            "in": "post",
+            "name": "waypointuid",
+            "required": false,
+            "type": "varchar"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No response was specified"
+          }
+        },
+        "summary": "add a personal waypoint"
+      }
+    }
+  }
+}
