@@ -3,7 +3,7 @@ import requests
 import urllib.parse
 import logging
 import json
-import pandas as pd
+#import pandas as pd
 import PyForks.exceptions
 import pkg_resources
 from functools import wraps
@@ -43,7 +43,7 @@ class Trailforks:
         self.app_secret = app_secret
         self.trailforks_session = requests.Session()
         self.region_data_file = pkg_resources.resource_filename("PyForks", "data/region_data.parquet")
-        self.regions_df = pd.read_parquet(self.region_data_file, engine="pyarrow")
+        #self.regions_df = pd.read_parquet(self.region_data_file, engine="pyarrow")
         self.debug = debug
 
         if self.debug:

@@ -23,9 +23,6 @@ setup(
         },
     install_requires=[
         "pytest",
-        "tqdm",
-        "requests",
-        "pandas",
-        "pyarrow"
+        "requests"
     ],
 )
