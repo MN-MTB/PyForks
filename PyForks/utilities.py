@@ -17,7 +17,7 @@ class Region(Trailforks):
             bool: True:is an existing region;False:region does not exist.
         """  # noqa
         filter = self.uri_encode(f"alias::{region}")
-        uri = f"{self.base_uri}/regions?filter={filter}&app_id={self.app_id}&app_secret={self.app_secret}"
+        uri = f"https://www.trailforks.com/api/1/regions?filter={filter}&app_id={self.app_id}&app_secret={self.app_secret}"
         json_response = self.make_trailforks_request(uri)
         if len(json_response) == 0:
             return False
@@ -85,7 +85,7 @@ class Region(Trailforks):
         with ThreadPoolExecutor() as executor:
 
             while enumerated_results < total_ridelogs:
-                uri = f"{self.base_uri}/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
+                uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
                 threads.append(executor.submit(self.make_trailforks_request, uri))
                 page_number += 1
                 enumerated_results += rows_per_pull
@@ -127,7 +127,7 @@ class Region(Trailforks):
         with ThreadPoolExecutor() as executor:
 
             while enumerated_results < total_ridelogs:
-                uri = f"{self.base_uri}/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
+                uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
                 threads.append(executor.submit(self.make_trailforks_request, uri))
                 page_number += 1
                 enumerated_results += rows_per_pull
@@ -159,7 +159,7 @@ class Region(Trailforks):
         region_id = self.get_region_id_by_alias(region)
         region_filter = self.uri_encode(f"rid::{region_id}")
         rows = 100
-        uri = f"{self.base_uri}/trails?scope=full&fields={fields}&filter={region_filter}&rows={rows}&app_id={self.app_id}&app_secret={self.app_secret}"
+        uri = f"https://www.trailforks.com/api/1/trails?scope=full&fields={fields}&filter={region_filter}&rows={rows}&app_id={self.app_id}&app_secret={self.app_secret}"
         json_response = self.make_trailforks_request(uri)
         df = pd.json_normalize(json_response)
         return df
@@ -193,7 +193,7 @@ class Region(Trailforks):
         dfs = []
 
         for i in range(0,pages):
-            uri = f"{self.base_uri}/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
+            uri = f"https://www.trailforks.com/api/1/ridelogs?fields={fields}&filter=rid{region_filter}&rows={rows_per_pull}&page={page_number}&order=desc&sort=created&app_id={self.app_id}&app_secret={self.app_secret}"
             json_response = self.make_trailforks_request(uri)
             dfs.append(pd.json_normalize(json_response))
             page_number += 1
@@ -249,7 +249,7 @@ class Region(Trailforks):
         """  # noqa
         self.check_region(region)
         region_id = self.get_region_id_by_alias(region)
-        uri = f"{self.base_uri}/region?id={region_id}&scope=detailed&app_id={self.app_id}&app_secret={self.app_secret}"
+        uri = f"https://www.trailforks.com/api/1/region?id={region_id}&scope=detailed&app_id={self.app_id}&app_secret={self.app_secret}"
         json_response = self.make_trailforks_request(uri)
 
         region_info = {
@@ -293,7 +293,7 @@ class Region(Trailforks):
 
         pbar = tqdm(total=number_of_regions)
         while enumerated_results <= number_of_regions:
-            uri = f"{self.base_uri}/regions?scope=basic&app_id={self.app_id}&fields={fields}&app_secret={self.app_secret}&rows={results_per_page}&page={page_number}"
+            uri = f"https://www.trailforks.com/api/1/regions?scope=basic&app_id={self.app_id}&fields={fields}&app_secret={self.app_secret}&rows={results_per_page}&page={page_number}"
             json_response = self.make_trailforks_request(uri)
             dfs.append(pd.json_normalize(json_response))
             page_number += 1
@@ -320,7 +320,7 @@ class Region(Trailforks):
         photos = []
         region_id = self.get_region_id_by_alias(region)
         region_filter = self.uri_encode(f"::{region_id}")
-        uri = f"{self.base_uri}/photos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
+        uri = f"https://www.trailforks.com/api/1/photos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
         json_response = self.make_trailforks_request(uri)
         for obj in json_response:
             photos.append(obj.get('thumbs', {}).get("l", None))
@@ -341,7 +341,7 @@ class Region(Trailforks):
         videos = {'videos': []}
         region_id = self.get_region_id_by_alias(region)
         region_filter = self.uri_encode(f"::{region_id}")
-        uri = f"{self.base_uri}/videos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
+        uri = f"https://www.trailforks.com/api/1/videos?filter=rid{region_filter}&rows=20&order=desc&app_id={self.app_id}&app_secret={self.app_secret}"
         json_response = self.make_trailforks_request(uri)
         for obj in json_response:
             source = obj.get('source', None)
