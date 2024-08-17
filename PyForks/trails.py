@@ -79,55 +79,60 @@ class Trails(Trailforks):
         response = self._get(f"{self.base_uri}/trails", params=kwargs)
         return response.json()
     
-    def post_waypoint(self, activitytype: int, latitude: float, longitude: float, **kwargs) -> Dict[str, Any]:
-        """
-        Add a personal waypoint.
+    # POST functions require a User authentication token. The Trailforks API does not have a public endpoint 
+    # for this capability such that we can create a User Access Token via the REST API. We will have to build
+    # this functionality into the PyForks library in the future. In searching for a login endpoint, we found 
+    # https://www.trailforks.com/api/1/login to be deprecated.
 
-        Args:
-            activitytype (int): Type of activity.
-            latitude (float): Latitude of the waypoint.
-            longitude (float): Longitude of the waypoint.
-            **kwargs: Optional parameters such as:
-                action (str): 'add' or 'edit'.
-                title (str): Title of the waypoint.
-                note (str): Note associated with the waypoint.
-                color (str): HTML color code.
-                private (int): 1 for private, 0 for public.
-                source (str): Source of the waypoint (app or API).
-                waypointuid (str): Unique ID for the waypoint.
+    # def post_waypoint(self, activitytype: int, latitude: float, longitude: float, **kwargs) -> Dict[str, Any]:
+    #     """
+    #     Add a personal waypoint.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        """
+    #     Args:
+    #         activitytype (int): Type of activity.
+    #         latitude (float): Latitude of the waypoint.
+    #         longitude (float): Longitude of the waypoint.
+    #         **kwargs: Optional parameters such as:
+    #             action (str): 'add' or 'edit'.
+    #             title (str): Title of the waypoint.
+    #             note (str): Note associated with the waypoint.
+    #             color (str): HTML color code.
+    #             private (int): 1 for private, 0 for public.
+    #             source (str): Source of the waypoint (app or API).
+    #             waypointuid (str): Unique ID for the waypoint.
+
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     """
         
-        data = {
-            'activitytype': activitytype,
-            'latitude': latitude,
-            'longitude': longitude
-        }
-        data.update(kwargs)
-        response = self.trailforks_session.post(f"{self.base_uri}/waypoint", data=data)
+    #     data = {
+    #         'activitytype': activitytype,
+    #         'latitude': latitude,
+    #         'longitude': longitude
+    #     }
+    #     data.update(kwargs)
+    #     response = self.trailforks_session.post(f"{self.base_uri}/waypoint", data=data)
 
-    def post_report(self, trailid: int, status: int, **kwargs) -> Dict[str, Any]:
-        """
-        Add a trail report.
+    # def post_report(self, trailid: int, status: int, **kwargs) -> Dict[str, Any]:
+    #     """
+    #     Add a trail report.
 
-        Args:
-            trailid (int): ID of the trail.
-            status (int): Status of the trail.
-            **kwargs: Optional parameters such as:
-                condition (int): Condition of the trail.
-                description (str): Description of trail condition or issues.
-                marker (str): Location of the report (lat, lon).
+    #     Args:
+    #         trailid (int): ID of the trail.
+    #         status (int): Status of the trail.
+    #         **kwargs: Optional parameters such as:
+    #             condition (int): Condition of the trail.
+    #             description (str): Description of trail condition or issues.
+    #             marker (str): Location of the report (lat, lon).
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        """
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     """
         
-        data = {'trailid': trailid, 'status': status}
-        data.update(kwargs)
-        response = self.trailforks_session.post(f"{self.base_uri}/report", data=data)
-        return response.json()
+    #     data = {'trailid': trailid, 'status': status}
+    #     data.update(kwargs)
+    #     response = self.trailforks_session.post(f"{self.base_uri}/report", data=data)
+    #     return response.json()
     
     def get_reports(self, **kwargs) -> Dict[str, Any]:
         """

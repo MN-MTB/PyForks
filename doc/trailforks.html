@@ -31,9 +31,10 @@ import requests
 import urllib.parse
 import logging
 import json
+#import pandas as pd
 import PyForks.exceptions
-from functools import wraps
 import pkg_resources
+from functools import wraps
 
 
 def authentication(func):
@@ -62,6 +63,7 @@ def authentication(func):
 
 class Trailforks:
     def __init__(self, app_id=None, app_secret=None, debug=False):
+        self.base_uri = &#34;https://www.trailforks.com/api/1&#34;
         self.__init_logger()
         self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
@@ -69,11 +71,49 @@ class Trailforks:
         self.app_secret = app_secret
         self.trailforks_session = requests.Session()
         self.region_data_file = pkg_resources.resource_filename(&#34;PyForks&#34;, &#34;data/region_data.parquet&#34;)
+        #self.regions_df = pd.read_parquet(self.region_data_file, engine=&#34;pyarrow&#34;)
         self.debug = debug
 
         if self.debug:
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
+
+    def _get(self, endpoint: str,  params:dict) -&gt; requests.Response:
+        &#34;&#34;&#34;
+        Performs a GET request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        &#34;&#34;&#34;
+        try:
+            auth_params = {&#34;app_id&#34;: self.app_id, &#34;app_secret&#34;: self.app_secret}
+            params.update(auth_params)
+            
+            r = self.trailforks_session.get(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f&#34;[!] ERROR: {e}&#34;)
+
+    def _post(self, endpoint: str,  params:dict) -&gt; requests.Response:
+        &#34;&#34;&#34;
+        Performs a POST request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        &#34;&#34;&#34;
+        try:
+            auth_params = {&#34;app_id&#34;: self.app_id, &#34;app_secret&#34;: self.app_secret}
+            params.update(auth_params)
+            r = self.trailforks_session.post(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f&#34;[!] ERROR: {e}&#34;)
 
     def uri_encode(self, string: str) -&gt; str:
         &#34;&#34;&#34;
@@ -294,6 +334,7 @@ user session to complete a task such as downloading CSV reports</p>
 </summary>
 <pre><code class="python">class Trailforks:
     def __init__(self, app_id=None, app_secret=None, debug=False):
+        self.base_uri = &#34;https://www.trailforks.com/api/1&#34;
         self.__init_logger()
         self._logger = logging.getLogger(&#34;PyForks&#34;)
         self.name = &#34;trailforks&#34;
@@ -301,11 +342,49 @@ user session to complete a task such as downloading CSV reports</p>
         self.app_secret = app_secret
         self.trailforks_session = requests.Session()
         self.region_data_file = pkg_resources.resource_filename(&#34;PyForks&#34;, &#34;data/region_data.parquet&#34;)
+        #self.regions_df = pd.read_parquet(self.region_data_file, engine=&#34;pyarrow&#34;)
         self.debug = debug
 
         if self.debug:
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
+
+    def _get(self, endpoint: str,  params:dict) -&gt; requests.Response:
+        &#34;&#34;&#34;
+        Performs a GET request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        &#34;&#34;&#34;
+        try:
+            auth_params = {&#34;app_id&#34;: self.app_id, &#34;app_secret&#34;: self.app_secret}
+            params.update(auth_params)
+            
+            r = self.trailforks_session.get(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f&#34;[!] ERROR: {e}&#34;)
+
+    def _post(self, endpoint: str,  params:dict) -&gt; requests.Response:
+        &#34;&#34;&#34;
+        Performs a POST request to the Trailforks API
+
+        Args:
+            params (dict): Dictionary of parameters to pass to the API
+
+        Returns:
+            json: JSON response from the Trailforks API
+        &#34;&#34;&#34;
+        try:
+            auth_params = {&#34;app_id&#34;: self.app_id, &#34;app_secret&#34;: self.app_secret}
+            params.update(auth_params)
+            r = self.trailforks_session.post(endpoint, params=params)
+            return r
+        except Exception as e:
+            print(f&#34;[!] ERROR: {e}&#34;)
 
     def uri_encode(self, string: str) -&gt; str:
         &#34;&#34;&#34;
@@ -459,7 +538,9 @@ user session to complete a task such as downloading CSV reports</p>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="PyForks.region.Region" href="region.html#PyForks.region.Region">Region</a></li>
+<li><a title="PyForks.events.Events" href="events.html#PyForks.events.Events">Events</a></li>
+<li><a title="PyForks.regions.Regions" href="regions.html#PyForks.regions.Regions">Regions</a></li>
+<li><a title="PyForks.trails.Trails" href="trails.html#PyForks.trails.Trails">Trails</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
