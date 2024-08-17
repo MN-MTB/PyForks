@@ -35,6 +35,7 @@ import json
 import PyForks.exceptions
 import pkg_resources
 from functools import wraps
+from hashlib import sha1
 
 
 def authentication(func):
@@ -78,7 +79,7 @@ class Trailforks:
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 
-    def _get(self, endpoint: str,  params:dict) -&gt; requests.Response:
+    def _get(self, endpoint: str,  params: dict = {}) -&gt; requests.Response:
         &#34;&#34;&#34;
         Performs a GET request to the Trailforks API
 
@@ -97,7 +98,7 @@ class Trailforks:
         except Exception as e:
             print(f&#34;[!] ERROR: {e}&#34;)
 
-    def _post(self, endpoint: str,  params:dict) -&gt; requests.Response:
+    def _post(self, endpoint: str,  params: dict = {}) -&gt; requests.Response:
         &#34;&#34;&#34;
         Performs a POST request to the Trailforks API
 
@@ -115,86 +116,21 @@ class Trailforks:
         except Exception as e:
             print(f&#34;[!] ERROR: {e}&#34;)
 
-    def uri_encode(self, string: str) -&gt; str:
-        &#34;&#34;&#34;
-        URIEncode things that need encoding
-
-        Args:
-            string (str): string to encode
-
-        Returns:
-            str: encoded string
-        &#34;&#34;&#34;
-        return urllib.parse.quote(string)
-
-    def distance_string_to_miles_float(self, distance: str) -&gt; float:
-        &#34;&#34;&#34;
-        Trailforks report data has mixed distance values, this
-        function attempts to normalize them into miles (float)
-
-        Args:
-            distance (str): string of distance, 1456 ft, 2.3mi
-
-        Returns:
-            float: number of miles
-        &#34;&#34;&#34;
-        feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-        distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
-        try:
-            if any(x in distance for x in feet_strings):
-                distance_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;, &#34;&#34;))
-                mi = 0.000189394
-                return distance_int * mi
-            else:
-                return float(distance.split(&#34; &#34;)[0])
-        except Exception as e:
-            self._logger.error(f&#34;distance casting failed;ERROR:{e}&#34;)
-            return 0
-
-    def feet_to_miles(self, feet: int) -&gt; float:
-        &#34;&#34;&#34;
-        Translate feet into miles
-
-        Args:
-            feet (int): feet as a integet
-
-        Returns:
-            float: miles as a float
-        &#34;&#34;&#34;
-        feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
-        mi = 0.000189394
-        return feet * mi
     
-    def meters_to_miles(self, meters: float) -&gt; float:
-        &#34;&#34;&#34;
-        Translates meters to miles since the trailforks uses
-        metric measurements for their API.
+    # def user_login(self) -&gt; json:
+    #     &#34;&#34;&#34;
+    #     Authenticate a user with the Trailforks API
 
-        Args:
-            meters (int): Total Meters
+    #     Args:
+    #         username (str): Trailforks Username
+    #         password (str): Trailforks Password
 
-        Returns:
-            float: Total Miles
-        &#34;&#34;&#34;
-        meters = float(meters)
-        miles = meters * 0.00062137
-        return miles
-
-    def has_numbers(self, data: str) -&gt; bool:
-        &#34;&#34;&#34;
-        Determines if there are numbers in a string
-
-        Args:
-            data (str): String to check
-
-        Returns:
-            bool: True: numbers exist; False: numbers do not exist
-        &#34;&#34;&#34;
-        try:
-            check = any(char.isdigit() for char in data)
-            return check
-        except TypeError:
-            return True
+    #     Returns:
+    #         json: Trailforks API response JSON Data object
+    #     &#34;&#34;&#34;
+    #     endpoint = f&#34;{self.base_uri}/login&#34;
+    #     request = self._get(endpoint)
+    #     return request
 
     def make_trailforks_request(self, uri: str) -&gt; json:
         &#34;&#34;&#34;
@@ -349,7 +285,7 @@ user session to complete a task such as downloading CSV reports</p>
             logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 
-    def _get(self, endpoint: str,  params:dict) -&gt; requests.Response:
+    def _get(self, endpoint: str,  params: dict = {}) -&gt; requests.Response:
         &#34;&#34;&#34;
         Performs a GET request to the Trailforks API
 
@@ -368,7 +304,7 @@ user session to complete a task such as downloading CSV reports</p>
         except Exception as e:
             print(f&#34;[!] ERROR: {e}&#34;)
 
-    def _post(self, endpoint: str,  params:dict) -&gt; requests.Response:
+    def _post(self, endpoint: str,  params: dict = {}) -&gt; requests.Response:
         &#34;&#34;&#34;
         Performs a POST request to the Trailforks API
 
@@ -386,86 +322,21 @@ user session to complete a task such as downloading CSV reports</p>
         except Exception as e:
             print(f&#34;[!] ERROR: {e}&#34;)
 
-    def uri_encode(self, string: str) -&gt; str:
-        &#34;&#34;&#34;
-        URIEncode things that need encoding
-
-        Args:
-            string (str): string to encode
-
-        Returns:
-            str: encoded string
-        &#34;&#34;&#34;
-        return urllib.parse.quote(string)
-
-    def distance_string_to_miles_float(self, distance: str) -&gt; float:
-        &#34;&#34;&#34;
-        Trailforks report data has mixed distance values, this
-        function attempts to normalize them into miles (float)
-
-        Args:
-            distance (str): string of distance, 1456 ft, 2.3mi
-
-        Returns:
-            float: number of miles
-        &#34;&#34;&#34;
-        feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-        distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
-        try:
-            if any(x in distance for x in feet_strings):
-                distance_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;, &#34;&#34;))
-                mi = 0.000189394
-                return distance_int * mi
-            else:
-                return float(distance.split(&#34; &#34;)[0])
-        except Exception as e:
-            self._logger.error(f&#34;distance casting failed;ERROR:{e}&#34;)
-            return 0
-
-    def feet_to_miles(self, feet: int) -&gt; float:
-        &#34;&#34;&#34;
-        Translate feet into miles
-
-        Args:
-            feet (int): feet as a integet
-
-        Returns:
-            float: miles as a float
-        &#34;&#34;&#34;
-        feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
-        mi = 0.000189394
-        return feet * mi
     
-    def meters_to_miles(self, meters: float) -&gt; float:
-        &#34;&#34;&#34;
-        Translates meters to miles since the trailforks uses
-        metric measurements for their API.
+    # def user_login(self) -&gt; json:
+    #     &#34;&#34;&#34;
+    #     Authenticate a user with the Trailforks API
 
-        Args:
-            meters (int): Total Meters
+    #     Args:
+    #         username (str): Trailforks Username
+    #         password (str): Trailforks Password
 
-        Returns:
-            float: Total Miles
-        &#34;&#34;&#34;
-        meters = float(meters)
-        miles = meters * 0.00062137
-        return miles
-
-    def has_numbers(self, data: str) -&gt; bool:
-        &#34;&#34;&#34;
-        Determines if there are numbers in a string
-
-        Args:
-            data (str): String to check
-
-        Returns:
-            bool: True: numbers exist; False: numbers do not exist
-        &#34;&#34;&#34;
-        try:
-            check = any(char.isdigit() for char in data)
-            return check
-        except TypeError:
-            return True
+    #     Returns:
+    #         json: Trailforks API response JSON Data object
+    #     &#34;&#34;&#34;
+    #     endpoint = f&#34;{self.base_uri}/login&#34;
+    #     request = self._get(endpoint)
+    #     return request
 
     def make_trailforks_request(self, uri: str) -&gt; json:
         &#34;&#34;&#34;
@@ -544,121 +415,6 @@ user session to complete a task such as downloading CSV reports</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="PyForks.trailforks.Trailforks.distance_string_to_miles_float"><code class="name flex">
-<span>def <span class="ident">distance_string_to_miles_float</span></span>(<span>self, distance: str) ‑> float</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Trailforks report data has mixed distance values, this
-function attempts to normalize them into miles (float)</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>distance</code></strong> :&ensp;<code>str</code></dt>
-<dd>string of distance, 1456 ft, 2.3mi</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>number of miles</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def distance_string_to_miles_float(self, distance: str) -&gt; float:
-    &#34;&#34;&#34;
-    Trailforks report data has mixed distance values, this
-    function attempts to normalize them into miles (float)
-
-    Args:
-        distance (str): string of distance, 1456 ft, 2.3mi
-
-    Returns:
-        float: number of miles
-    &#34;&#34;&#34;
-    feet_strings = [&#34;ft&#34;, &#34;feet&#34;]
-    distance = distance.replace(&#39;&#34;&#39;, &#34;&#34;)
-    try:
-        if any(x in distance for x in feet_strings):
-            distance_int = int(distance.split(&#34; &#34;)[0].replace(&#34;,&#34;, &#34;&#34;))
-            mi = 0.000189394
-            return distance_int * mi
-        else:
-            return float(distance.split(&#34; &#34;)[0])
-    except Exception as e:
-        self._logger.error(f&#34;distance casting failed;ERROR:{e}&#34;)
-        return 0</code></pre>
-</details>
-</dd>
-<dt id="PyForks.trailforks.Trailforks.feet_to_miles"><code class="name flex">
-<span>def <span class="ident">feet_to_miles</span></span>(<span>self, feet: int) ‑> float</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Translate feet into miles</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>feet</code></strong> :&ensp;<code>int</code></dt>
-<dd>feet as a integet</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>miles as a float</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def feet_to_miles(self, feet: int) -&gt; float:
-    &#34;&#34;&#34;
-    Translate feet into miles
-
-    Args:
-        feet (int): feet as a integet
-
-    Returns:
-        float: miles as a float
-    &#34;&#34;&#34;
-    feet = int(feet.replace(&#34;,&#34;, &#34;&#34;).strip())
-    mi = 0.000189394
-    return feet * mi</code></pre>
-</details>
-</dd>
-<dt id="PyForks.trailforks.Trailforks.has_numbers"><code class="name flex">
-<span>def <span class="ident">has_numbers</span></span>(<span>self, data: str) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Determines if there are numbers in a string</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>data</code></strong> :&ensp;<code>str</code></dt>
-<dd>String to check</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>bool</code></dt>
-<dd>True: numbers exist; False: numbers do not exist</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def has_numbers(self, data: str) -&gt; bool:
-    &#34;&#34;&#34;
-    Determines if there are numbers in a string
-
-    Args:
-        data (str): String to check
-
-    Returns:
-        bool: True: numbers exist; False: numbers do not exist
-    &#34;&#34;&#34;
-    try:
-        check = any(char.isdigit() for char in data)
-        return check
-    except TypeError:
-        return True</code></pre>
-</details>
-</dd>
 <dt id="PyForks.trailforks.Trailforks.make_trailforks_request"><code class="name flex">
 <span>def <span class="ident">make_trailforks_request</span></span>(<span>self, uri: str) ‑> <module 'json' from '/usr/lib/python3.8/json/__init__.py'></span>
 </code></dt>
@@ -701,74 +457,6 @@ function attempts to normalize them into miles (float)</p>
         )</code></pre>
 </details>
 </dd>
-<dt id="PyForks.trailforks.Trailforks.meters_to_miles"><code class="name flex">
-<span>def <span class="ident">meters_to_miles</span></span>(<span>self, meters: float) ‑> float</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Translates meters to miles since the trailforks uses
-metric measurements for their API.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>meters</code></strong> :&ensp;<code>int</code></dt>
-<dd>Total Meters</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>Total Miles</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def meters_to_miles(self, meters: float) -&gt; float:
-    &#34;&#34;&#34;
-    Translates meters to miles since the trailforks uses
-    metric measurements for their API.
-
-    Args:
-        meters (int): Total Meters
-
-    Returns:
-        float: Total Miles
-    &#34;&#34;&#34;
-    meters = float(meters)
-    miles = meters * 0.00062137
-    return miles</code></pre>
-</details>
-</dd>
-<dt id="PyForks.trailforks.Trailforks.uri_encode"><code class="name flex">
-<span>def <span class="ident">uri_encode</span></span>(<span>self, string: str) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>URIEncode things that need encoding</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>string</code></strong> :&ensp;<code>str</code></dt>
-<dd>string to encode</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str</code></dt>
-<dd>encoded string</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def uri_encode(self, string: str) -&gt; str:
-    &#34;&#34;&#34;
-    URIEncode things that need encoding
-
-    Args:
-        string (str): string to encode
-
-    Returns:
-        str: encoded string
-    &#34;&#34;&#34;
-    return urllib.parse.quote(string)</code></pre>
-</details>
-</dd>
 </dl>
 </dd>
 </dl>
@@ -796,12 +484,7 @@ metric measurements for their API.</p>
 <li>
 <h4><code><a title="PyForks.trailforks.Trailforks" href="#PyForks.trailforks.Trailforks">Trailforks</a></code></h4>
 <ul class="">
-<li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.has_numbers" href="#PyForks.trailforks.Trailforks.has_numbers">has_numbers</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.make_trailforks_request" href="#PyForks.trailforks.Trailforks.make_trailforks_request">make_trailforks_request</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.meters_to_miles" href="#PyForks.trailforks.Trailforks.meters_to_miles">meters_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
 </li>
 </ul>

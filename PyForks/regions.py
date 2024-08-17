@@ -103,44 +103,47 @@ class Regions(Trailforks):
         response = self._get(f"{self.base_uri}/ridelogs", params=kwargs)
         return response.json()
 
-    def get_rideplan(self, id: int, **kwargs) -> Dict[str, Any]:
-        """
-        Return a specific ride plan.
+    # Personal Ride Plans need user authentication. We will implement this in the future since it's not a priority
+    # and has to be OATH2 authenticated given the login API is deprecated.
 
-        Args:
-            id (int): ID of the ride plan.
-            **kwargs: Optional parameters such as:
-                fields (str): Limit the fields returned.
+    # def get_rideplan(self, id: int, **kwargs) -> Dict[str, Any]:
+    #     """
+    #     Return a specific ride plan.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        """
+    #     Args:
+    #         id (int): ID of the ride plan.
+    #         **kwargs: Optional parameters such as:
+    #             fields (str): Limit the fields returned.
+
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     """
         
-        params = {'id': id}
-        params.update(kwargs)
-        response = self._get(f"{self.base_uri}/rideplan", params=params)
-        return response.json()
+    #     params = {'id': id}
+    #     params.update(kwargs)
+    #     response = self._get(f"{self.base_uri}/rideplan", params=params)
+    #     return response.json()
 
-    def get_rideplans(self, **kwargs) -> Dict[str, Any]:
-        """
-        Return a list of personal ride plans, must be authenticated with user token.
+    # def get_rideplans(self, **kwargs) -> Dict[str, Any]:
+    #     """
+    #     Return a list of personal ride plans, must be authenticated with user token.
 
-        Args:
-            **kwargs: Optional parameters such as:
-                scope (str): Detail level of route object to return.
-                fields (str): Limit the fields returned.
-                filter (str): Filter variables in the format 'field::value;field2::value2'.
-                rows (int): Number of ride plans to return.
-                page (int): Page through results.
-                sort (str): Sort the results.
-                order (str): Order the results.
+    #     Args:
+    #         **kwargs: Optional parameters such as:
+    #             scope (str): Detail level of route object to return.
+    #             fields (str): Limit the fields returned.
+    #             filter (str): Filter variables in the format 'field::value;field2::value2'.
+    #             rows (int): Number of ride plans to return.
+    #             page (int): Page through results.
+    #             sort (str): Sort the results.
+    #             order (str): Order the results.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        """
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     """
         
-        response = self._get(f"{self.base_uri}/rideplans", params=kwargs)
-        return response.json()
+    #     response = self._get(f"{self.base_uri}/rideplans", params=kwargs)
+    #     return response.json()
 
     def get_route(self, id: int, **kwargs) -> Dict[str, Any]:
         """

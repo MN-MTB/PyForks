@@ -131,44 +131,47 @@ class Regions(Trailforks):
         response = self._get(f&#34;{self.base_uri}/ridelogs&#34;, params=kwargs)
         return response.json()
 
-    def get_rideplan(self, id: int, **kwargs) -&gt; Dict[str, Any]:
-        &#34;&#34;&#34;
-        Return a specific ride plan.
+    # Personal Ride Plans need user authentication. We will implement this in the future since it&#39;s not a priority
+    # and has to be OATH2 authenticated given the login API is deprecated.
 
-        Args:
-            id (int): ID of the ride plan.
-            **kwargs: Optional parameters such as:
-                fields (str): Limit the fields returned.
+    # def get_rideplan(self, id: int, **kwargs) -&gt; Dict[str, Any]:
+    #     &#34;&#34;&#34;
+    #     Return a specific ride plan.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        &#34;&#34;&#34;
+    #     Args:
+    #         id (int): ID of the ride plan.
+    #         **kwargs: Optional parameters such as:
+    #             fields (str): Limit the fields returned.
+
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     &#34;&#34;&#34;
         
-        params = {&#39;id&#39;: id}
-        params.update(kwargs)
-        response = self._get(f&#34;{self.base_uri}/rideplan&#34;, params=params)
-        return response.json()
+    #     params = {&#39;id&#39;: id}
+    #     params.update(kwargs)
+    #     response = self._get(f&#34;{self.base_uri}/rideplan&#34;, params=params)
+    #     return response.json()
 
-    def get_rideplans(self, **kwargs) -&gt; Dict[str, Any]:
-        &#34;&#34;&#34;
-        Return a list of personal ride plans, must be authenticated with user token.
+    # def get_rideplans(self, **kwargs) -&gt; Dict[str, Any]:
+    #     &#34;&#34;&#34;
+    #     Return a list of personal ride plans, must be authenticated with user token.
 
-        Args:
-            **kwargs: Optional parameters such as:
-                scope (str): Detail level of route object to return.
-                fields (str): Limit the fields returned.
-                filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.
-                rows (int): Number of ride plans to return.
-                page (int): Page through results.
-                sort (str): Sort the results.
-                order (str): Order the results.
+    #     Args:
+    #         **kwargs: Optional parameters such as:
+    #             scope (str): Detail level of route object to return.
+    #             fields (str): Limit the fields returned.
+    #             filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.
+    #             rows (int): Number of ride plans to return.
+    #             page (int): Page through results.
+    #             sort (str): Sort the results.
+    #             order (str): Order the results.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        &#34;&#34;&#34;
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     &#34;&#34;&#34;
         
-        response = self._get(f&#34;{self.base_uri}/rideplans&#34;, params=kwargs)
-        return response.json()
+    #     response = self._get(f&#34;{self.base_uri}/rideplans&#34;, params=kwargs)
+    #     return response.json()
 
     def get_route(self, id: int, **kwargs) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;
@@ -395,44 +398,47 @@ class Regions(Trailforks):
         response = self._get(f&#34;{self.base_uri}/ridelogs&#34;, params=kwargs)
         return response.json()
 
-    def get_rideplan(self, id: int, **kwargs) -&gt; Dict[str, Any]:
-        &#34;&#34;&#34;
-        Return a specific ride plan.
+    # Personal Ride Plans need user authentication. We will implement this in the future since it&#39;s not a priority
+    # and has to be OATH2 authenticated given the login API is deprecated.
 
-        Args:
-            id (int): ID of the ride plan.
-            **kwargs: Optional parameters such as:
-                fields (str): Limit the fields returned.
+    # def get_rideplan(self, id: int, **kwargs) -&gt; Dict[str, Any]:
+    #     &#34;&#34;&#34;
+    #     Return a specific ride plan.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        &#34;&#34;&#34;
+    #     Args:
+    #         id (int): ID of the ride plan.
+    #         **kwargs: Optional parameters such as:
+    #             fields (str): Limit the fields returned.
+
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     &#34;&#34;&#34;
         
-        params = {&#39;id&#39;: id}
-        params.update(kwargs)
-        response = self._get(f&#34;{self.base_uri}/rideplan&#34;, params=params)
-        return response.json()
+    #     params = {&#39;id&#39;: id}
+    #     params.update(kwargs)
+    #     response = self._get(f&#34;{self.base_uri}/rideplan&#34;, params=params)
+    #     return response.json()
 
-    def get_rideplans(self, **kwargs) -&gt; Dict[str, Any]:
-        &#34;&#34;&#34;
-        Return a list of personal ride plans, must be authenticated with user token.
+    # def get_rideplans(self, **kwargs) -&gt; Dict[str, Any]:
+    #     &#34;&#34;&#34;
+    #     Return a list of personal ride plans, must be authenticated with user token.
 
-        Args:
-            **kwargs: Optional parameters such as:
-                scope (str): Detail level of route object to return.
-                fields (str): Limit the fields returned.
-                filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.
-                rows (int): Number of ride plans to return.
-                page (int): Page through results.
-                sort (str): Sort the results.
-                order (str): Order the results.
+    #     Args:
+    #         **kwargs: Optional parameters such as:
+    #             scope (str): Detail level of route object to return.
+    #             fields (str): Limit the fields returned.
+    #             filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.
+    #             rows (int): Number of ride plans to return.
+    #             page (int): Page through results.
+    #             sort (str): Sort the results.
+    #             order (str): Order the results.
 
-        Returns:
-            Dict[str, Any]: Response data from the API.
-        &#34;&#34;&#34;
+    #     Returns:
+    #         Dict[str, Any]: Response data from the API.
+    #     &#34;&#34;&#34;
         
-        response = self._get(f&#34;{self.base_uri}/rideplans&#34;, params=kwargs)
-        return response.json()
+    #     response = self._get(f&#34;{self.base_uri}/rideplans&#34;, params=kwargs)
+    #     return response.json()
 
     def get_route(self, id: int, **kwargs) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;
@@ -818,95 +824,6 @@ order (str): Order the results.</dd>
     return response.json()</code></pre>
 </details>
 </dd>
-<dt id="PyForks.regions.Regions.get_rideplan"><code class="name flex">
-<span>def <span class="ident">get_rideplan</span></span>(<span>self, id: int, **kwargs) ‑> Dict[str, Any]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return a specific ride plan.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
-<dd>ID of the ride plan.</dd>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>Optional parameters such as:
-fields (str): Limit the fields returned.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Dict[str, Any]</code></dt>
-<dd>Response data from the API.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_rideplan(self, id: int, **kwargs) -&gt; Dict[str, Any]:
-    &#34;&#34;&#34;
-    Return a specific ride plan.
-
-    Args:
-        id (int): ID of the ride plan.
-        **kwargs: Optional parameters such as:
-            fields (str): Limit the fields returned.
-
-    Returns:
-        Dict[str, Any]: Response data from the API.
-    &#34;&#34;&#34;
-    
-    params = {&#39;id&#39;: id}
-    params.update(kwargs)
-    response = self._get(f&#34;{self.base_uri}/rideplan&#34;, params=params)
-    return response.json()</code></pre>
-</details>
-</dd>
-<dt id="PyForks.regions.Regions.get_rideplans"><code class="name flex">
-<span>def <span class="ident">get_rideplans</span></span>(<span>self, **kwargs) ‑> Dict[str, Any]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return a list of personal ride plans, must be authenticated with user token.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>**kwargs</code></strong></dt>
-<dd>Optional parameters such as:
-scope (str): Detail level of route object to return.
-fields (str): Limit the fields returned.
-filter (str): Filter variables in the format 'field::value;field2::value2'.
-rows (int): Number of ride plans to return.
-page (int): Page through results.
-sort (str): Sort the results.
-order (str): Order the results.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Dict[str, Any]</code></dt>
-<dd>Response data from the API.</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_rideplans(self, **kwargs) -&gt; Dict[str, Any]:
-    &#34;&#34;&#34;
-    Return a list of personal ride plans, must be authenticated with user token.
-
-    Args:
-        **kwargs: Optional parameters such as:
-            scope (str): Detail level of route object to return.
-            fields (str): Limit the fields returned.
-            filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.
-            rows (int): Number of ride plans to return.
-            page (int): Page through results.
-            sort (str): Sort the results.
-            order (str): Order the results.
-
-    Returns:
-        Dict[str, Any]: Response data from the API.
-    &#34;&#34;&#34;
-    
-    response = self._get(f&#34;{self.base_uri}/rideplans&#34;, params=kwargs)
-    return response.json()</code></pre>
-</details>
-</dd>
 <dt id="PyForks.regions.Regions.get_route"><code class="name flex">
 <span>def <span class="ident">get_route</span></span>(<span>self, id: int, **kwargs) ‑> Dict[str, Any]</span>
 </code></dt>
@@ -1097,12 +1014,7 @@ order (str): Order the results.</dd>
 <ul class="hlist">
 <li><code><b><a title="PyForks.trailforks.Trailforks" href="trailforks.html#PyForks.trailforks.Trailforks">Trailforks</a></b></code>:
 <ul class="hlist">
-<li><code><a title="PyForks.trailforks.Trailforks.distance_string_to_miles_float" href="trailforks.html#PyForks.trailforks.Trailforks.distance_string_to_miles_float">distance_string_to_miles_float</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.feet_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.feet_to_miles">feet_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.has_numbers" href="trailforks.html#PyForks.trailforks.Trailforks.has_numbers">has_numbers</a></code></li>
 <li><code><a title="PyForks.trailforks.Trailforks.make_trailforks_request" href="trailforks.html#PyForks.trailforks.Trailforks.make_trailforks_request">make_trailforks_request</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.meters_to_miles" href="trailforks.html#PyForks.trailforks.Trailforks.meters_to_miles">meters_to_miles</a></code></li>
-<li><code><a title="PyForks.trailforks.Trailforks.uri_encode" href="trailforks.html#PyForks.trailforks.Trailforks.uri_encode">uri_encode</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1133,8 +1045,6 @@ order (str): Order the results.</dd>
 <li><code><a title="PyForks.regions.Regions.get_region_status" href="#PyForks.regions.Regions.get_region_status">get_region_status</a></code></li>
 <li><code><a title="PyForks.regions.Regions.get_regions" href="#PyForks.regions.Regions.get_regions">get_regions</a></code></li>
 <li><code><a title="PyForks.regions.Regions.get_ridelogs" href="#PyForks.regions.Regions.get_ridelogs">get_ridelogs</a></code></li>
-<li><code><a title="PyForks.regions.Regions.get_rideplan" href="#PyForks.regions.Regions.get_rideplan">get_rideplan</a></code></li>
-<li><code><a title="PyForks.regions.Regions.get_rideplans" href="#PyForks.regions.Regions.get_rideplans">get_rideplans</a></code></li>
 <li><code><a title="PyForks.regions.Regions.get_route" href="#PyForks.regions.Regions.get_route">get_route</a></code></li>
 <li><code><a title="PyForks.regions.Regions.get_routes" href="#PyForks.regions.Regions.get_routes">get_routes</a></code></li>
 <li><code><a title="PyForks.regions.Regions.get_supporters" href="#PyForks.regions.Regions.get_supporters">get_supporters</a></code></li>
