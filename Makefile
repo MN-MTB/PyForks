@@ -19,7 +19,7 @@ publish: build
 	twine upload dist/*
 
 docs:
-	pdoc --html --template-dir ./doc/templates/light_theme/ -o ./doc/ --force PyForks
+	pdoc --html --template-dir ./doc/templates/dracula/ -o ./doc/ --force PyForks
 	$(MV) ./doc/PyForks/* ./doc/
 	$(RM) "./doc/PyForks"
 

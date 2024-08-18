@@ -13,7 +13,7 @@ test.py
 .venv*
 *secrets.ini
 *.vscode
-*.ipynb
+
 # Distribution / packaging
 .Python
 build/

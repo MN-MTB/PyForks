@@ -1,0 +1,320 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.pdoc .il {
+  color: #131416;
+}
+
+nav.pdoc a.pdoc-button.module-list-button {
+  display: none;
+}
+
+.pdoc .modulename a:hover {
+  color: whitesmoke;
+}
+
+.pdoc .classattr {
+  color: #fff;
+}
+
+.pdoc .docstring .pdoc-code {
+  background-color: #232627;
+}
+
+.pdoc pre {
+  width: fit-content;
+}
+
+.pdoc pre a {
+  color: whitesmoke;
+}
+
+.pdoc pre a:hover {
+  color: #676767;
+}
+
+
+/* Submodules and API Doc. */
+
+.pdoc h2 {
+  color: #fff;
+  font-weight: 0;
+  margin: 0.3em 0;
+  padding: 0.2em 0;
+  content: "Module Content";
+}
+
+/* header */
+.pdoc h5 {
+  color: white;
+  font-style: italic;
+}
+
+/* Module name */
+
+.pdoc .modulename {
+  color: #fff;
+  font-weight: 0;
+}
+
+.pdoc-code .ow {
+  color: var(--red);
+}
+
+nav.pdoc a.function {
+  color: var(--purple);
+}
+
+nav.pdoc a.function:hover {
+  background-color: var(--dark);
+}
+
+nav.pdoc .function::after {
+  content: "";
+}
+
+nav.pdoc .function::before {
+  content: "fn ";
+  color: var(--red);
+}
+
+nav.pdoc a.class {
+  color: whitesmoke;
+}
+
+/* Before the class name. This adds "class 'className'". */
+nav.pdoc .class::before {
+  content: "class ";
+  color: var(--red);
+}
+
+/* After the class name. This will remove `()` That comes after the class name. */
+nav.pdoc .class::after {
+  content: "";
+}
+
+nav.pdoc a.class:hover {
+  color: #fff;
+  background-color: var(--dark);
+}
+
+nav.pdoc a.variable {
+  color: whitesmoke;
+}
+
+/* Adds "var varname" to class variables. */
+nav.pdoc a.variable::before {
+  content: "var ";
+  color: #9d9d9d;
+  color: var(--red);
+}
+
+nav.pdoc a.variable:hover {
+  color: #fff;
+  background-color: var(--dark);
+}
+
+/* nav modules */
+nav.pdoc li a {
+  color: var(--purple);
+}
+
+nav.pdoc li a:hover {
+  background-color: var(--dark);
+}
+
+/* Assigned values */
+.pdoc span.default_value {
+  color: var(--lightblue);
+}
+
+.pdoc span.def {
+  font-weight: normal;
+  color: var(--red);
+}
+
+/* 
+Attributes
+----------
+*/
+.pdoc h6#attributes {
+  color: #fff;
+  font-size: 25px;
+}
+
+/*
+Example
+-------
+*/
+
+.pdoc h6#example {
+  color: #fff;
+  font-size: 29px;
+}
+
+/* 
+Notes
+-----
+*/
+
+.pdoc h6#notes {
+  font-size: 27px;
+  color: orange;
+}
+
+/* 
+Returns
+-------
+*/
+
+.pdoc h6#returns {
+  font-size: 27px;
+  color: white;
+}
+
+/* 
+Parameters
+----------
+*/
+
+.pdoc h6#parameters {
+  font-size: 27px;
+  color: white;
+}
+
+/*
+Raises
+------
+*/
+
+.pdoc h6#raises {
+  font-size: 27px;
+  color: rgb(218, 55, 55);
+}
+
+/* False, True, None */
+
+.pdoc .kc {
+  color: var(--lightblue);
+}
+
+.pdoc li {
+  color: white;
+}
+
+/* Decorator module */
+
+.pdoc .nd {
+  color: var(--lightblue);
+}
+
+.pdoc b,
+strong {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: normal;
+}
+
+/* colors for .. warning:: and .. note:: */
+
+.pdoc em {
+  color: orange;
+  font-size: 23px;
+}
+
+/* Decorator color */
+
+.pdoc div.decorator {
+  color: var(--lightblue);
+}
+
+div.pdoc-code.codehilite {
+  background-color: var(--code);
+}
+
+/* class / function names */
+
+.pdoc span.name {
+  color: var(--purple);
+  font-weight: normal;
+}
+
+/* Inherited class name color */
+
+.pdoc span.base {
+  color: whitesmoke;
+}
+
+/* Before inherited members colors, i.e., "builtins." */
+
+.pdoc .inherited dt,
+.pdoc .inherited dt::before {
+  color: var(--silver);
+}
+
+
+/* Commas that separates parameters "," color */
+.pdoc .inherited dd:not(:last-child)::after {
+  color: #fff;
+}
+
+/* Commas that separates parameters "," color */
+
+.pdoc .inherited dd:not(:last-child)::after {
+  color: #fff;
+}
+
+/* Contents, Submodules, API Documentations */
+/* This also can be separated */
+.pdoc h1,
+.pdoc h2,
+.pdoc h3 {
+  font-weight: 300;
+  margin: 0.3em 0;
+  padding: 0.2em 0;
+  color: white;
+}
+
+/* Top left nav button */
+nav.pdoc .module-list-button {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: white;
+  border-color: white;
+}
+
+nav.pdoc .module-list-button:hover {
+  border-color: white;
+  color: white;
+}
+
+.pdoc pdoc-alert pdoc-alert-warning .p {
+  color: black;
+}
+
+.pdoc-code {
+  color: white;
+}
+
+.pdoc .pdoc-alert-warning {
+  color: black;
+  background-color: #d5a142;
+  border-color: black;
+}
+
+.pdoc .pdoc-alert-note {
+  color: rgb(7, 19, 24);
+  background-color: rgb(184, 231, 251) ;
+  border-color: var(--dark);
+}
+
+/* The nav bar */
+
+nav.pdoc {
+  background-color: rgb(55, 58, 72);
+}
+
+.pdoc-code .k {
+  color: var(--red);
+}
