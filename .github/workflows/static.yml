@@ -35,7 +35,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './doc'
+          path: './docs/_build/html'
       - name: Updated Docs
         id: deployment
         uses: actions/deploy-pages@v1
