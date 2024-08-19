@@ -293,30 +293,3 @@ event_signup_types = {
     5: "Invite",
     6: "Qualification"
 }
-
-
-def get_trail_status_by_int(status: int) -> str:
-    """
-    Translate trail status integer to string description.
-
-    Args:
-        status (int): Trail status integer obtained from get_trail_status.
-
-    Returns:
-        str: Trail status description.
-    """
-
-    return trail_status.get(status, "Unknown")
-
-def get_activity_type_by_int(activity: int) -> int:
-    """
-    Translate activity string to integer.
-
-    Args:
-        activity (str): Activity type.
-
-    Returns:
-        int: Activity type integer.
-    """
-
-    return activity_types.get(activity, "Unknown")
