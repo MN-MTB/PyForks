@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyForks package &mdash; PyForks 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=c492dbe4" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
+    <link rel="prev" title="PyForks" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PyForks
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">PyForks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PyForks package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.regions">PyForks.regions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.regions.Regions"><code class="docutils literal notranslate"><span class="pre">Regions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.trails">PyForks.trails module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.trails.Trails"><code class="docutils literal notranslate"><span class="pre">Trails</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.events">PyForks.events module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.events.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.exceptions">PyForks.exceptions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.exceptions.InvalidPermissions"><code class="docutils literal notranslate"><span class="pre">InvalidPermissions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.exceptions.InvalidRegion"><code class="docutils literal notranslate"><span class="pre">InvalidRegion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.exceptions.RegionLockedAPI"><code class="docutils literal notranslate"><span class="pre">RegionLockedAPI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.exceptions.TrailforksAPIException"><code class="docutils literal notranslate"><span class="pre">TrailforksAPIException</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.lookups">PyForks.lookups module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks.utilities">PyForks.utilities module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.utilities.distance_string_to_miles_float"><code class="docutils literal notranslate"><span class="pre">distance_string_to_miles_float()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.utilities.feet_to_miles"><code class="docutils literal notranslate"><span class="pre">feet_to_miles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.utilities.has_numbers"><code class="docutils literal notranslate"><span class="pre">has_numbers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PyForks.utilities.meters_to_miles"><code class="docutils literal notranslate"><span class="pre">meters_to_miles()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-PyForks">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyForks</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">PyForks</a></li>
+      <li class="breadcrumb-item active">PyForks package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/PyForks.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyforks-package">
+<h1>PyForks package<a class="headerlink" href="#pyforks-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-PyForks.regions">
+<span id="pyforks-regions-module"></span><h2>PyForks.regions module<a class="headerlink" href="#module-PyForks.regions" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyForks.regions.Regions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.regions.</span></span><span class="sig-name descname"><span class="pre">Regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_secret</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/regions.html#Regions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Trailforks</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_photos">
+<span class="sig-name descname"><span class="pre">get_photos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_photos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_photos" title="Link to this definition"></a></dt>
+<dd><p>Return a list of trail or region photos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of photo objects to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of photos to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_poi">
+<span class="sig-name descname"><span class="pre">get_poi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_poi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_poi" title="Link to this definition"></a></dt>
+<dd><p>Return a specific Point of Interest (POI).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – ID of the POI.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail of POI object to return.
+fields (str): Limit the fields returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_region">
+<span class="sig-name descname"><span class="pre">get_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_region" title="Link to this definition"></a></dt>
+<dd><p>Return a specific region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – ID of the region.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail of region object to return.
+fields (str): Limit the fields returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_region_status">
+<span class="sig-name descname"><span class="pre">get_region_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_region_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_region_status" title="Link to this definition"></a></dt>
+<dd><p>Return region status &amp; condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>since</strong> (<em>int</em>) – Timestamp to return status after.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+rids (str): Comma-separated list of region IDs.
+trailids (str): Comma-separated list of trail IDs.
+reportdetail (int): Show details of the most recent trail report.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_regions">
+<span class="sig-name descname"><span class="pre">get_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_regions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_regions" title="Link to this definition"></a></dt>
+<dd><p>Return a list of regions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of region object to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of regions to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_ridelogs">
+<span class="sig-name descname"><span class="pre">get_ridelogs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_ridelogs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_ridelogs" title="Link to this definition"></a></dt>
+<dd><p>Return a list of ride logs for trail or region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of ride log object to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of ride logs to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_route">
+<span class="sig-name descname"><span class="pre">get_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_route"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_route" title="Link to this definition"></a></dt>
+<dd><p>Return a specific route.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – ID of the route.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail of route object to return.
+fields (str): Limit the fields returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_routes">
+<span class="sig-name descname"><span class="pre">get_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_routes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_routes" title="Link to this definition"></a></dt>
+<dd><p>Return a list of public routes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of route object to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of routes to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_supporters">
+<span class="sig-name descname"><span class="pre">get_supporters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_supporters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_supporters" title="Link to this definition"></a></dt>
+<dd><p>Return a list of supporters for a trail, region, or route.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of supporters to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.regions.Regions.get_videos">
+<span class="sig-name descname"><span class="pre">get_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/regions.html#Regions.get_videos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.regions.Regions.get_videos" title="Link to this definition"></a></dt>
+<dd><p>Return a list of trail or region videos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of video objects to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of videos to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyForks.trails">
+<span id="pyforks-trails-module"></span><h2>PyForks.trails module<a class="headerlink" href="#module-PyForks.trails" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyForks.trails.Trails">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.trails.</span></span><span class="sig-name descname"><span class="pre">Trails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_secret</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/trails.html#Trails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Trailforks</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.trails.Trails.get_map_trails">
+<span class="sig-name descname"><span class="pre">get_map_trails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/trails.html#Trails.get_map_trails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails.get_map_trails" title="Link to this definition"></a></dt>
+<dd><p>Return a list of trails within a bounding box for displaying on a map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+output (str): Output format of the trails, default is Google encoded path.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.trails.Trails.get_reports">
+<span class="sig-name descname"><span class="pre">get_reports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/trails.html#Trails.get_reports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails.get_reports" title="Link to this definition"></a></dt>
+<dd><p>Return a list of reports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of report object to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of reports to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.trails.Trails.get_trail">
+<span class="sig-name descname"><span class="pre">get_trail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/trails.html#Trails.get_trail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails.get_trail" title="Link to this definition"></a></dt>
+<dd><p>Return a specific trail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – ID of the trail.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail of trail object to return.
+fields (str): Limit the fields returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.trails.Trails.get_trail_status">
+<span class="sig-name descname"><span class="pre">get_trail_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/trails.html#Trails.get_trail_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails.get_trail_status" title="Link to this definition"></a></dt>
+<dd><p>Return trail status &amp; condition for trails in region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>since</strong> (<em>int</em>) – Timestamp to return status after.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+rids (str): Comma-separated list of region IDs.
+trailids (str): Comma-separated list of trail IDs.
+reportdetail (int): Show details of the most recent trail report.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.trails.Trails.get_trails">
+<span class="sig-name descname"><span class="pre">get_trails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/trails.html#Trails.get_trails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.trails.Trails.get_trails" title="Link to this definition"></a></dt>
+<dd><p>Return a list of trails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of trail object to return.
+fields (str): Limit the fields returned by a comma-separated list of allowed fields.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of trails to return, max 500.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyForks.events">
+<span id="pyforks-events-module"></span><h2>PyForks.events module<a class="headerlink" href="#module-PyForks.events" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyForks.events.Events">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.events.</span></span><span class="sig-name descname"><span class="pre">Events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_secret</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/events.html#Events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.events.Events" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Trailforks</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.events.Events.get_event">
+<span class="sig-name descname"><span class="pre">get_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/events.html#Events.get_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.events.Events.get_event" title="Link to this definition"></a></dt>
+<dd><p>Return a specific event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – ID of the event.</p></li>
+<li><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail of the event object to return.
+fields (str): Limit the fields returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyForks.events.Events.get_events">
+<span class="sig-name descname"><span class="pre">get_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/PyForks/events.html#Events.get_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.events.Events.get_events" title="Link to this definition"></a></dt>
+<dd><p>Return a list of events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Optional parameters such as:
+scope (str): Detail level of event object to return.
+fields (str): Limit the fields returned.
+filter (str): Filter variables in the format ‘field::value;field2::value2’.
+rows (int): Number of events to return.
+page (int): Page through results.
+sort (str): Sort the results.
+order (str): Order the results.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Response data from the API.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-PyForks.exceptions">
+<span id="pyforks-exceptions-module"></span><h2>PyForks.exceptions module<a class="headerlink" href="#module-PyForks.exceptions" title="Link to this heading"></a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="PyForks.exceptions.InvalidPermissions">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidPermissions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Invalid</span> <span class="pre">Permissions'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/exceptions.html#InvalidPermissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.exceptions.InvalidPermissions" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="PyForks.exceptions.InvalidRegion">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidRegion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Not</span> <span class="pre">a</span> <span class="pre">valid</span> <span class="pre">Trailforks</span> <span class="pre">Region'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/exceptions.html#InvalidRegion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.exceptions.InvalidRegion" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="PyForks.exceptions.RegionLockedAPI">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.exceptions.</span></span><span class="sig-name descname"><span class="pre">RegionLockedAPI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Invalid</span> <span class="pre">Permissions'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/exceptions.html#RegionLockedAPI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.exceptions.RegionLockedAPI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="PyForks.exceptions.TrailforksAPIException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyForks.exceptions.</span></span><span class="sig-name descname"><span class="pre">TrailforksAPIException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Invalid</span> <span class="pre">Permissions'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PyForks/exceptions.html#TrailforksAPIException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.exceptions.TrailforksAPIException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-PyForks.lookups">
+<span id="pyforks-lookups-module"></span><h2>PyForks.lookups module<a class="headerlink" href="#module-PyForks.lookups" title="Link to this heading"></a></h2>
+</section>
+<section id="module-PyForks.utilities">
+<span id="pyforks-utilities-module"></span><h2>PyForks.utilities module<a class="headerlink" href="#module-PyForks.utilities" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyForks.utilities.distance_string_to_miles_float">
+<span class="sig-prename descclassname"><span class="pre">PyForks.utilities.</span></span><span class="sig-name descname"><span class="pre">distance_string_to_miles_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/PyForks/utilities.html#distance_string_to_miles_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.utilities.distance_string_to_miles_float" title="Link to this definition"></a></dt>
+<dd><p>Trailforks report data has mixed distance values, this
+function attempts to normalize them into miles (float)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>distance</strong> (<em>str</em>) – string of distance, 1456 ft, 2.3mi</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>number of miles</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyForks.utilities.feet_to_miles">
+<span class="sig-prename descclassname"><span class="pre">PyForks.utilities.</span></span><span class="sig-name descname"><span class="pre">feet_to_miles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/PyForks/utilities.html#feet_to_miles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.utilities.feet_to_miles" title="Link to this definition"></a></dt>
+<dd><p>Translate feet into miles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>feet</strong> (<em>int</em>) – feet as a integet</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>miles as a float</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyForks.utilities.has_numbers">
+<span class="sig-prename descclassname"><span class="pre">PyForks.utilities.</span></span><span class="sig-name descname"><span class="pre">has_numbers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/PyForks/utilities.html#has_numbers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.utilities.has_numbers" title="Link to this definition"></a></dt>
+<dd><p>Determines if there are numbers in a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em>) – String to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True: numbers exist; False: numbers do not exist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyForks.utilities.meters_to_miles">
+<span class="sig-prename descclassname"><span class="pre">PyForks.utilities.</span></span><span class="sig-name descname"><span class="pre">meters_to_miles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/PyForks/utilities.html#meters_to_miles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#PyForks.utilities.meters_to_miles" title="Link to this definition"></a></dt>
+<dd><p>Translates meters to miles since the trailforks uses
+metric measurements for their API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>meters</strong> (<em>int</em>) – Total Meters</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total Miles</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-PyForks">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-PyForks" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="PyForks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Joshua Faust.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

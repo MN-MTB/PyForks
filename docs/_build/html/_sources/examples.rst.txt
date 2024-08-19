@@ -1,0 +1,24 @@
+Examples
+========
+
+This is a collection of examples that demonstrate how to use the library. There are three classes that are used in the examples:
+
+- :class:`.Regions` - Trailforks regions.
+- :class:`.Trails`  - Trailforks region trails.
+- :class:`.Events`  - Events for a region/area.
+
+
+Regions
+-------
+
+=============
+
+.. code-block:: python
+   :linenos:
+
+   def my_function(param1, param2):
+       """This is an example function"""
+       result = param1 + param2
+       return result
+
+   print(my_function(1, 2))

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyForks.utilities &#8212; PyForks 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for PyForks.utilities</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span> 
+
+<div class="viewcode-block" id="distance_string_to_miles_float">
+<a class="viewcode-back" href="../../PyForks.html#PyForks.utilities.distance_string_to_miles_float">[docs]</a>
+<span class="k">def</span> <span class="nf">distance_string_to_miles_float</span><span class="p">(</span><span class="n">distance</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trailforks report data has mixed distance values, this</span>
+<span class="sd">    function attempts to normalize them into miles (float)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        distance (str): string of distance, 1456 ft, 2.3mi</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: number of miles</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feet_strings</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ft&quot;</span><span class="p">,</span> <span class="s2">&quot;feet&quot;</span><span class="p">]</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">distance</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">feet_strings</span><span class="p">):</span>
+            <span class="n">distance_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">mi</span> <span class="o">=</span> <span class="mf">0.000189394</span>
+            <span class="k">return</span> <span class="n">distance_int</span> <span class="o">*</span> <span class="n">mi</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;distance casting failed;ERROR:</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="feet_to_miles">
+<a class="viewcode-back" href="../../PyForks.html#PyForks.utilities.feet_to_miles">[docs]</a>
+<span class="k">def</span> <span class="nf">feet_to_miles</span><span class="p">(</span><span class="n">feet</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Translate feet into miles</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feet (int): feet as a integet</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: miles as a float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feet</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">feet</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">mi</span> <span class="o">=</span> <span class="mf">0.000189394</span>
+    <span class="k">return</span> <span class="n">feet</span> <span class="o">*</span> <span class="n">mi</span></div>
+
+
+<div class="viewcode-block" id="meters_to_miles">
+<a class="viewcode-back" href="../../PyForks.html#PyForks.utilities.meters_to_miles">[docs]</a>
+<span class="k">def</span> <span class="nf">meters_to_miles</span><span class="p">(</span><span class="n">meters</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Translates meters to miles since the trailforks uses</span>
+<span class="sd">    metric measurements for their API.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        meters (int): Total Meters</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Total Miles</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meters</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">meters</span><span class="p">)</span>
+    <span class="n">miles</span> <span class="o">=</span> <span class="n">meters</span> <span class="o">*</span> <span class="mf">0.00062137</span>
+    <span class="k">return</span> <span class="n">miles</span></div>
+
+
+<div class="viewcode-block" id="has_numbers">
+<a class="viewcode-back" href="../../PyForks.html#PyForks.utilities.has_numbers">[docs]</a>
+<span class="k">def</span> <span class="nf">has_numbers</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines if there are numbers in a string</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (str): String to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True: numbers exist; False: numbers do not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">check</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">PyForks</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Joshua Faust.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
