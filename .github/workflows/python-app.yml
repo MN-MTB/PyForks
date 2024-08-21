@@ -5,9 +5,9 @@ name: PyForks Tests
 
 on:
   push:
-    branches: [ "main", "formal_api" ]
+    branches: [ "main", "formal" ]
   pull_request:
-    branches: [ "main", "formal_api" ]
+    branches: [ "main", "formal" ]
 
 permissions:
   contents: read

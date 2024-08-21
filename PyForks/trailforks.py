@@ -1,37 +1,34 @@
 import sys
 import requests
-import urllib.parse
 import logging
 import json
-#import pandas as pd
 import PyForks.exceptions
 import pkg_resources
 from functools import wraps
-from hashlib import sha1
 
 
-def authentication(func):
-    """
-    Authentication Decorator for functions that need a valid Trailforks
-    user session to complete a task such as downloading CSV reports
+# def authentication(func):
+#     """
+#     Authentication Decorator for functions that need a valid Trailforks
+#     user session to complete a task such as downloading CSV reports
 
-    Args:
-        func (_type_): callable function
+#     Args:
+#         func (_type_): callable function
 
-    Returns:
-        _type_: original function
-    """
+#     Returns:
+#         _type_: original function
+#     """
 
-    @wraps(func)
-    def run_checks(self, *args, **kwargs):
-        if self.app_id == None or self.app_secret == None:
-            print(
-                f"[!] Need Authentication:\nYou must provide app_id= and app_secret=\n"
-            )
-            exit(1)
-        return func(self, *args, **kwargs)
+#     @wraps(func)
+#     def run_checks(self, *args, **kwargs):
+#         if self.app_id == None or self.app_secret == None:
+#             print(
+#                 f"[!] Need Authentication:\nYou must provide app_id= and app_secret=\n"
+#             )
+#             exit(1)
+#         return func(self, *args, **kwargs)
 
-    return run_checks
+#     return run_checks
 
 
 class Trailforks:
@@ -104,27 +101,27 @@ class Trailforks:
     #     request = self._get(endpoint)
     #     return request
 
-    def make_trailforks_request(self, uri: str) -> json:
-        """
-        Makes a request give a URI
+    # def make_trailforks_request(self, uri: str) -> json:
+    #     """
+    #     Makes a request give a URI
 
-        Args:
-            uri (str): URI String
+    #     Args:
+    #         uri (str): URI String
 
-        Returns:
-            json: Trailforks API response JSON Data object
-        """
-        try:
-            r = self.trailforks_session.get(uri)
-            url_json = r.json()
-            self._handle_api_error(url_json)
-            self._handle_status_code(r.status_code, url_json["message"])
-            url_json_data = url_json["data"]
-            return url_json_data
-        except Exception as e:
-            raise PyForks.exceptions.TrailforksAPIException(
-                msg="[!] ERROR: Bad API App or Secret Key"
-            )
+    #     Returns:
+    #         json: Trailforks API response JSON Data object
+    #     """
+    #     try:
+    #         r = self.trailforks_session.get(uri)
+    #         url_json = r.json()
+    #         self._handle_api_error(url_json)
+    #         self._handle_status_code(r.status_code, url_json["message"])
+    #         url_json_data = url_json["data"]
+    #         return url_json_data
+    #     except Exception as e:
+    #         raise PyForks.exceptions.TrailforksAPIException(
+    #             msg="[!] ERROR: Bad API App or Secret Key"
+    #         )
 
     def _handle_status_code(self, status_code: int, message: str) -> None:
         """
