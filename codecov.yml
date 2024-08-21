@@ -1,7 +1,6 @@
-Coverage:
-  ignore:
-    - "./setup.py"
-    - "./make.py"
-    - "./PyForks/_test/*"
-    - "./PyForks/lookups.py"
-    - "./PyForks/exceptions.py"
+ignore:
+  - "./setup.py"
+  - "./make.py"
+  - "./PyForks/_test/*"
+  - "./PyForks/lookups.py"
+  - "./PyForks/exceptions.py"
