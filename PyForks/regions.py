@@ -1,4 +1,4 @@
-from PyForks.trailforks import Trailforks, authentication
+from PyForks.trailforks import Trailforks
 from typing import Any, Dict
 
 class Regions(Trailforks):
