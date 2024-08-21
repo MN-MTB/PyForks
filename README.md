@@ -1,5 +1,5 @@
 <a href ="https://mn-mtb.com">
-  <img src="./doc/PyForks.png"
+  <img src="docs/_static/PyForks.png"
     title="PyForks" align="left" height=100 length=100 />
     </a>
 
