@@ -29,12 +29,13 @@ def feet_to_miles(feet: int) -> float:
     Translate feet into miles
 
     Args:
-        feet (int): feet as a integet
+        feet (int): feet as a integer
 
     Returns:
         float: miles as a float
     """
-    feet = int(feet.replace(",", "").strip())
+    if isinstance(feet, str):
+        feet = int(feet.replace(",", "").strip())
     mi = 0.000189394
     return feet * mi
 

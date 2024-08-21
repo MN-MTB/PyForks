@@ -2,19 +2,19 @@ from setuptools import setup
 
 setup(
     name="PyForks",
-    version="0.0.28",
-    author="Trailforks Python Library",
+    version="1.0.0",
+    author="Joshua Faust",
     author_email="josh@mn-mtb.com",
     packages=["PyForks"],
     project_urls={  # Optional
-        "Bug Reports": "https://github.com/cribdragg3r/PyForks/issues",
-        "Funding": "https://donate.pypi.org",
-        "Source": "https://github.com/cribdragg3r/PyForks",
+        "Bug Reports": "https://github.com/MN-MTB/PyForks/issues",
+        "Funding": "https://account.venmo.com/u/mnmtb",
+        "Source": "https://github.com/MN-MTB/PyForks/PyForks",
         "Documentation": "https://pyforks.mn-mtb.com",
     },
     url="http://pypi.python.org/pypi/PyForks/",
     license="LICENSE.txt",
-    description="A package to interface with Trailforks.com",
+    description="Python library for the Trailforks API",
     long_description_content_type="text/markdown",
     long_description=open("README.md").read(),
     include_package_data=True,
@@ -22,7 +22,6 @@ setup(
         '': ['data/region_data.parquet']
         },
     install_requires=[
-        "pytest",
         "requests"
     ],
 )

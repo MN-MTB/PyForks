@@ -19,9 +19,7 @@ publish: build
 	twine upload dist/*
 
 docs:
-	pdoc --html --template-dir ./doc/templates/dracula/ -o ./doc/ --force PyForks
-	$(MV) ./doc/PyForks/* ./doc/
-	$(RM) "./doc/PyForks"
+	cd doc && make html
 
 test: clean
 	flake8 --extend-ignore E501 --exclude "PyForks/_test" PyForks
