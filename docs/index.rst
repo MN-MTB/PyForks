@@ -17,7 +17,9 @@ PyForks documentation
 
 ==================
 
-This library exists thanks to the Trailforks REST API and the Trailforks team.
+The PyForks library has been built to provide a simple and easy to use interface to the Trailforks API. The library is designed to be simple to use and easy to understand, with a focus on providing a simple interface to the Trailforks API. 
+
+- `Website Built with PyForks <https://app.mn-mtb.com>`_
 
 .. toctree::
    :maxdepth: 2

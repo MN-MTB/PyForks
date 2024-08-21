@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started &mdash; PyForks 1.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=c492dbe4" />
 
@@ -16,9 +16,9 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=8d563738"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -86,26 +86,26 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <hr class="docutils" />
 <p>The library is available on PyPi and can be installed using pip:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>pip<span class="w"> </span>install<span class="w"> </span>pyforks
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>pip install pyforks
 </pre></div>
 </div>
 </section>
 <section id="api-key">
-<h2>API Key<a class="headerlink" href="#api-key" title="Link to this heading"></a></h2>
+<h2>API Key<a class="headerlink" href="#api-key" title="Permalink to this heading"></a></h2>
 <hr class="docutils" />
 <p>To use the Trailforks API you will need to obtain an API key. The top right of the <a class="reference external" href="https://www.trailforks.com/about/api/">Trailforks API page</a> has instructions on how to obtain an API key.</p>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
 <hr class="docutils" />
 <p>There are a few things to understand about the REST API and therefore the PyForks library. Most importantly, how function parameters work. The sections below will cover these topics.</p>
 <section id="function-parameters">
-<h3>Function Parameters<a class="headerlink" href="#function-parameters" title="Link to this heading"></a></h3>
+<h3>Function Parameters<a class="headerlink" href="#function-parameters" title="Permalink to this heading"></a></h3>
 <p>Each function allows for <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> given the Trailforks API allows for a wide range of parameters. The parameters are passed as keyword arguments to the function. As such, it will be very common to define a dictionary of parameters and pass it to the function. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span> <span class="nn">PyForks</span> <span class="kn">import</span> <span class="n">Regions</span>
 <span class="linenos">2</span>
@@ -121,7 +121,7 @@
 </ul>
 </section>
 <section id="enums">
-<h3>Enums<a class="headerlink" href="#enums" title="Link to this heading"></a></h3>
+<h3>Enums<a class="headerlink" href="#enums" title="Permalink to this heading"></a></h3>
 <p>Trailforks has many different Enums that are used by the API to define specific values. All Enums are defined in the <a class="reference internal" href="PyForks.html#module-PyForks.lookups" title="PyForks.lookups"><code class="xref py py-mod docutils literal notranslate"><span class="pre">lookups</span></code></a> module as dictionaries. Each dictionary is based off of the <a class="reference external" href="https://www.trailforks.com/about/metadata/">offical Trailforks documentation metadata</a>. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">trail_conditions</span> <span class="o">=</span> <span class="p">{</span>
 <span class="linenos"> 2</span>    <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
