@@ -17,6 +17,8 @@ PyForks documentation
 
 ==================
 
+This library exists thanks to the Trailforks REST API and the Trailforks team.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
