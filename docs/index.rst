@@ -22,5 +22,6 @@ PyForks documentation
    :caption: Contents:
 
    getting_started
+   examples
    modules
 

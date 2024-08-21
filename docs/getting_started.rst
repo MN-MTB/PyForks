@@ -25,11 +25,7 @@ Usage
 
 =======
 
-This is a collection of examples that demonstrate how to use the library. There are three classes that are used in the examples:
-
-- :class:`.Regions` - Trailforks regions.
-- :class:`.Trails`  - Trailforks region trails.
-- :class:`.Events`  - Events for a region/area.
+There are a few things to understand about the REST API and therefore the PyForks library. Most importantly, how function parameters work. The sections below will cover these topics.
 
 Function Parameters
 ~~~~~~~~~~~~~~~~~~~

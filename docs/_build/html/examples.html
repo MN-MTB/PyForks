@@ -22,7 +22,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="PyForks package" href="PyForks.html" /> 
+    <link rel="next" title="PyForks" href="modules.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,11 +47,18 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="modules.html">PyForks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#regions">Regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regions">Regions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#get-region-information">Get Region Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-region-status">Get Region Status</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#trails">Trails</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#events">Events</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">PyForks</a></li>
 </ul>
 
         </div>
@@ -79,7 +87,7 @@
              
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
-<p>This is a collection of examples that demonstrate how to use the library. There are three classes that are used in the examples:</p>
+<p>This is a collection of examples that show how to use the library. It does not cover every function, but it does cover the most common ones. The examples are broken down into three classes:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="PyForks.html#PyForks.regions.Regions" title="PyForks.regions.Regions"><code class="xref py py-class docutils literal notranslate"><span class="pre">Regions</span></code></a> - Trailforks regions.</p></li>
 <li><p><a class="reference internal" href="PyForks.html#PyForks.trails.Trails" title="PyForks.trails.Trails"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trails</span></code></a>  - Trailforks region trails.</p></li>
@@ -87,15 +95,49 @@
 </ul>
 <section id="regions">
 <h2>Regions<a class="headerlink" href="#regions" title="Link to this heading"></a></h2>
-<hr class="docutils" />
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">):</span>
-<span class="linenos">2</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;This is an example function&quot;&quot;&quot;</span>
-<span class="linenos">3</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">param1</span> <span class="o">+</span> <span class="n">param2</span>
-<span class="linenos">4</span>    <span class="k">return</span> <span class="n">result</span>
-<span class="linenos">5</span>
-<span class="linenos">6</span><span class="nb">print</span><span class="p">(</span><span class="n">my_function</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<p>Regions for Trailforks can have several layers. It’s best to think of them as a tree even though all of them are “Regions”. For example, Minnesota (region id: <code class="docutils literal notranslate"><span class="pre">3203</span></code>) is a region, but so are the many different bike parks/trails within Minnesota, such as Lebanon Hills (region id: <code class="docutils literal notranslate"><span class="pre">3438</span></code>). There is a geographic hierarchy, but it really does not matter for the API as a region is simply a region as long as it has a region id.</p>
+<section id="get-region-information">
+<h3>Get Region Information<a class="headerlink" href="#get-region-information" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span> <span class="nn">PyForks</span> <span class="kn">import</span> <span class="n">Regions</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">region_api</span> <span class="o">=</span> <span class="n">Regions</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="s1">&#39;your_app_id&#39;</span><span class="p">,</span> <span class="n">app_secret</span><span class="o">=</span><span class="s1">&#39;your_app_secret&#39;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filter&#39;</span><span class="p">:</span> <span class="s1">&#39;rid::12345&#39;</span><span class="p">}</span>
+<span class="linenos">5</span><span class="n">region_api</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="get-region-status">
+<h3>Get Region Status<a class="headerlink" href="#get-region-status" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">PyForks</span> <span class="kn">import</span> <span class="n">Regions</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">PyForks.lookups</span> <span class="kn">import</span> <span class="n">trail_status_short</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">time</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="n">regions</span> <span class="o">=</span> <span class="n">Regions</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_secret</span><span class="o">=</span><span class="n">app_secret</span><span class="p">)</span>             <span class="c1"># Create a new instance of the Regions class</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="n">date_obj</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s2">&quot;2022-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>              <span class="c1"># Create a datetime object</span>
+<span class="linenos"> 9</span><span class="n">since_timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">date_obj</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()))</span>            <span class="c1"># Convert the datetime object to a timestamp</span>
+<span class="linenos">10</span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;rids&quot;</span><span class="p">:</span> <span class="n">west_lake_marion_id</span><span class="p">}</span>                                <span class="c1"># Create a dictionary of arguments to pass to the get_region_status method</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">region_status</span> <span class="o">=</span> <span class="n">regions</span><span class="o">.</span><span class="n">get_region_status</span><span class="p">(</span><span class="n">since_timestamp</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+<span class="linenos">13</span><span class="c1"># Columns: id,status,condition,status_ts,last_report_ts,changed</span>
+<span class="linenos">14</span><span class="n">columns</span> <span class="o">=</span> <span class="n">region_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;updates&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regions_info&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="p">[])</span>
+<span class="linenos">15</span><span class="n">rows</span> <span class="o">=</span> <span class="n">region_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;updates&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;regions_info&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="p">[])</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+<span class="linenos">18</span>    <span class="nb">print</span><span class="p">(</span><span class="n">trail_status_short</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="linenos">19</span>    <span class="nb">print</span><span class="p">(</span><span class="n">trail_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="trails">
+<h2>Trails<a class="headerlink" href="#trails" title="Link to this heading"></a></h2>
+<p>TBD</p>
+</section>
+<section id="events">
+<h2>Events<a class="headerlink" href="#events" title="Link to this heading"></a></h2>
+<p>TBD</p>
 </section>
 </section>
 
@@ -103,7 +145,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="PyForks.html" class="btn btn-neutral float-left" title="PyForks package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="PyForks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
