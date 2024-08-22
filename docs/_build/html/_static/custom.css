@@ -1,0 +1,18 @@
+.spacer {
+    margin-bottom: 20px !important;
+}
+
+.image-text-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 0; /* Add margin to create space around the block */
+}
+
+.image-text-container img.my-image {
+    margin-right: 20px; /* Space between the image and text */
+    width: 200px; /* Adjust image width as needed */
+}
+
+.image-text-container .text-content {
+    flex-grow: 1;
+}

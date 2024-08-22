@@ -1,153 +1,75 @@
-from PyForks import Region
-import PyForks.exceptions
-import pytest
-import pandas as pd
+from PyForks import Regions
 import os
+import pytest
 
-if os.name in ['nt']:
-    print(os.name)
-    from configparser import ConfigParser
-    parser = ConfigParser()
-    parser.read("./PyForks/_test/secrets.ini")
-    APP_ID = parser['trailforks']['app_id']
-    APP_SECRET = parser['trailforks']['app_secret']
-else:
-    print(os.name)
-    APP_ID = os.getenv("APP_ID")
-    APP_SECRET = os.getenv("APP_SECRET")
+class TestRegions:
+    @pytest.fixture
+    def regions(self):
+        APP_ID = os.getenv("APP_ID")
+        APP_SECRET = os.getenv("APP_SECRET")
+        return Regions(app_id=APP_ID, app_secret=APP_SECRET)
 
-def test_nonexistant_region():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    assert region.is_valid_region("bullcrap_region") == False
+    def test_get_poi(self, regions):
+        wlmt_table_jump_poi = 97398
+        response = regions.get_poi(wlmt_table_jump_poi)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and response['data']['id'] == str(wlmt_table_jump_poi)
 
+    def test_get_region(self, regions):
+        west_lake_marion_id = 20367
+        response = regions.get_region(west_lake_marion_id)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and response['data']['rid'] == west_lake_marion_id
 
-def test_existant_region():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    assert region.is_valid_region("buck-hill-52165") == True
+    def test_get_region_status(self, regions):
+        from datetime import datetime
+        import time
+        west_lake_marion_id = 20367
+        date_obj = datetime.strptime("2022-01-01", "%Y-%m-%d")
+        timestamp = int(time.mktime(date_obj.timetuple()))
+        args = {"rids": west_lake_marion_id}
+        response = regions.get_region_status(timestamp, **args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response
 
+    def test_get_regions(self, regions):
+        args = {"rows": 40}
+        response = regions.get_regions(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and len(response['data']) == 40
 
-def test_check_bad_region():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    with pytest.raises(PyForks.exceptions.InvalidRegion) as pytest_wrapped_e:
-        region.check_region("fake_004957856934")
-    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidRegion
+    def test_get_ridelogs(self, regions):
+        west_lake_marion_id = 20367
+        args = {"rid": west_lake_marion_id, "rows": 20}
+        response = regions.get_ridelogs(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and len(response['data']) == 20
 
+    # def test_get_rideplan(self, regions):
+    #     rideplan_id = 123
+    #     response = regions.get_rideplan(123)
+    #     assert isinstance(response, dict)
 
-def test_check_good_region():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    check = region.check_region("west-lake-marion-park")
-    assert check == True
+    # def test_get_rideplans(self, regions):
+    #     response = regions.get_rideplans()
+    #     assert isinstance(response, dict)
 
+    def test_get_route(self, regions):
+        moab_route_id = 1250
+        response = regions.get_route(moab_route_id)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and response['data']['id'] == moab_route_id
 
-def test_get_region_info():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    check = region.get_region_info("west-lake-marion-park")
-    assert isinstance(check, dict)
+    def test_get_routes(self, regions):
+        args = {"rows": 10, "filter": "featured::1"}
+        response = regions.get_routes(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and len(response['data']) == 10
 
+    def test_get_supporters(self, regions):
+        args = {"filter": "rid::20367"}
+        response = regions.get_supporters(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response and response['data'][0]['id'] == "12022"
 
-def test_ridelogcount_download_auth_fail():
-    region = Region()
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.get_region_ridecounts("west-lake-marion-park")
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
+    def test_get_videos(self, regions):
+        args = {"filter": "rid::20367"}
+        response = regions.get_videos(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response 
 
-
-def test_trails_download_auth_fail():
-    region = Region()
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.get_all_region_trails("west-lake-marion-park")
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
-
-
-def test_ridelogs_download_auth_fail():
-    region = Region()
-    with pytest.raises(SystemExit) as pytest_wrapped_e:
-        region.get_all_region_ridelogs("west-lake-marion-park")
-    assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
-
-
-def test_ridelogcount_download():
-    """
-    A low-priv user should be able to download region ridecounts
-    """
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    download_result = region.get_region_ridecounts("west-lake-marion-park")
-    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
-
-
-def test_ridelogs_download():
-    """
-    A low-priv user (non-admin) should be able to download the ridecounts for
-    a region.
-    """
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    download_result = region.get_all_region_ridelogs("west-lake-marion-park")
-
-    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
-
-def test_ridelogs_download_small_pages():
-    """
-    A low-priv user (non-admin) should be able to download the ridecounts for
-    a region.
-    """
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    download_result = region.get_all_region_ridelogs("west-lake-marion-park", pages=1)
-
-    assert isinstance(download_result, pd.DataFrame) and len(download_result.index) > 5
-
-
-def test_region_get_info():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    info = region.get_region_info("battle-creek-5538")
-    expected = {
-            "total_ridelogs": 4499,
-            "unique_riders": 1155,
-            "trails_ridden": 76745,
-            "average_trails_per_ride": 151,
-            "total_trails": "34",
-            "trails_(view_details)": "34",
-            "trails_mountain_bike": "34",
-            "trails_hike": "24",
-            "trails_trail_running": "24",
-            "total_distance": "10 miles",
-            "total_descent": "1,522 ft",
-            "total_vertical": "271 ft",
-            "highest_trailhead": "992 ft",
-            "reports": "528",
-            "photos": "21",
-            "ridden_counter": "13,882",
-            "country": "United States",
-            "state_province": "Minnesota",
-            "city": "St. Paul"
-        }
-    
-    assert (
-        expected["country"] == info["country"]
-        and expected["state_province"] == info["state_province"]
-        and expected["city"] == info["city"]
-    )
-
-def test_get_region_trails():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    df = region.get_all_region_trails("west-lake-marion-park")
-    assert (isinstance(df, pd.DataFrame) and "Wolf Tooth" in df.title.to_list())
-
-def test_get_region_trails_bad_region():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    with pytest.raises(PyForks.exceptions.InvalidRegion) as pytest_wrapped_e:
-        region.check_region("west-lakeddf-marion-paa45rk")
-    assert pytest_wrapped_e.type == PyForks.exceptions.InvalidRegion
-
-def test_download_all_regions():
-    region = Region(app_id=APP_ID, app_secret=APP_SECRET)
-    df = region.get_all_trailforks_regions(number_of_regions=500)
-    assert (isinstance(df, pd.DataFrame) and "Mount Fromme" in df.title.to_list())
-
-def test_auth_bad_api():
-    region = Region(app_id="no_exist", app_secret="secret_squirrel")
-    with pytest.raises(PyForks.exceptions.TrailforksAPIException) as pytest_wrapped_e:
-        region_dict = region.get_region_info("west-lake-marion-park")
-    assert pytest_wrapped_e.type == PyForks.exceptions.TrailforksAPIException
+    def test_get_photos(self, regions):
+        args = {"filter": "rid::20367"}
+        response = regions.get_photos(**args)
+        assert isinstance(response, dict) and response['error'] == 0 and "data" in response 

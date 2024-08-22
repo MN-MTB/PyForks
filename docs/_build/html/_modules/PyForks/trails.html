@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyForks.trails &mdash; PyForks 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c492dbe4" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=af2ce170"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            PyForks
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">PyForks</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyForks</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">PyForks.trails</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for PyForks.trails</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyForks.trailforks</span> <span class="kn">import</span> <span class="n">Trailforks</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<div class="viewcode-block" id="Trails"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails">[docs]</a><span class="k">class</span> <span class="nc">Trails</span><span class="p">(</span><span class="n">Trailforks</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trails.get_map_trails"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails.get_map_trails">[docs]</a>    <span class="k">def</span> <span class="nf">get_map_trails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of trails within a bounding box for displaying on a map.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Optional parameters such as:</span>
+<span class="sd">                output (str): Output format of the trails, default is Google encoded path.</span>
+<span class="sd">                filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Response data from the API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_uri</span><span class="si">}</span><span class="s2">/maptrails&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Trails.get_trail"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails.get_trail">[docs]</a>    <span class="k">def</span> <span class="nf">get_trail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a specific trail.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            id (int): ID of the trail.</span>
+<span class="sd">            **kwargs: Optional parameters such as:</span>
+<span class="sd">                scope (str): Detail of trail object to return.</span>
+<span class="sd">                fields (str): Limit the fields returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Response data from the API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">id</span><span class="p">}</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_uri</span><span class="si">}</span><span class="s2">/trail&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Trails.get_trail_status"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails.get_trail_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_trail_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">since</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return trail status &amp; condition for trails in region.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            since (int): Timestamp to return status after.</span>
+<span class="sd">            **kwargs: Optional parameters such as:</span>
+<span class="sd">                rids (str): Comma-separated list of region IDs.</span>
+<span class="sd">                trailids (str): Comma-separated list of trail IDs.</span>
+<span class="sd">                reportdetail (int): Show details of the most recent trail report.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Response data from the API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;since&#39;</span><span class="p">:</span> <span class="n">since</span><span class="p">}</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_uri</span><span class="si">}</span><span class="s2">/trail_status&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="Trails.get_trails"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails.get_trails">[docs]</a>    <span class="k">def</span> <span class="nf">get_trails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of trails.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Optional parameters such as:</span>
+<span class="sd">                scope (str): Detail level of trail object to return.</span>
+<span class="sd">                fields (str): Limit the fields returned by a comma-separated list of allowed fields.</span>
+<span class="sd">                filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.</span>
+<span class="sd">                rows (int): Number of trails to return, max 500.</span>
+<span class="sd">                page (int): Page through results.</span>
+<span class="sd">                sort (str): Sort the results.</span>
+<span class="sd">                order (str): Order the results.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Response data from the API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_uri</span><span class="si">}</span><span class="s2">/trails&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    
+    <span class="c1"># POST functions require a User authentication token. The Trailforks API does not have a public endpoint </span>
+    <span class="c1"># for this capability such that we can create a User Access Token via the REST API. We will have to build</span>
+    <span class="c1"># this functionality into the PyForks library in the future. In searching for a login endpoint, we found </span>
+    <span class="c1"># https://www.trailforks.com/api/1/login to be deprecated.</span>
+
+    <span class="c1"># def post_waypoint(self, activitytype: int, latitude: float, longitude: float, **kwargs) -&gt; Dict[str, Any]:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Add a personal waypoint.</span>
+
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         activitytype (int): Type of activity.</span>
+    <span class="c1">#         latitude (float): Latitude of the waypoint.</span>
+    <span class="c1">#         longitude (float): Longitude of the waypoint.</span>
+    <span class="c1">#         **kwargs: Optional parameters such as:</span>
+    <span class="c1">#             action (str): &#39;add&#39; or &#39;edit&#39;.</span>
+    <span class="c1">#             title (str): Title of the waypoint.</span>
+    <span class="c1">#             note (str): Note associated with the waypoint.</span>
+    <span class="c1">#             color (str): HTML color code.</span>
+    <span class="c1">#             private (int): 1 for private, 0 for public.</span>
+    <span class="c1">#             source (str): Source of the waypoint (app or API).</span>
+    <span class="c1">#             waypointuid (str): Unique ID for the waypoint.</span>
+
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#         Dict[str, Any]: Response data from the API.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+        
+    <span class="c1">#     data = {</span>
+    <span class="c1">#         &#39;activitytype&#39;: activitytype,</span>
+    <span class="c1">#         &#39;latitude&#39;: latitude,</span>
+    <span class="c1">#         &#39;longitude&#39;: longitude</span>
+    <span class="c1">#     }</span>
+    <span class="c1">#     data.update(kwargs)</span>
+    <span class="c1">#     response = self.trailforks_session.post(f&quot;{self.base_uri}/waypoint&quot;, data=data)</span>
+
+    <span class="c1"># def post_report(self, trailid: int, status: int, **kwargs) -&gt; Dict[str, Any]:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Add a trail report.</span>
+
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         trailid (int): ID of the trail.</span>
+    <span class="c1">#         status (int): Status of the trail.</span>
+    <span class="c1">#         **kwargs: Optional parameters such as:</span>
+    <span class="c1">#             condition (int): Condition of the trail.</span>
+    <span class="c1">#             description (str): Description of trail condition or issues.</span>
+    <span class="c1">#             marker (str): Location of the report (lat, lon).</span>
+
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#         Dict[str, Any]: Response data from the API.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+        
+    <span class="c1">#     data = {&#39;trailid&#39;: trailid, &#39;status&#39;: status}</span>
+    <span class="c1">#     data.update(kwargs)</span>
+    <span class="c1">#     response = self.trailforks_session.post(f&quot;{self.base_uri}/report&quot;, data=data)</span>
+    <span class="c1">#     return response.json()</span>
+    
+<div class="viewcode-block" id="Trails.get_reports"><a class="viewcode-back" href="../../PyForks.html#PyForks.trails.Trails.get_reports">[docs]</a>    <span class="k">def</span> <span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of reports.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Optional parameters such as:</span>
+<span class="sd">                scope (str): Detail level of report object to return.</span>
+<span class="sd">                fields (str): Limit the fields returned.</span>
+<span class="sd">                filter (str): Filter variables in the format &#39;field::value;field2::value2&#39;.</span>
+<span class="sd">                rows (int): Number of reports to return.</span>
+<span class="sd">                page (int): Page through results.</span>
+<span class="sd">                sort (str): Sort the results.</span>
+<span class="sd">                order (str): Order the results.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Response data from the API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_uri</span><span class="si">}</span><span class="s2">/reports&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Joshua Faust.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
