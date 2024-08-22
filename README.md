@@ -6,19 +6,19 @@
 
 # PyForks
 
-[![PyForks Tests](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml/badge.svg)](https://github.com/cribdragg3r/PyForks/actions/workflows/python-app.yml)
-[![GitHub](https://img.shields.io/github/license/cribdragg3r/PyForks?style=flat-square)](https://github.com/cribdragg3r/PyForks/blob/main/LICENSE)
+[![PyForks Tests](https://github.com/MN-MTB/PyForks/actions/workflows/python-app.yml/badge.svg)](https://github.com/MN-MTB/PyForks/actions/workflows/python-app.yml)
+[![GitHub](https://img.shields.io/github/license/cribdragg3r/PyForks?style=flat-square)](https://github.com/MN-MTB/PyForks/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/PyForks?style=flat-square)](https://pypi.org/project/PyForks/)
 [![codecov](https://codecov.io/gh/MN-MTB/PyForks/graph/badge.svg?token=225DIC4PVS)](https://codecov.io/gh/MN-MTB/PyForks)
 
 
-Python TrailForks Library (Unofficial) for interacting with [TrailForks](Trailforks.com). Help [support](https://github.com/sponsors/cribdragg3r) this project and more.
+Python TrailForks Library (Unofficial) for interacting with [TrailForks](Trailforks.com). Help [support](https://account.venmo.com/u/mnmtb) this project and more.
 
 ## About
 
-PyForks has been designed to help me automate much of the manual data aggregation I was doing in order to build metrics for my local city and state trail systems. For example: [app.mn-mtb.com](https://app.mn-mtb.com). The end goal of this project is the ability to make it much easier to pull data down that people are interested in and analyze it in a way that non-technical individuals can digest and understand impact in hopes of additional funding and interest. 
-
 This package uses the [Official TrailForks API](https://www.trailforks.com/about/api). This means that in order to use this package, you must have a valid TrailForks `app_id` and `app_secret`. See the API link to get your keys.
+
+PyForks has been designed to help me automate much of the manual data aggregation I was doing in order to build metrics for my local city and state trail systems. For example: [app.mn-mtb.com](https://app.mn-mtb.com). 
 
 ## Installation & Documentation
 
@@ -30,18 +30,19 @@ This package uses the [Official TrailForks API](https://www.trailforks.com/about
 **Get Information on a region**
 
 ```python
-from PyForks import Region
-import pandas as pd
+from PyForks import Region, Trails, Events
 
 app_id = "id"
 app_secret = "secret"
-
-r = Region(app_id=app_id, app_secret=app_secret)
-if r.is_valid_region("west-lake-marion-park"):
-  region_info_df = r.get_region_info("west-lake-marion-park")
-  ridecount_df = r.get_region_ridecounts("west-lake-marion-park")
-  
+west_lake_marion_region_id = 20367
+region = Region(app_id=app_id, app_secret=app_secret)
+r_data = region.get_region(west_lake_marion_region_id)
 ```
+
 ## Contribute
 
-Send all the pull requests you want!
+There's a ton of opportunity to help if you're interestined:
+
+- Create all the pull requests you want to PyForks
+- We also have a website (Node, backend Python API): [app.mn-mtb.com](https://app.mn-mtb.com)
+- AWS Infrastructre (terraform).
