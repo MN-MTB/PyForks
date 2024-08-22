@@ -1,11 +1,12 @@
 Examples
 ========
 
-This is a collection of examples that show how to use the library. It does not cover every function, but it does cover the most common ones. The examples are broken down into three classes:
+This is a collection of examples that show how to use the library. It does not cover every function, but it does cover the most common ones. The PyForks tests (``PyForks/_test/*.py``) can also provide you with details on how to use each function. The examples are broken down into three classes:
 
 - :class:`.Regions` - Trailforks regions.
 - :class:`.Trails`  - Trailforks region trails.
 - :class:`.Events`  - Events for a region/area.
+
 
 Regions
 -------
@@ -51,12 +52,77 @@ Get Region Status
         print(trail_status.get(row[1]))
 
 
+========
+
 Trails
 ------
 
-TBD
+Get Trails by Region
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
+
+    from PyForks import Trails
+
+    trail_api = Trails(app_id='your_app_id', app_secret='your_app_secret')
+    args = {"filter": "rid::20367"} # Minnesota Region
+    trail_api.get_trails(**args) # Get all trails for the Minnesota region
+
+Get Trail Information
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
+
+    from PyForks import Trails
+
+    trail_api = Trails(app_id='your_app_id', app_secret='your_app_secret')
+    trail_id = 12345
+    trail_api.get_trail(trail_id)
+
+Get Trail Status
+~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
+
+    from PyForks import Trails
+    from PyForks.lookups import trail_status_short
+
+    trail_api = Trails(app_id='your_app_id', app_secret='your_app_secret')
+    trail_id = 12345
+    trail_status = trail_api.get_trail_status(trail_id)
+    status_int = response.get("data", {}).get("updates", {}).get("trails_info", {}).get("rows", [[]])[0][1]
+    print(trail_status_short.get(status_int))
+
+
+========
+
 
 Events
 ------
 
-TBD
+Get Events by Region
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
+
+    from PyForks import Events
+
+    event_api = Events(app_id='your_app_id', app_secret='your_app_secret')
+    args = {"filter": "rid::3203"} # Minnesota Region
+    event_api.get_events(**args) # Get all events for the Minnesota region
+
+Get Event Information
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
+
+    from PyForks import Events
+
+    event_api = Events(app_id='your_app_id', app_secret='your_app_secret')
+    event_id = 12345
+    event_api.get_event(event_id)

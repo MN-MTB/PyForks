@@ -18,8 +18,8 @@ build: clean
 publish: build
 	twine upload dist/*
 
-docs:
-	cd doc && make html
+doc:
+	cd docs && ${MAKE} html
 
 test: clean
 	flake8 --extend-ignore E501 --exclude "PyForks/_test" PyForks
