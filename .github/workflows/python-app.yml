@@ -52,14 +52,14 @@ jobs:
       id: get_version
       run: |
         VERSION=$(python setup.py --version)
-        echo "::set-output name=version::$VERSION"
+        echo "version=$VERSION" >> $GITHUB_ENV
 
     - name: Get latest version from PyPI
       id: pypi_version
       run: |
         PACKAGE_NAME=$(python setup.py --name)
         LATEST_VERSION=$(curl -s https://pypi.org/pypi/$PACKAGE_NAME/json | jq -r .info.version)
-        echo "::set-output name=latest_version::$LATEST_VERSION"
+        echo "latest_version=$LATEST_VERSION" >> $GITHUB_ENV
 
     - name: Check if version has changed
       id: check_version
