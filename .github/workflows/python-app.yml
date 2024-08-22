@@ -5,9 +5,9 @@ name: PyForks Tests
 
 on:
   push:
-    branches: [ "main", "formal" ]
+    branches: [ "main", "cdci_fix_pypi" ]
   pull_request:
-    branches: [ "main", "formal" ]
+    branches: [ "main", "cdci_fix_pypi" ]
 
 permissions:
   contents: read
@@ -74,7 +74,7 @@ jobs:
       if: github.ref_name == 'main'
       run: |
         python -m build
-        
+
     - name: PyPi Publish
       if: github.ref_name == 'main'
       env:
