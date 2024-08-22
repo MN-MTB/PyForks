@@ -34,21 +34,47 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
       env: 
         APP_ID: ${{ secrets.APP_ID }}
         APP_SECRET: ${{ secrets.APP_SECRET }}
       run: |
         pytest --cov=./ --cov-report=xml
+
     - name: Codecov
       uses: codecov/codecov-action@v4.0.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
+
+    - name: Extract version from setup.py
+      id: get_version
+      run: |
+        VERSION=$(python setup.py --version)
+        echo "::set-output name=version::$VERSION"
+
+    - name: Get latest version from PyPI
+      id: pypi_version
+      run: |
+        PACKAGE_NAME=$(python setup.py --name)
+        LATEST_VERSION=$(curl -s https://pypi.org/pypi/$PACKAGE_NAME/json | jq -r .info.version)
+        echo "::set-output name=latest_version::$LATEST_VERSION"
+
+    - name: Check if version has changed
+      id: check_version
+      run: |
+        if [ "${{ steps.get_version.outputs.version }}" == "${{ steps.pypi_version.outputs.latest_version }}" ]; then
+          echo "Version has not changed. Exiting."
+          exit 0
+        fi
+        echo "Version has changed. Proceeding with the deployment."
+
     - name: Build PyPi Package
       if: github.ref_name == 'main'
       run: |
         python -m build
+        
     - name: PyPi Publish
       if: github.ref_name == 'main'
       env:
