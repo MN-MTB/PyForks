@@ -61,15 +61,6 @@ jobs:
         LATEST_VERSION=$(curl -s https://pypi.org/pypi/$PACKAGE_NAME/json | jq -r .info.version)
         echo "latest_version=$LATEST_VERSION" >> $GITHUB_ENV
 
-    - name: Check if version has changed
-      id: check_version
-      run: |
-        if [ "${{ steps.get_version.outputs.version }}" == "${{ steps.pypi_version.outputs.latest_version }}" ]; then
-          echo "Version has not changed. Exiting."
-          exit 0
-        fi
-        echo "Version has changed. Proceeding with the deployment."
-
     - name: Build PyPi Package
       if: github.ref_name == 'main'
       run: |
@@ -81,5 +72,8 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        python -m twine upload --repository pypi dist/*
-
+        if [ "${{ steps.get_version.outputs.version }}" != "${{ steps.pypi_version.outputs.latest_version }}" ]; then
+          python -m twine upload --repository pypi dist/*
+          exit 0
+        fi
+        echo "Version has not changed. Exiting."
